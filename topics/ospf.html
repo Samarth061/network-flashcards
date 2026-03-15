@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSPF Flashcard Study App</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f3;
+    --color-background-tertiary: #eeede8;
+    --color-background-info: #e6f1fb;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-text-info: #185fa5;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.22);
+    --color-border-primary: rgba(0,0,0,0.32);
+    --color-border-info: #85b7eb;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'SFMono-Regular', 'Consolas', monospace;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background-primary: #1e1e1c;
+      --color-background-secondary: #2a2a28;
+      --color-background-tertiary: #333330;
+      --color-background-info: #0c2e4a;
+      --color-text-primary: #f0ede8;
+      --color-text-secondary: #b4b2a9;
+      --color-text-tertiary: #888780;
+      --color-text-info: #85b7eb;
+      --color-border-tertiary: rgba(255,255,255,0.1);
+      --color-border-secondary: rgba(255,255,255,0.2);
+      --color-border-primary: rgba(255,255,255,0.3);
+      --color-border-info: #378add;
+    }
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .app { max-width: 740px; margin: 0 auto; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); text-decoration: none; margin-bottom: 1.25rem; padding: 5px 0; }
+  .back-link:hover { color: var(--color-text-primary); }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 20px; font-weight: 500; }
+  .mode-btns { display: flex; gap: 6px; }
+  .mode-btn { font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+  .mode-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
+  .cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .cat-btn { font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: 20px; cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; white-space: nowrap; }
+  .cat-btn.active { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+  .progress-bar { height: 3px; background: var(--color-border-tertiary); border-radius: 2px; margin-bottom: 1.25rem; }
+  .progress-fill { height: 100%; background: #1D9E75; border-radius: 2px; transition: width 0.3s; }
+  .card-area { perspective: 1200px; margin-bottom: 1.25rem; }
+  .card { width: 100%; min-height: 210px; position: relative; transform-style: preserve-3d; transition: transform 0.45s cubic-bezier(0.4,0,0.2,1); cursor: pointer; }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face { position: absolute; width: 100%; min-height: 210px; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; display: flex; flex-direction: column; background: var(--color-background-primary); }
+  .card-back { transform: rotateY(180deg); }
+  .card-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; color: var(--color-text-tertiary); text-transform: uppercase; margin-bottom: 0.75rem; }
+  .card-content { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .card-q { font-size: 17px; font-weight: 500; line-height: 1.55; }
+  .card-a { font-size: 15px; line-height: 1.7; color: var(--color-text-primary); }
+  .card-a code { font-family: var(--font-mono); font-size: 13px; background: var(--color-background-secondary); padding: 2px 6px; border-radius: 4px; border: 0.5px solid var(--color-border-tertiary); }
+  .card-a ul, .card-a ol { text-align: left; padding-left: 1.2rem; }
+  .card-a ul li, .card-a ol li { margin-bottom: 4px; }
+  .card-hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: 1rem; align-self: center; }
+  .card-cat-badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: #E1F5EE; color: #0F6E56; align-self: flex-start; margin-bottom: 0.5rem; }
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .nav-btn { padding: 8px 22px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-primary); font-size: 14px; transition: all 0.15s; }
+  .nav-btn:hover { background: var(--color-background-secondary); }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .counter { font-size: 13px; color: var(--color-text-secondary); }
+  .shuffle-btn { font-size: 12px; padding: 6px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); }
+  .shuffle-btn:hover { background: var(--color-background-secondary); }
+  #notes-mode { display: none; }
+  #notes-mode.visible { display: block; }
+  .notes-section { margin-bottom: 1.75rem; }
+  .notes-section h3 { font-size: 14px; font-weight: 500; color: #0F6E56; margin-bottom: 0.75rem; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+  .note-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 13px; }
+  .note-card .label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 4px; }
+  .note-card .val { font-weight: 500; line-height: 1.5; }
+  .note-card code { font-family: var(--font-mono); font-size: 12px; }
+  table.cheat { width: 100%; font-size: 13px; border-collapse: collapse; background: var(--color-background-primary); border-radius: var(--border-radius-md); overflow: hidden; }
+  table.cheat th { text-align: left; font-weight: 500; font-size: 11px; color: var(--color-text-tertiary); padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  table.cheat td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; }
+  table.cheat tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 20px; background: #E1F5EE; color: #0F6E56; margin-right: 4px; }
+  .tag.red { background: #FCEBEB; color: #A32D2D; }
+  .tag.blue { background: #E6F1FB; color: #185FA5; }
+  .tag.amber { background: #FAEEDA; color: #854F0B; }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="back-link" href="../index.html">← All Topics</a>
+  <div class="header">
+    <div class="title">OSPF Study Guide</div>
+    <div class="mode-btns">
+      <button class="mode-btn active" onclick="setMode('flash')">Flashcards</button>
+      <button class="mode-btn" onclick="setMode('notes')">Cheat Sheet</button>
+    </div>
+  </div>
+
+  <div id="flash-mode">
+    <div class="cats" id="cats"></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    <div class="card-area">
+      <div class="card" id="card" onclick="flipCard()">
+        <div class="card-face card-front">
+          <div class="card-cat-badge" id="cat-badge"></div>
+          <div class="card-label">Question — tap to reveal</div>
+          <div class="card-content"><div class="card-q" id="card-q"></div></div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-cat-badge" id="cat-badge2"></div>
+          <div class="card-label">Answer</div>
+          <div class="card-content"><div class="card-a" id="card-a"></div></div>
+          <div class="card-hint">tap to flip back</div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="nav-btn" id="prev-btn" onclick="nav(-1)">← Prev</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span class="counter" id="counter"></span>
+        <button class="shuffle-btn" onclick="shuffle()">↻ Shuffle</button>
+      </div>
+      <button class="nav-btn" id="next-btn" onclick="nav(1)">Next →</button>
+    </div>
+  </div>
+
+  <div id="notes-mode">
+    <div class="notes-section">
+      <h3>Core properties</h3>
+      <div class="notes-grid">
+        <div class="note-card"><div class="label">Protocol type</div><div class="val">Link-State</div></div>
+        <div class="note-card"><div class="label">Algorithm</div><div class="val">Dijkstra SPF</div></div>
+        <div class="note-card"><div class="label">Metric</div><div class="val">Cost (ref-bw / link-bw)</div></div>
+        <div class="note-card"><div class="label">Admin distance</div><div class="val">110</div></div>
+        <div class="note-card"><div class="label">Multicast (all)</div><div class="val">224.0.0.5</div></div>
+        <div class="note-card"><div class="label">Multicast (DR/BDR)</div><div class="val">224.0.0.6</div></div>
+        <div class="note-card"><div class="label">LSA refresh</div><div class="val">Every 30 min</div></div>
+        <div class="note-card"><div class="label">3 tables</div><div class="val">Neighbor · Topology · Routing</div></div>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>Hello / Dead timers</h3>
+      <table class="cheat">
+        <tr><th>Network type</th><th>Hello</th><th>Dead</th></tr>
+        <tr><td>Broadcast / Point-to-Point</td><td>10 sec</td><td>40 sec</td></tr>
+        <tr><td>NBMA / Point-to-Multipoint</td><td>30 sec</td><td>120 sec</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Neighbor states (in order)</h3>
+      <table class="cheat">
+        <tr><th>State</th><th>What it means</th></tr>
+        <tr><td><span class="tag red">Down</span></td><td>No Hellos heard</td></tr>
+        <tr><td><span class="tag amber">Init</span></td><td>Hello received; no two-way yet</td></tr>
+        <tr><td><span class="tag amber">2-Way</span></td><td>Bidirectional; router sees its own RID in neighbor's Hello. DR/BDR elected here.</td></tr>
+        <tr><td><span class="tag blue">ExStart</span></td><td>Master/slave negotiated to begin exchange</td></tr>
+        <tr><td><span class="tag blue">Exchange</span></td><td>DBDs (Database Descriptors) exchanged</td></tr>
+        <tr><td><span class="tag blue">Loading</span></td><td>Actual LSAs exchanged</td></tr>
+        <tr><td><span class="tag">Full</span></td><td>Fully synchronized topology tables</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>LSA types</h3>
+      <table class="cheat">
+        <tr><th>Type</th><th>Name</th><th>Generated by</th><th>Scope</th></tr>
+        <tr><td>1</td><td>Router LSA</td><td>All routers</td><td>Within area</td></tr>
+        <tr><td>2</td><td>Network LSA</td><td>DR only</td><td>Within area</td></tr>
+        <tr><td>3</td><td>Network Summary</td><td>ABR</td><td>Between areas</td></tr>
+        <tr><td>4</td><td>ASBR Summary</td><td>ABR</td><td>Route to ASBR</td></tr>
+        <tr><td>5</td><td>External LSA</td><td>ASBR</td><td>All areas</td></tr>
+        <tr><td>7</td><td>NSSA External</td><td>ASBR in NSSA</td><td>NSSA only → converted to Type 5 at ABR</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Area types — LSA acceptance</h3>
+      <table class="cheat">
+        <tr><th>Area</th><th>T1/T2</th><th>T3</th><th>T4/T5</th><th>T7</th><th>Default route</th></tr>
+        <tr><td>Standard</td><td>✓</td><td>✓</td><td>✓</td><td>–</td><td>Manual (ASBR)</td></tr>
+        <tr><td>Stub</td><td>✓</td><td>✓</td><td>✗</td><td>–</td><td>Auto from ABR</td></tr>
+        <tr><td>Totally Stubby</td><td>✓</td><td>✗</td><td>✗</td><td>–</td><td>Auto from ABR</td></tr>
+        <tr><td>NSSA</td><td>✓</td><td>✓</td><td>✗</td><td>✓</td><td>Manual on ABR</td></tr>
+        <tr><td>TNSSA</td><td>✓</td><td>✗</td><td>✗</td><td>✓</td><td>Manual on ABR</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Router types</h3>
+      <div class="notes-grid">
+        <div class="note-card"><div class="label">Internal Router</div><div class="val">All interfaces in one area</div></div>
+        <div class="note-card"><div class="label">ABR</div><div class="val">Interfaces in 2+ areas</div></div>
+        <div class="note-card"><div class="label">Backbone Router</div><div class="val">At least one interface in Area 0</div></div>
+        <div class="note-card"><div class="label">ASBR</div><div class="val">Connected to external AS or redistributing another protocol</div></div>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>Network types</h3>
+      <table class="cheat">
+        <tr><th>Type</th><th>DR/BDR</th><th>Neighbors</th><th>Example</th></tr>
+        <tr><td>Broadcast</td><td>Yes</td><td>Auto</td><td>Ethernet, Token Ring</td></tr>
+        <tr><td>Point-to-Point</td><td>No</td><td>Auto</td><td>T1 (HDLC/PPP)</td></tr>
+        <tr><td>Point-to-Multipoint</td><td>No</td><td>Auto</td><td>P2MP Frame Relay</td></tr>
+        <tr><td>NBMA</td><td>Yes</td><td>Manual</td><td>Frame Relay</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Interface costs (default ref-bw = 100 Mbps)</h3>
+      <table class="cheat">
+        <tr><th>Interface</th><th>Speed</th><th>Cost</th></tr>
+        <tr><td>Fast Ethernet</td><td>100 Mbps</td><td>1</td></tr>
+        <tr><td>Ethernet</td><td>10 Mbps</td><td>10</td></tr>
+        <tr><td>Token Ring</td><td>16 Mbps</td><td>6</td></tr>
+        <tr><td>Token Ring</td><td>4 Mbps</td><td>25</td></tr>
+        <tr><td>T1</td><td>1.544 Mbps</td><td>64</td></tr>
+        <tr><td>Serial</td><td>64K</td><td>1562</td></tr>
+        <tr><td>Serial</td><td>56K</td><td>1785</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Key config commands</h3>
+      <table class="cheat">
+        <tr><th>Command</th><th>Purpose</th></tr>
+        <tr><td><code>router ospf [pid]</code></td><td>Enable OSPF process</td></tr>
+        <tr><td><code>router-id X.X.X.X</code></td><td>Manually set Router ID</td></tr>
+        <tr><td><code>network A.B.C.D [wildcard] area N</code></td><td>Place interfaces into an area</td></tr>
+        <tr><td><code>area N stub</code></td><td>Configure stub area (all routers)</td></tr>
+        <tr><td><code>area N stub no-summary</code></td><td>Configure totally stubby (ABR only)</td></tr>
+        <tr><td><code>area N nssa</code></td><td>Configure NSSA (all routers)</td></tr>
+        <tr><td><code>area N nssa no-summary</code></td><td>Configure TNSSA (ABR only)</td></tr>
+        <tr><td><code>area N virtual-link [remote-RID]</code></td><td>Create virtual link through transit area N</td></tr>
+        <tr><td><code>area N range [network] [mask]</code></td><td>Inter-area summarization (on ABR)</td></tr>
+        <tr><td><code>summary-address [network] [mask]</code></td><td>External summarization (on ASBR)</td></tr>
+        <tr><td><code>passive-interface [int]</code></td><td>Stop forming neighbors on interface</td></tr>
+        <tr><td><code>default-information originate</code></td><td>Advertise default route into OSPF</td></tr>
+        <tr><td><code>ip ospf priority [0-255]</code></td><td>Set DR/BDR election priority</td></tr>
+        <tr><td><code>ip ospf cost [n]</code></td><td>Override interface cost</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL = [
+  {cat:"Basics", q:"What type of routing protocol is OSPF and what algorithm does it use?", a:"Link-State routing protocol using the Dijkstra Shortest Path First (SPF) algorithm."},
+  {cat:"Basics", q:"What are the 3 tables OSPF maintains?", a:"<ul><li>Neighbor table — list of adjacent routers</li><li>Topology table — all possible routes in the area</li><li>Routing table — best route for each network</li></ul>"},
+  {cat:"Basics", q:"What metric does OSPF use, and what is its administrative distance?", a:"Cost (based on interface bandwidth). Administrative distance = <strong>110</strong>."},
+  {cat:"Basics", q:"What multicast addresses does OSPF use?", a:"<ul><li><strong>224.0.0.5</strong> — all OSPF routers</li><li><strong>224.0.0.6</strong> — DR and BDR only</li></ul>"},
+  {cat:"Basics", q:"How often are LSAs refreshed even without topology changes?", a:"Every <strong>30 minutes</strong> (LSA maximum age)."},
+  {cat:"Basics", q:"What 3 conditions trigger LSA propagation?", a:"<ul><li>New adjacency forms</li><li>Topology table change</li><li>LSA reaches max age (30 min)</li></ul>"},
+  {cat:"Basics", q:"OSPF is classless — what does that mean?", a:"It supports VLSMs (variable-length subnet masks) and carries prefix length with route advertisements."},
+  {cat:"Basics", q:"What is the cost formula for an OSPF interface?", a:"Cost = reference-bandwidth / interface-bandwidth. Default ref-bw = 100 Mbps, so Fast Ethernet = 1, T1 = 64, Ethernet = 10."},
+  {cat:"Neighbors", q:"How is a Router ID determined (3 ways, in priority order)?", a:"<ol><li>Manually configured with <code>router-id</code></li><li>Highest IP on any Loopback interface</li><li>Highest IP on any Physical interface</li></ol>"},
+  {cat:"Neighbors", q:"What are default Hello intervals?", a:"<ul><li>Broadcast / Point-to-Point: <strong>10 seconds</strong></li><li>NBMA / Point-to-Multipoint: <strong>30 seconds</strong></li></ul>"},
+  {cat:"Neighbors", q:"What are default Dead intervals?", a:"<ul><li>Broadcast / P2P: <strong>40 seconds</strong></li><li>NBMA / P2MP: <strong>120 seconds</strong></li></ul>(Always 4× the Hello interval)"},
+  {cat:"Neighbors", q:"What 8 parameters must match in Hello packets for adjacency to form?", a:"Area ID · Area Type · Prefix · Subnet Mask · Hello Interval · Dead Interval · Network Type · Authentication"},
+  {cat:"Neighbors", q:"What does the Hello packet's neighbor field contain?", a:"The Router IDs of all neighbors the sending router is currently adjacent to. A router reaches 2-Way state when it sees its own RID in this field."},
+  {cat:"States", q:"List the OSPF neighbor states in order.", a:"Down → Init → 2-Way → ExStart → Exchange → Loading → Full"},
+  {cat:"States", q:"What happens in the Down state?", a:"No Hello packets have been heard from the neighbor."},
+  {cat:"States", q:"What happens in the Init state?", a:"A Hello has been received from the neighbor but bidirectional communication has not yet been established."},
+  {cat:"States", q:"What happens in the 2-Way state, and what important event occurs here?", a:"Bidirectional communication confirmed (router sees its own RID in neighbor's Hello). <strong>DR and BDR are elected at this stage.</strong>"},
+  {cat:"States", q:"What happens in ExStart?", a:"Routers negotiate master/slave relationship to determine who initiates the database exchange."},
+  {cat:"States", q:"What happens in Exchange?", a:"Routers exchange Database Descriptors (DBDs) — summaries of their topology databases."},
+  {cat:"States", q:"What happens in Loading?", a:"Routers exchange actual LSAs to synchronize full topology tables."},
+  {cat:"States", q:"What does Full state mean, and what are its 3 sub-states?", a:"Topology tables fully synchronized. Sub-states: <strong>Full/DR</strong>, <strong>Full/BDR</strong>, <strong>Full/DROther</strong>. Non-DR/BDR routers stay at 2-Way with each other — this is normal."},
+  {cat:"DR/BDR", q:"Why is a DR needed on multi-access networks?", a:"Without a DR, n routers need n(n-1)/2 adjacencies. The DR centralizes updates, drastically reducing LSA flooding."},
+  {cat:"DR/BDR", q:"How is DR/BDR election decided?", a:"<ul><li>Highest OSPF priority wins DR (second highest = BDR)</li><li>Tie → Highest Router ID wins</li><li>Default priority = <strong>1</strong>; priority <strong>0</strong> = never elected</li></ul>"},
+  {cat:"DR/BDR", q:"Is the DR election preemptive?", a:"<strong>No.</strong> A new router with higher priority joining the network will NOT replace an existing DR. A router that should never be DR must have priority set to 0."},
+  {cat:"DR/BDR", q:"How does LSA flooding work with a DR?", a:"Updates go to DR (224.0.0.6), DR then forwards to all routers (224.0.0.5). Non-DRs form 2-Way state with each other — only Full adjacency with DR/BDR."},
+  {cat:"Network Types", q:"What are the 4 OSPF network types?", a:"Broadcast Multi-Access · Point-to-Point · Point-to-Multipoint · NBMA (Non-Broadcast Multi-Access)"},
+  {cat:"Network Types", q:"Broadcast Multi-Access: DR/BDR? Auto neighbors? Example?", a:"<strong>DR/BDR: Yes</strong>. Auto neighbors: Yes. Examples: Ethernet, Token Ring, ATM."},
+  {cat:"Network Types", q:"Point-to-Point: DR/BDR? Auto neighbors? Example?", a:"<strong>DR/BDR: No</strong>. Auto neighbors: Yes. Example: T1 (HDLC or PPP). All traffic multicast to 224.0.0.5."},
+  {cat:"Network Types", q:"NBMA: DR/BDR? Neighbors? Example?", a:"<strong>DR/BDR: Yes</strong>. Neighbors: <strong>Manual</strong> (no multicast allowed). Traffic unicast. Example: Frame Relay."},
+  {cat:"Network Types", q:"What must be identical on two routers to form a neighbor adjacency?", a:"OSPF network type must be identical on both sides, plus matching Hello/Dead timers, Area ID, Area Type, and authentication."},
+  {cat:"LSA Types", q:"Type 1 LSA — who generates it and scope?", a:"<strong>Router LSA</strong>: All routers. Contains all local links and costs. Flooded within the local area only."},
+  {cat:"LSA Types", q:"Type 2 LSA — who generates it?", a:"<strong>Network LSA</strong>: Generated by the DR. Contains list of all routers attached to the DR. Flooded within the area."},
+  {cat:"LSA Types", q:"Type 3 LSA — who generates it and purpose?", a:"<strong>Network Summary LSA</strong>: ABRs. Carries route info to networks in other areas. Enables inter-area communication."},
+  {cat:"LSA Types", q:"Type 4 LSA — purpose?", a:"<strong>ASBR Summary LSA</strong>: Generated by ABRs. Tells internal routers how to reach the ASBR (path out of the AS)."},
+  {cat:"LSA Types", q:"Type 5 LSA — who generates it and scope?", a:"<strong>External LSA</strong>: ASBRs. Contains routes to external networks. Flooded to <strong>all areas</strong>."},
+  {cat:"LSA Types", q:"Type 7 LSA — when is it used?", a:"<strong>NSSA External LSA</strong>: Generated by an ASBR inside an NSSA. Stays within the NSSA — ABR converts Type 7 → Type 5 for the rest of the domain."},
+  {cat:"LSA Types", q:"What is the difference between E1 and E2 external routes?", a:"<strong>E2</strong> (default): Only external cost. <strong>E1</strong>: External + internal cost to reach the ASBR. E1 is always preferred over E2 to the same destination."},
+  {cat:"Hierarchy", q:"What is Area 0 and why is it required?", a:"The Backbone area. All other areas must connect to Area 0 (directly or via virtual link). It is the transit area connecting all areas."},
+  {cat:"Hierarchy", q:"What is an ABR?", a:"Area Border Router — interfaces in 2+ areas. Maintains separate topology databases per area. Generates Type 3 and Type 4 LSAs."},
+  {cat:"Hierarchy", q:"What is an ASBR?", a:"Autonomous System Border Router — connects OSPF to an external AS or redistributes another routing protocol. Generates Type 5 LSAs."},
+  {cat:"Hierarchy", q:"What are the 3 traffic types in OSPF?", a:"<strong>Intra-area</strong> (within one area) · <strong>Inter-area</strong> (between areas) · <strong>External</strong> (from another AS)"},
+  {cat:"Hierarchy", q:"What is a virtual link and when is it used?", a:"A logical tunnel connecting an area to Area 0 through a transit area. Used when an area can't directly connect to Area 0. Transit area cannot be a stub."},
+  {cat:"Area Types", q:"What LSAs does a Stub area block, and what is injected instead?", a:"Blocks Type 4 and Type 5 LSAs. The ABR automatically injects a <strong>default route</strong> so routers can reach external networks."},
+  {cat:"Area Types", q:"What LSAs does a Totally Stubby area block?", a:"Blocks Type 3, Type 4, and Type 5. Only Type 1 and Type 2 allowed. ABR injects a single default route for all inter-area and external traffic."},
+  {cat:"Area Types", q:"How do you configure a Totally Stubby area?", a:"<code>area N stub no-summary</code> on the <strong>ABR only</strong>. Other routers in the area use <code>area N stub</code>."},
+  {cat:"Area Types", q:"What makes NSSA different from a Stub area?", a:"NSSA allows an ASBR inside the area. That ASBR generates Type 7 LSAs. The ABR converts Type 7 → Type 5 when forwarding to other areas."},
+  {cat:"Area Types", q:"What command configures an NSSA, and who gets it?", a:"<code>area N nssa</code> on <strong>all routers</strong>. For TNSSA: ABR uses <code>area N nssa no-summary</code>; other routers use <code>area N nssa</code>."},
+  {cat:"Area Types", q:"Do ABRs of Standard areas auto-inject a default route?", a:"<strong>No.</strong> Standard area ABRs do not auto-generate defaults. Use <code>default-information originate</code> on an ASBR."},
+  {cat:"Config", q:"What does the network command actually do in OSPF (vs RIP)?", a:"It places matching interfaces into a specific area so they can form neighbor relationships — not telling OSPF what to advertise. Uses wildcard masks."},
+  {cat:"Config", q:"What does passive-interface do in OSPF?", a:"Prevents OSPF from forming any neighbor relationships out of that interface — no Hellos sent or received in either direction."},
+  {cat:"Config", q:"How do you configure inter-area summarization?", a:"On the ABR: <code>area N range [network] [mask]</code>. Also add a static null0 route for the summary to prevent routing loops."},
+  {cat:"Config", q:"How do you configure external summarization?", a:"On the ASBR: <code>summary-address [network] [mask]</code>. Add <code>not-advertise</code> to suppress specific prefixes."},
+  {cat:"Config", q:"How do you force OSPF to advertise a default route?", a:"<code>default-information originate</code> (requires default in routing table) or <code>default-information originate always</code> (advertises regardless)."},
+  {cat:"Config", q:"What do the SPF throttle timer parameters mean?", a:"<code>timers throttle spf [delay] [init-hold] [max-hold]</code> in ms. Delay = wait after topology change. Hold doubles on repeated changes up to max-hold."},
+  {cat:"Config", q:"How do you verify OSPF neighbors?", a:"<code>show ip ospf neighbor</code> — shows RID, priority, state, dead timer, remote IP, local interface."},
+  {cat:"Config", q:"How do you verify the OSPF topology database?", a:"<code>show ip ospf database</code> — shows LSA types, advertising RID, age, sequence numbers."},
+];
+
+let cards = [...ALL];
+let current = 0;
+let activeCat = "All";
+let filtered = [...ALL];
+
+const cats = ["All", ...new Set(ALL.map(c => c.cat))];
+
+function renderCats() {
+  const el = document.getElementById('cats');
+  el.innerHTML = cats.map(c =>
+    `<button class="cat-btn${c===activeCat?' active':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+}
+
+function setCat(c) {
+  activeCat = c;
+  filtered = c === "All" ? [...ALL] : ALL.filter(x => x.cat === c);
+  current = 0;
+  document.getElementById('card').classList.remove('flipped');
+  renderCats();
+  render();
+}
+
+function shuffle() {
+  filtered = filtered.sort(() => Math.random() - 0.5);
+  current = 0;
+  document.getElementById('card').classList.remove('flipped');
+  render();
+}
+
+function flipCard() {
+  document.getElementById('card').classList.toggle('flipped');
+}
+
+function nav(dir) {
+  document.getElementById('card').classList.remove('flipped');
+  setTimeout(() => {
+    current = Math.max(0, Math.min(filtered.length - 1, current + dir));
+    render();
+  }, 50);
+}
+
+function render() {
+  const c = filtered[current];
+  document.getElementById('card-q').textContent = c.q;
+  document.getElementById('card-a').innerHTML = c.a;
+  document.getElementById('cat-badge').textContent = c.cat;
+  document.getElementById('cat-badge2').textContent = c.cat;
+  document.getElementById('counter').textContent = `${current + 1} / ${filtered.length}`;
+  document.getElementById('prog').style.width = ((current + 1) / filtered.length * 100) + '%';
+  document.getElementById('prev-btn').disabled = current === 0;
+  document.getElementById('next-btn').disabled = current === filtered.length - 1;
+}
+
+function setMode(m) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().startsWith(m)));
+  document.getElementById('flash-mode').style.display = m === 'flash' ? 'block' : 'none';
+  const notesEl = document.getElementById('notes-mode');
+  notesEl.style.display = m === 'notes' ? 'block' : 'none';
+  notesEl.classList.toggle('visible', m === 'notes');
+}
+
+renderCats();
+render();
+</script>
+</body>
+</html>

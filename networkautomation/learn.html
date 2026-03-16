@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python for Network Engineers — Learning Track</title>
+<style>
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f3;
+    --color-background-tertiary: #eeede8;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.22);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', monospace;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background-primary: #1e1e1c;
+      --color-background-secondary: #2a2a28;
+      --color-background-tertiary: #333330;
+      --color-text-primary: #f0ede8;
+      --color-text-secondary: #b4b2a9;
+      --color-text-tertiary: #888780;
+      --color-border-tertiary: rgba(255,255,255,0.1);
+      --color-border-secondary: rgba(255,255,255,0.2);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    background: var(--color-background-primary);
+    border-bottom: 0.5px solid var(--color-border-secondary);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .back-link {
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .back-link:hover { color: var(--color-text-primary); }
+  .back-link::before { content: '←'; }
+  .page-header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 53px);
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--color-background-secondary);
+    border-right: 0.5px solid var(--color-border-secondary);
+    overflow-y: auto;
+    padding: 12px 0;
+    flex-shrink: 0;
+  }
+  .sidebar-group {
+    margin-bottom: 4px;
+  }
+  .sidebar-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    padding: 10px 16px 4px;
+  }
+  .sidebar-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 7px 16px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+    border-radius: 0;
+    transition: background 0.1s, color 0.1s;
+  }
+  .sidebar-item:hover {
+    background: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+  }
+  .sidebar-item.active {
+    background: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+    font-weight: 600;
+    border-left: 2px solid #378add;
+    padding-left: 14px;
+  }
+  .module-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--color-text-tertiary);
+    margin-right: 5px;
+  }
+
+  /* ── Mobile dropdown ── */
+  .mobile-select-wrap {
+    display: none;
+    padding: 10px 16px;
+    background: var(--color-background-secondary);
+    border-bottom: 0.5px solid var(--color-border-secondary);
+  }
+  .mobile-select-wrap select {
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    padding: 8px 10px;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+  }
+
+  /* ── Content area ── */
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+
+  .module-panel { display: none; }
+  .module-panel.active { display: block; }
+
+  .module-panel h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .module-panel .module-group-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    background: var(--color-background-tertiary);
+    color: var(--color-text-tertiary);
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-bottom: 16px;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+  .module-panel h3 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-tertiary);
+    margin: 24px 0 8px;
+  }
+  .module-panel p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    margin-bottom: 0;
+  }
+
+  pre {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--color-text-primary);
+    margin: 1rem 0;
+  }
+  code { font-family: var(--font-mono); font-size: 13px; }
+
+  .insight {
+    background: #E6F1FB;
+    border-left: 3px solid #378add;
+    border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #185FA5;
+    margin: 1rem 0;
+    line-height: 1.6;
+  }
+  @media (prefers-color-scheme: dark) {
+    .insight { background: #0c2e4a; border-color: #378add; color: #85b7eb; }
+  }
+  .insight strong {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+    opacity: 0.75;
+  }
+
+  /* ── Welcome panel ── */
+  .welcome-panel {
+    display: block;
+    max-width: 520px;
+  }
+  .welcome-panel h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--color-text-primary);
+  }
+  .welcome-panel p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    margin-bottom: 10px;
+  }
+  .group-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .group-list-item {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .group-list-item .badge {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    background: var(--color-background-tertiary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+  }
+
+  /* ── Complexity note ── */
+  .complexity {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-mono);
+    margin: 6px 0 0;
+    padding: 4px 8px;
+    background: var(--color-background-secondary);
+    border-radius: 4px;
+    display: inline-block;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  /* ── Mobile breakpoint ── */
+  @media (max-width: 600px) {
+    .sidebar { display: none; }
+    .mobile-select-wrap { display: block; }
+    .layout { flex-direction: column; height: auto; overflow: visible; }
+    .content-area { padding: 20px 16px; }
+    .page-header h1 { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">Back</a>
+  <h1>Python for Network Engineers — Learning Track</h1>
+</header>
+
+<!-- Mobile dropdown -->
+<div class="mobile-select-wrap">
+  <select id="mobile-select" onchange="showModule(this.value)">
+    <option value="welcome">— Select a module —</option>
+    <optgroup label="Group 1: Python Networking Foundations">
+      <option value="m1">M1 — ipaddress Module</option>
+      <option value="m2">M2 — IP Arithmetic &amp; CIDR</option>
+      <option value="m3">M3 — subprocess + CLI Tools</option>
+      <option value="m4">M4 — Regex for Network Parsing</option>
+      <option value="m5">M5 — YAML &amp; JSON for Device Inventories</option>
+    </optgroup>
+    <optgroup label="Group 2: Network Output Parsing">
+      <option value="m6">M6 — Parsing Ping Output → JSON</option>
+      <option value="m7">M7 — Parsing Traceroute / MTR Output</option>
+      <option value="m8">M8 — Parsing BGP Neighbor Summary</option>
+      <option value="m9">M9 — TextFSM for Structured Parsing</option>
+    </optgroup>
+    <optgroup label="Group 3: Device Automation Libraries">
+      <option value="m10">M10 — Netmiko</option>
+      <option value="m11">M11 — NAPALM</option>
+      <option value="m12">M12 — Nornir</option>
+      <option value="m13">M13 — Jinja2 Config Templating</option>
+    </optgroup>
+    <optgroup label="Group 4: Automation Design Patterns">
+      <option value="m14">M14 — Concurrency: ThreadPoolExecutor</option>
+      <option value="m15">M15 — Idempotency &amp; Check-Before-Set</option>
+      <option value="m16">M16 — Input Validation &amp; Defensive Parsing</option>
+      <option value="m17">M17 — Error Handling, Retries &amp; Partial Failure</option>
+      <option value="m18">M18 — Structured Logging &amp; Audit Trails</option>
+    </optgroup>
+    <optgroup label="Group 5: DSA Patterns for Network Engineers">
+      <option value="m19">M19 — Sliding Window</option>
+      <option value="m20">M20 — HashMap &amp; Top-K</option>
+      <option value="m21">M21 — Stack</option>
+      <option value="m22">M22 — Sort + Merge Intervals</option>
+      <option value="m23">M23 — BFS / DFS (Network Topology)</option>
+      <option value="m24">M24 — Heaps (Latency Percentiles)</option>
+      <option value="m25">M25 — LRU Cache (ARP/DNS Cache)</option>
+      <option value="m26">M26 — Cycle Detection in Directed Graph</option>
+    </optgroup>
+  </select>
+</div>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar" id="sidebar">
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">G1 · Python Foundations</div>
+      <button class="sidebar-item" onclick="showModule('m1')"><span class="module-tag">M1</span>ipaddress Module</button>
+      <button class="sidebar-item" onclick="showModule('m2')"><span class="module-tag">M2</span>IP Arithmetic &amp; CIDR</button>
+      <button class="sidebar-item" onclick="showModule('m3')"><span class="module-tag">M3</span>subprocess + CLI Tools</button>
+      <button class="sidebar-item" onclick="showModule('m4')"><span class="module-tag">M4</span>Regex for Network Parsing</button>
+      <button class="sidebar-item" onclick="showModule('m5')"><span class="module-tag">M5</span>YAML &amp; JSON Inventories</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">G2 · Network Output Parsing</div>
+      <button class="sidebar-item" onclick="showModule('m6')"><span class="module-tag">M6</span>Parsing Ping Output</button>
+      <button class="sidebar-item" onclick="showModule('m7')"><span class="module-tag">M7</span>Parsing Traceroute / MTR</button>
+      <button class="sidebar-item" onclick="showModule('m8')"><span class="module-tag">M8</span>Parsing BGP Summary</button>
+      <button class="sidebar-item" onclick="showModule('m9')"><span class="module-tag">M9</span>TextFSM Structured Parsing</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">G3 · Device Automation Libraries</div>
+      <button class="sidebar-item" onclick="showModule('m10')"><span class="module-tag">M10</span>Netmiko</button>
+      <button class="sidebar-item" onclick="showModule('m11')"><span class="module-tag">M11</span>NAPALM</button>
+      <button class="sidebar-item" onclick="showModule('m12')"><span class="module-tag">M12</span>Nornir</button>
+      <button class="sidebar-item" onclick="showModule('m13')"><span class="module-tag">M13</span>Jinja2 Config Templating</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">G4 · Automation Design Patterns</div>
+      <button class="sidebar-item" onclick="showModule('m14')"><span class="module-tag">M14</span>Concurrency: ThreadPoolExecutor</button>
+      <button class="sidebar-item" onclick="showModule('m15')"><span class="module-tag">M15</span>Idempotency &amp; Check-Before-Set</button>
+      <button class="sidebar-item" onclick="showModule('m16')"><span class="module-tag">M16</span>Input Validation</button>
+      <button class="sidebar-item" onclick="showModule('m17')"><span class="module-tag">M17</span>Error Handling &amp; Retries</button>
+      <button class="sidebar-item" onclick="showModule('m18')"><span class="module-tag">M18</span>Structured Logging</button>
+    </div>
+
+    <div class="sidebar-group">
+      <div class="sidebar-group-label">G5 · DSA for Network Engineers</div>
+      <button class="sidebar-item" onclick="showModule('m19')"><span class="module-tag">M19</span>Sliding Window</button>
+      <button class="sidebar-item" onclick="showModule('m20')"><span class="module-tag">M20</span>HashMap &amp; Top-K</button>
+      <button class="sidebar-item" onclick="showModule('m21')"><span class="module-tag">M21</span>Stack</button>
+      <button class="sidebar-item" onclick="showModule('m22')"><span class="module-tag">M22</span>Sort + Merge Intervals</button>
+      <button class="sidebar-item" onclick="showModule('m23')"><span class="module-tag">M23</span>BFS / DFS Topology</button>
+      <button class="sidebar-item" onclick="showModule('m24')"><span class="module-tag">M24</span>Heaps &amp; Latency Percentiles</button>
+      <button class="sidebar-item" onclick="showModule('m25')"><span class="module-tag">M25</span>LRU Cache (ARP/DNS)</button>
+      <button class="sidebar-item" onclick="showModule('m26')"><span class="module-tag">M26</span>Cycle Detection</button>
+    </div>
+
+  </nav>
+
+  <!-- ── Content area ── -->
+  <main class="content-area" id="content-area">
+
+    <!-- Welcome -->
+    <div class="welcome-panel" id="panel-welcome">
+      <h2>Python for Network Engineers</h2>
+      <p>A 19-module learning track covering Python automation for network operations — from stdlib fundamentals to production-grade device automation and common DSA interview patterns.</p>
+      <p>Select any module from the sidebar to begin.</p>
+      <div class="group-list">
+        <div class="group-list-item"><span class="badge">G1</span> Python Networking Foundations (M1–M5)</div>
+        <div class="group-list-item"><span class="badge">G2</span> Network Output Parsing (M6–M9)</div>
+        <div class="group-list-item"><span class="badge">G3</span> Device Automation Libraries (M10–M13)</div>
+        <div class="group-list-item"><span class="badge">G4</span> Automation Design Patterns (M14–M18)</div>
+        <div class="group-list-item"><span class="badge">G5</span> DSA Patterns for Network Engineers (M19–M26)</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         GROUP 1 — PYTHON NETWORKING FOUNDATIONS
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- M1 -->
+    <div class="module-panel" id="panel-m1">
+      <span class="module-group-badge">G1 · Python Networking Foundations</span>
+      <h2>M1 — Python <code>ipaddress</code> Module</h2>
+
+      <h3>Concept</h3>
+      <p>Python's stdlib <code>ipaddress</code> module provides <code>ip_address()</code>, <code>ip_network()</code>, <code>IPv4Network</code>, <code>IPv4Address</code>, <code>IPv6Network</code> classes. Key attributes: <code>.network_address</code>, <code>.broadcast_address</code>, <code>.num_addresses</code>, <code>.prefixlen</code>, <code>.packed</code>. Containment: <code>addr in network</code>. Overlap: <code>network.overlaps(other)</code>. Supernets/subnets: <code>.supernet()</code>, <code>.subnets(prefixlen_diff=1)</code>.</p>
+
+      <h3>Code</h3>
+<pre><code>import ipaddress
+
+# Create objects
+net = ipaddress.ip_network("192.168.1.0/24")
+addr = ipaddress.ip_address("192.168.1.100")
+
+print(net.network_address)   # 192.168.1.0
+print(net.broadcast_address) # 192.168.1.255
+print(net.num_addresses)     # 256
+print(net.prefixlen)         # 24
+
+# Containment check
+print(addr in net)  # True
+
+# Iterate first 5 hosts
+for host in list(net.hosts())[:5]:
+    print(host)
+
+# Overlap check
+net2 = ipaddress.ip_network("192.168.1.128/25")
+print(net.overlaps(net2))  # True
+
+# Supernet
+print(net.supernet())      # 192.168.0.0/23
+
+# Subnets (split into two /25s)
+for subnet in net.subnets(prefixlen_diff=1):
+    print(subnet)
+
+# IPv6
+v6 = ipaddress.ip_network("2001:db8::/32")
+print(v6.num_addresses)    # 79228162514264337593543950336</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I use <code>ipaddress.ip_network()</code> for all CIDR operations in production — it validates input and raises <code>ValueError</code> on invalid addresses. For strict host-only addresses use <code>strict=False</code> to allow host bits set."
+      </div>
+    </div>
+
+    <!-- M2 -->
+    <div class="module-panel" id="panel-m2">
+      <span class="module-group-badge">G1 · Python Networking Foundations</span>
+      <h2>M2 — IP Arithmetic &amp; CIDR (interview core)</h2>
+
+      <h3>Concept</h3>
+      <p>Manual bit operations for CIDR math — converting dotted-decimal to 32-bit int, applying subnet mask, finding if IP belongs to network. This is the most common LiveCode problem type. Key insight: <code>(ip_int &amp; mask_int) == network_int</code> is the CIDR membership test.</p>
+
+      <h3>Code</h3>
+<pre><code>def ipv4_to_int(ip: str) -> int:
+    """Convert '192.168.1.1' → 32-bit integer."""
+    parts = ip.split('.')
+    result = 0
+    for part in parts:
+        result = (result &lt;&lt; 8) | int(part)
+    return result
+
+def int_to_ipv4(n: int) -> str:
+    """Convert 32-bit integer → '192.168.1.1'."""
+    return '.'.join(str((n >> (8 * i)) &amp; 0xFF) for i in range(3, -1, -1))
+
+def parse_cidr(cidr: str):
+    """Return (network_int, mask_int, prefix_len) for '192.168.1.0/24'."""
+    ip_str, prefix_str = cidr.split('/')
+    prefix_len = int(prefix_str)
+    mask_int = ((1 &lt;&lt; 32) - 1) ^ ((1 &lt;&lt; (32 - prefix_len)) - 1)
+    ip_int = ipv4_to_int(ip_str)
+    network_int = ip_int &amp; mask_int
+    return network_int, mask_int, prefix_len
+
+def cidr_in_network(ip: str, cidr: str) -> bool:
+    """Check if IP belongs to CIDR block."""
+    network_int, mask_int, _ = parse_cidr(cidr)
+    return (ipv4_to_int(ip) &amp; mask_int) == network_int
+
+def longest_prefix_match(ip: str, routes: list[str]) -> str | None:
+    """Find most-specific matching CIDR for IP. O(n) linear scan."""
+    best = None
+    best_len = -1
+    for cidr in routes:
+        net_int, mask_int, prefix_len = parse_cidr(cidr)
+        if (ipv4_to_int(ip) &amp; mask_int) == net_int:
+            if prefix_len > best_len:
+                best_len = prefix_len
+                best = cidr
+    return best
+
+def cidrs_overlap(cidr_a: str, cidr_b: str) -> bool:
+    """Return True if two CIDR blocks share any addresses."""
+    net_a, mask_a, plen_a = parse_cidr(cidr_a)
+    net_b, mask_b, plen_b = parse_cidr(cidr_b)
+    # Ranges overlap iff max(start_a, start_b) &lt;= min(end_a, end_b)
+    end_a = net_a | (~mask_a &amp; 0xFFFFFFFF)
+    end_b = net_b | (~mask_b &amp; 0xFFFFFFFF)
+    return max(net_a, net_b) &lt;= min(end_a, end_b)
+
+# --- Examples ---
+print(ipv4_to_int("192.168.1.1"))       # 3232235777
+print(int_to_ipv4(3232235777))          # 192.168.1.1
+print(cidr_in_network("10.0.0.5", "10.0.0.0/24"))   # True
+print(longest_prefix_match("10.1.2.3", ["10.0.0.0/8", "10.1.0.0/16", "10.1.2.0/24"]))  # 10.1.2.0/24
+print(cidrs_overlap("10.0.0.0/24", "10.0.0.128/25")) # True</code></pre>
+
+      <p class="complexity">cidr_in_network: O(1) &nbsp;|&nbsp; longest_prefix_match: O(n) — follow-up: trie reduces to O(prefix_len)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "In interviews I write <code>ipv4_to_int</code> first, then build on it. I mention that production would use a radix trie or the <code>pytricia</code> library for route tables. For IPv6 it's the same logic but 128 bits."
+      </div>
+    </div>
+
+    <!-- M3 -->
+    <div class="module-panel" id="panel-m3">
+      <span class="module-group-badge">G1 · Python Networking Foundations</span>
+      <h2>M3 — subprocess + CLI Tools from Python</h2>
+
+      <h3>Concept</h3>
+      <p><code>subprocess.run()</code> lets Python run system commands (ping, traceroute, dig, nslookup). Key params: <code>capture_output=True</code> (captures stdout/stderr), <code>text=True</code> (returns strings not bytes), <code>timeout=N</code> (raises <code>TimeoutExpired</code>). Check <code>returncode == 0</code> for success.</p>
+
+      <h3>Code</h3>
+<pre><code>import subprocess
+
+def run_ping(host: str, count: int = 4) -> dict:
+    """Run system ping and return raw output."""
+    try:
+        result = subprocess.run(
+            ["ping", "-c", str(count), host],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        return {
+            "host": host,
+            "returncode": result.returncode,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "success": result.returncode == 0
+        }
+    except subprocess.TimeoutExpired:
+        return {"host": host, "success": False, "error": "timeout"}
+    except FileNotFoundError:
+        return {"host": host, "success": False, "error": "ping not found"}
+
+def run_traceroute(host: str, max_hops: int = 30) -> dict:
+    """Run traceroute."""
+    try:
+        result = subprocess.run(
+            ["traceroute", "-m", str(max_hops), host],
+            capture_output=True, text=True, timeout=60
+        )
+        return {"host": host, "output": result.stdout, "success": result.returncode == 0}
+    except subprocess.TimeoutExpired:
+        return {"host": host, "success": False, "error": "timeout"}
+
+def run_dig(name: str, record_type: str = "A") -> dict:
+    """Run dig DNS lookup."""
+    try:
+        result = subprocess.run(
+            ["dig", "+short", record_type, name],
+            capture_output=True, text=True, timeout=10
+        )
+        records = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        return {"name": name, "type": record_type, "records": records}
+    except subprocess.TimeoutExpired:
+        return {"name": name, "error": "timeout"}
+
+# Usage
+ping_result = run_ping("8.8.8.8", count=2)
+print(ping_result["stdout"])</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I always set <code>timeout=</code> because network tools can hang indefinitely. I also catch <code>FileNotFoundError</code> in case the system tool isn't installed, and return structured dicts rather than raw strings so callers can programmatically check <code>.success</code>."
+      </div>
+    </div>
+
+    <!-- M4 -->
+    <div class="module-panel" id="panel-m4">
+      <span class="module-group-badge">G1 · Python Networking Foundations</span>
+      <h2>M4 — Regex for Network Parsing</h2>
+
+      <h3>Concept</h3>
+      <p><code>re.compile()</code> pre-compiles patterns for reuse (faster in loops). Named groups <code>(?P&lt;name&gt;...)</code> make match objects self-documenting. <code>re.MULTILINE</code> makes <code>^</code> match start of each line (essential for multi-line CLI output). <code>re.search()</code> finds first match, <code>re.findall()</code> returns all matches.</p>
+
+      <h3>Code</h3>
+<pre><code>import re
+
+# Compiled constants — define once, reuse in loops
+IP_RE    = re.compile(r'\b(\d{1,3}\.){3}\d{1,3}\b')
+CIDR_RE  = re.compile(r'\b(\d{1,3}\.){3}\d{1,3}/\d{1,2}\b')
+PERCENT_RE = re.compile(r'(\d+(?:\.\d+)?)\s*%')
+RTT_RE   = re.compile(r'(\d+(?:\.\d+)?)\s*ms')
+
+# Named groups for structured extraction
+PING_STATS_RE = re.compile(
+    r'(?P&lt;tx&gt;\d+) packets transmitted, (?P&lt;rx&gt;\d+) received.*?'
+    r'(?P&lt;loss&gt;\d+(?:\.\d+)?)% packet loss',
+    re.DOTALL
+)
+
+PING_RTT_RE = re.compile(
+    r'rtt min/avg/max/mdev = '
+    r'(?P&lt;min&gt;\d+\.\d+)/(?P&lt;avg&gt;\d+\.\d+)/(?P&lt;max&gt;\d+\.\d+)/(?P&lt;mdev&gt;\d+\.\d+)'
+)
+
+# Extract all IPs from text
+text = "Gateway: 10.0.0.1, DNS: 8.8.8.8, 8.8.4.4"
+ips = IP_RE.findall(text)          # returns list of last-octet matches (use re.finditer for full matches)
+all_ips = [m.group() for m in IP_RE.finditer(text)]
+print(all_ips)  # ['10.0.0.1', '8.8.8.8', '8.8.4.4']
+
+# Named group access
+ping_out = "3 packets transmitted, 3 received, 0% packet loss"
+m = PING_STATS_RE.search(ping_out)
+if m:
+    print(m.group("tx"), m.group("rx"), m.group("loss"))
+
+# Multiline — match start of each line
+routes = """
+10.0.0.0/8 via 192.168.1.1
+172.16.0.0/12 via 10.0.0.1
+"""
+for m in re.finditer(r'^(\S+/\d+)\s+via\s+(\S+)', routes, re.MULTILINE):
+    print(f"Route {m.group(1)} → {m.group(2)}")</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I always compile regex patterns at module level as constants — it's faster (compiled once) and self-documenting. In interviews I reach for named groups immediately so I can do <code>m.group('loss')</code> instead of <code>m.group(1)</code> and never lose track of which capture is which."
+      </div>
+    </div>
+
+    <!-- M5 -->
+    <div class="module-panel" id="panel-m5">
+      <span class="module-group-badge">G1 · Python Networking Foundations</span>
+      <h2>M5 — YAML &amp; JSON for Device Inventories</h2>
+
+      <h3>Concept</h3>
+      <p>YAML is human-readable config format. <code>yaml.safe_load()</code> (never <code>yaml.load()</code> — security risk). JSON for API data. Device inventories have hosts/groups/credentials structure. Always loop with per-device try/except so one bad device doesn't stop the run.</p>
+
+      <h3>Code</h3>
+<pre><code>import yaml
+import json
+
+# YAML device inventory (typical structure)
+INVENTORY_YAML = """
+defaults:
+  username: admin
+  password: secret123
+  timeout: 30
+
+devices:
+  - host: 192.168.1.1
+    device_type: cisco_ios
+    name: core-sw-01
+  - host: 192.168.1.2
+    device_type: arista_eos
+    name: core-sw-02
+  - host: 192.168.1.3
+    device_type: cisco_nxos
+    name: dist-sw-01
+"""
+
+def load_inventory(yaml_str: str) -> dict:
+    """Load device inventory from YAML string."""
+    return yaml.safe_load(yaml_str)  # safe_load, never load()
+
+def get_devices(inventory: dict) -> list[dict]:
+    """Merge defaults into each device entry."""
+    defaults = inventory.get("defaults", {})
+    devices = []
+    for dev in inventory.get("devices", []):
+        merged = {**defaults, **dev}  # device-level overrides defaults
+        devices.append(merged)
+    return devices
+
+# Load and iterate
+inventory = load_inventory(INVENTORY_YAML)
+devices = get_devices(inventory)
+
+results = []
+for device in devices:
+    try:
+        # simulate connecting
+        result = {"host": device["host"], "status": "ok", "name": device["name"]}
+        results.append(result)
+    except KeyError as e:
+        results.append({"host": device.get("host", "?"), "status": "error", "error": f"missing key {e}"})
+    except Exception as e:
+        results.append({"host": device.get("host", "?"), "status": "error", "error": str(e)})
+
+# Output as JSON
+print(json.dumps(results, indent=2))</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I always use <code>yaml.safe_load()</code> — <code>yaml.load()</code> can execute arbitrary Python via YAML tags and is a security vulnerability. I also merge defaults at load time so connection code doesn't need to handle missing keys."
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         GROUP 2 — NETWORK OUTPUT PARSING
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- M6 -->
+    <div class="module-panel" id="panel-m6">
+      <span class="module-group-badge">G2 · Network Output Parsing</span>
+      <h2>M6 — Parsing Ping Output → JSON</h2>
+
+      <h3>Concept</h3>
+      <p>Parse the multi-line stdout from system <code>ping</code> into a structured dict. Defensive parsing: check <code>if m is not None</code> before accessing groups. Return <code>None</code> for fields that couldn't be parsed rather than crashing. Handles both Linux and macOS ping format.</p>
+
+      <h3>Code</h3>
+<pre><code>import re
+from typing import Optional
+
+def parse_ping_output(text: str) -> dict:
+    """
+    Parse ping stdout into structured dict.
+
+    Returns:
+      {
+        "transmitted": int,
+        "received": int,
+        "loss_pct": float,
+        "rtt_min_ms": float,
+        "rtt_avg_ms": float,
+        "rtt_max_ms": float,
+        "rtt_mdev_ms": float,   # None on macOS
+        "reachable": bool
+      }
+    """
+    result = {
+        "transmitted": None,
+        "received": None,
+        "loss_pct": None,
+        "rtt_min_ms": None,
+        "rtt_avg_ms": None,
+        "rtt_max_ms": None,
+        "rtt_mdev_ms": None,
+        "reachable": False
+    }
+
+    # Linux: "3 packets transmitted, 3 received, 0% packet loss"
+    stats_re = re.compile(
+        r'(?P&lt;tx&gt;\d+) packets transmitted, (?P&lt;rx&gt;\d+) received'
+        r'(?:, \+\d+ errors)?'
+        r', (?P&lt;loss&gt;\d+(?:\.\d+)?)% packet loss'
+    )
+    m = stats_re.search(text)
+    if m is not None:
+        result["transmitted"] = int(m.group("tx"))
+        result["received"] = int(m.group("rx"))
+        result["loss_pct"] = float(m.group("loss"))
+        result["reachable"] = result["received"] > 0
+
+    # Linux RTT: "rtt min/avg/max/mdev = 0.123/0.456/0.789/0.100 ms"
+    rtt_re = re.compile(
+        r'rtt min/avg/max/mdev = '
+        r'(?P&lt;min&gt;\d+\.\d+)/(?P&lt;avg&gt;\d+\.\d+)/(?P&lt;max&gt;\d+\.\d+)/(?P&lt;mdev&gt;\d+\.\d+)'
+    )
+    m = rtt_re.search(text)
+    if m is not None:
+        result["rtt_min_ms"]  = float(m.group("min"))
+        result["rtt_avg_ms"]  = float(m.group("avg"))
+        result["rtt_max_ms"]  = float(m.group("max"))
+        result["rtt_mdev_ms"] = float(m.group("mdev"))
+
+    # macOS RTT: "round-trip min/avg/max/stddev = 0.123/0.456/0.789/0.100 ms"
+    if result["rtt_avg_ms"] is None:
+        macos_rtt_re = re.compile(
+            r'round-trip min/avg/max/stddev = '
+            r'(?P&lt;min&gt;\d+\.\d+)/(?P&lt;avg&gt;\d+\.\d+)/(?P&lt;max&gt;\d+\.\d+)/(?P&lt;mdev&gt;\d+\.\d+)'
+        )
+        m = macos_rtt_re.search(text)
+        if m is not None:
+            result["rtt_min_ms"] = float(m.group("min"))
+            result["rtt_avg_ms"] = float(m.group("avg"))
+            result["rtt_max_ms"] = float(m.group("max"))
+            result["rtt_mdev_ms"] = float(m.group("mdev"))
+
+    return result
+
+# Test
+sample = """
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=10.3 ms
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 10.123/10.456/10.789/0.100 ms
+"""
+import json
+print(json.dumps(parse_ping_output(sample), indent=2))</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Every regex match I check <code>if m is not None</code> before accessing groups — one malformed line shouldn't crash the whole parser. I return structured <code>None</code> fields rather than partial dicts so callers can always expect the same keys."
+      </div>
+    </div>
+
+    <!-- M7 -->
+    <div class="module-panel" id="panel-m7">
+      <span class="module-group-badge">G2 · Network Output Parsing</span>
+      <h2>M7 — Parsing Traceroute / MTR Output</h2>
+
+      <h3>Concept</h3>
+      <p>Traceroute output is hop-by-hop. Each line: hop number, hostname/IP (or <code>* * *</code> for unreachable), RTT values. Parse into list of dicts. Find first hop where packet loss exceeds a threshold.</p>
+
+      <h3>Code</h3>
+<pre><code>import re
+from typing import Optional
+
+def parse_traceroute(text: str) -> list[dict]:
+    """
+    Parse traceroute output into list of hop dicts.
+    Each dict: {hop, ip, hostname, rtts, loss_pct, unreachable}
+    """
+    hops = []
+    # Matches: "  1  router.local (192.168.1.1)  1.234 ms  1.345 ms  1.456 ms"
+    hop_re = re.compile(
+        r'^\s*(\d+)\s+'                             # hop number
+        r'(?:(\S+)\s+\((\d+\.\d+\.\d+\.\d+)\)|(\*))' # hostname (ip) or *
+        r'(.*)',                                     # RTT values
+        re.MULTILINE
+    )
+    rtt_re = re.compile(r'(\d+(?:\.\d+)?)\s*ms')
+
+    for m in hop_re.finditer(text):
+        hop_num = int(m.group(1))
+        unreachable = m.group(4) == '*'
+        hostname = m.group(2) if not unreachable else None
+        ip = m.group(3) if not unreachable else None
+        rtt_str = m.group(5) if not unreachable else ""
+        rtts = [float(r) for r in rtt_re.findall(rtt_str)]
+
+        hops.append({
+            "hop": hop_num,
+            "ip": ip,
+            "hostname": hostname,
+            "rtts": rtts,
+            "unreachable": unreachable,
+            "avg_rtt_ms": sum(rtts) / len(rtts) if rtts else None
+        })
+    return hops
+
+def first_lossy_hop(hops: list[dict], threshold_pct: float = 10.0) -> Optional[dict]:
+    """Return first hop where estimated loss exceeds threshold."""
+    for hop in hops:
+        if hop["unreachable"]:
+            return hop
+        if hop["rtts"]:
+            # Rough loss estimate: fewer than 3 RTTs means some probes were lost
+            loss_pct = (3 - len(hop["rtts"])) / 3 * 100
+            if loss_pct > threshold_pct:
+                return hop
+    return None</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Traceroute uses TTL expiry — each hop decrements TTL. <code>* * *</code> means the router didn't send ICMP TTL Exceeded back (firewall, or ICMP rate limiting). I always note this to the interviewer — it doesn't necessarily mean the hop is down."
+      </div>
+    </div>
+
+    <!-- M8 -->
+    <div class="module-panel" id="panel-m8">
+      <span class="module-group-badge">G2 · Network Output Parsing</span>
+      <h2>M8 — Parsing BGP Neighbor Summary</h2>
+
+      <h3>Concept</h3>
+      <p>Cisco IOS <code>show bgp summary</code> output has columns: Neighbor, V, AS, MsgRcvd, MsgSent, TblVer, InQ, OutQ, Up/Down, State/PfxRcd. The <code>State/PfxRcd</code> column is key: if it's a number, the session is Established (and the number is the prefix count). If it's text (Idle/Active/Connect/OpenSent/OpenConfirm), it's NOT established.</p>
+
+      <h3>Code</h3>
+<pre><code>import re
+from typing import Optional
+
+def parse_bgp_summary(text: str) -> list[dict]:
+    """
+    Parse 'show bgp summary' output.
+    Returns list of neighbor dicts with state/prefix info.
+    """
+    neighbors = []
+    # Skip header lines, parse data rows
+    # Data lines start with an IP address
+    line_re = re.compile(
+        r'^(?P&lt;neighbor&gt;\d+\.\d+\.\d+\.\d+)\s+'   # Neighbor IP
+        r'\d+\s+'                                    # V (version)
+        r'(?P&lt;as&gt;\d+)\s+'                            # AS
+        r'\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+'         # MsgRcvd MsgSent TblVer InQ OutQ
+        r'(?P&lt;updown&gt;\S+)\s+'                        # Up/Down
+        r'(?P&lt;state&gt;\S+)',                           # State/PfxRcd
+        re.MULTILINE
+    )
+
+    for m in line_re.finditer(text):
+        state_field = m.group("state")
+        # If state_field is a number → Established (prefix count)
+        established = state_field.isdigit()
+        neighbors.append({
+            "neighbor": m.group("neighbor"),
+            "remote_as": int(m.group("as")),
+            "updown": m.group("updown"),
+            "state": "Established" if established else state_field,
+            "prefix_count": int(state_field) if established else None,
+            "established": established
+        })
+    return neighbors
+
+def non_established_neighbors(text: str) -> list[str]:
+    """Return list of neighbor IPs not in Established state."""
+    return [n["neighbor"] for n in parse_bgp_summary(text) if not n["established"]]
+
+# Test
+bgp_out = """
+BGP router identifier 10.0.0.1, local AS number 65001
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+10.1.1.1        4 65002    1234    1200        42    0    0 1d02h          250
+10.2.2.2        4 65003       5       3         0    0    0 00:02:15   Active
+10.3.3.3        4 65004    9999    9876        42    0    0 5d12h          180
+"""
+print(non_established_neighbors(bgp_out))  # ['10.2.2.2']</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "The key insight is <code>state_field.isdigit()</code> — Cisco encodes Established state as the prefix count number. Text means not Established. I state this assumption clearly in the interview: 'I'll distinguish Established by checking if the last column is numeric.'"
+      </div>
+    </div>
+
+    <!-- M9 -->
+    <div class="module-panel" id="panel-m9">
+      <span class="module-group-badge">G2 · Network Output Parsing</span>
+      <h2>M9 — TextFSM for Structured Parsing</h2>
+
+      <h3>Concept</h3>
+      <p>TextFSM is a state-machine template language that converts unstructured CLI output into a list of dicts. Templates define <code>Value</code> fields and <code>Start</code> state with regex rules. The NTC Templates library (network-to-code/ntc-templates) has 500+ vendor templates. Netmiko integrates it directly with <code>use_textfsm=True</code>.</p>
+
+      <h3>Code</h3>
+<pre><code># TextFSM template (save as show_ip_int_brief.textfsm):
+# Value INTERFACE (\S+)
+# Value IP_ADDRESS (\S+)
+# Value STATUS (up|down|administratively down)
+# Value PROTOCOL (up|down)
+#
+# Start
+#   ^${INTERFACE}\s+${IP_ADDRESS}\s+YES\s+\S+\s+${STATUS}\s+${PROTOCOL} -> Record
+#   ^. -> Continue
+
+import textfsm
+import io
+
+TEMPLATE = """Value INTERFACE (\\S+)
+Value IP_ADDRESS (\\S+)
+Value STATUS (up|down|administratively down)
+Value PROTOCOL (up|down)
+
+Start
+  ^${INTERFACE}\\s+${IP_ADDRESS}\\s+YES\\s+\\S+\\s+${STATUS}\\s+${PROTOCOL} -> Record
+  ^. -> Continue
+"""
+
+CLI_OUTPUT = """
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     192.168.1.1     YES manual up                    up
+GigabitEthernet0/1     unassigned      YES unset  administratively down down
+Loopback0              10.0.0.1        YES manual up                    up
+"""
+
+def parse_with_textfsm(template_str: str, output: str) -> list[dict]:
+    """Parse CLI output using TextFSM template, return list of dicts."""
+    fsm = textfsm.TextFSM(io.StringIO(template_str))
+    rows = fsm.ParseText(output)
+    return [dict(zip(fsm.header, row)) for row in rows]
+
+results = parse_with_textfsm(TEMPLATE, CLI_OUTPUT)
+for r in results:
+    print(r)
+# {'INTERFACE': 'GigabitEthernet0/0', 'IP_ADDRESS': '192.168.1.1', 'STATUS': 'up', 'PROTOCOL': 'up'}
+
+# --- Netmiko + TextFSM (NTC Templates auto-selected) ---
+# from netmiko import ConnectHandler
+# with ConnectHandler(**device) as conn:
+#     result = conn.send_command("show ip interface brief", use_textfsm=True)
+#     # result is already a list of dicts — no manual parsing needed!
+#     for intf in result:
+#         print(intf["INTERFACE"], intf["STATUS"])</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "In production I use NTC Templates — they cover 500+ Cisco/Arista/Juniper commands and save writing custom templates. For novel commands I write my own template starting with <code>Value</code> definitions, then <code>Start</code> state rules. The <code>-&gt; Record</code> action appends the current row and resets values."
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         GROUP 3 — DEVICE AUTOMATION LIBRARIES
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- M10 -->
+    <div class="module-panel" id="panel-m10">
+      <span class="module-group-badge">G3 · Device Automation Libraries</span>
+      <h2>M10 — Netmiko (Kirk Byers)</h2>
+
+      <h3>Concept</h3>
+      <p>Netmiko is the de-facto Python SSH library for network devices. <code>ConnectHandler(**device)</code> creates a connection. Key methods: <code>send_command()</code> for show commands (waits for prompt), <code>send_config_set([...])</code> for config mode, <code>enable()</code> for privileged mode. Always use as context manager for auto-disconnect.</p>
+
+      <h3>Code</h3>
+<pre><code>from netmiko import ConnectHandler
+from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
+
+# Device dictionary — all keys required
+device = {
+    "device_type": "cisco_ios",   # cisco_ios, cisco_nxos, arista_eos, juniper_junos, linux
+    "host": "192.168.1.1",
+    "username": "admin",
+    "password": "cisco123",
+    "secret": "enable_pass",      # only for cisco_ios enable mode
+    "port": 22,                   # optional, default 22
+    "timeout": 30,                # connection timeout
+}
+
+# Single device — context manager ensures disconnect
+def get_interface_status(device: dict) -> list[dict]:
+    try:
+        with ConnectHandler(**device) as conn:
+            conn.enable()  # enter privileged mode
+
+            # show command — returns raw string
+            raw = conn.send_command("show ip interface brief")
+
+            # OR structured via TextFSM (NTC Templates)
+            structured = conn.send_command(
+                "show ip interface brief",
+                use_textfsm=True
+            )
+
+            # Config change
+            config_cmds = [
+                "interface GigabitEthernet0/1",
+                "description UPLINK-TO-CORE",
+                "no shutdown"
+            ]
+            output = conn.send_config_set(config_cmds)
+
+            return structured  # list of dicts
+    except NetmikoTimeoutException:
+        return [{"error": f"timeout connecting to {device['host']}"}]
+    except NetmikoAuthenticationException:
+        return [{"error": f"auth failed for {device['host']}"}]
+
+# Multi-device loop — per-device exception isolation
+def run_on_devices(devices: list[dict], command: str) -> dict:
+    results = {}
+    for device in devices:
+        host = device["host"]
+        try:
+            with ConnectHandler(**device) as conn:
+                results[host] = {"output": conn.send_command(command), "error": None}
+        except Exception as e:
+            results[host] = {"output": None, "error": str(e)}
+    return results</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Netmiko handles the SSH session lifecycle, prompt detection, and paging automatically. I always use the context manager (<code>with ConnectHandler</code>) so the connection is closed even on exceptions. For config pushes I use <code>send_config_set()</code> which handles <code>conf t</code> and <code>end</code> automatically."
+      </div>
+    </div>
+
+    <!-- M11 -->
+    <div class="module-panel" id="panel-m11">
+      <span class="module-group-badge">G3 · Device Automation Libraries</span>
+      <h2>M11 — NAPALM (multi-vendor abstraction)</h2>
+
+      <h3>Concept</h3>
+      <p>NAPALM provides vendor-agnostic getters and a compare/commit/rollback config workflow. <code>get_facts()</code>, <code>get_bgp_neighbors()</code>, <code>get_interfaces()</code> return consistent dicts regardless of vendor. The config lifecycle: <code>load_merge_candidate()</code> → <code>compare_config()</code> → <code>commit_config()</code> with <code>revert_in=</code> for auto-rollback safety.</p>
+
+      <h3>Code</h3>
+<pre><code>from napalm import get_driver
+
+def napalm_deploy_config(host: str, username: str, password: str,
+                          new_config: str, dry_run: bool = True) -> dict:
+    """
+    Full NAPALM config deployment workflow:
+    1. Connect and get pre-state
+    2. Load candidate config
+    3. Compare (diff)
+    4. Commit with auto-revert or discard
+    5. Verify post-state
+    """
+    driver = get_driver("ios")
+    device = driver(host, username, password)
+
+    try:
+        device.open()
+
+        # Pre-check
+        pre_facts = device.get_facts()
+        pre_bgp = device.get_bgp_neighbors()
+
+        # Load candidate (merge = adds to running config)
+        device.load_merge_candidate(config=new_config)
+
+        # See what would change
+        diff = device.compare_config()
+        if not diff:
+            print("No changes needed — config already matches desired state")
+            device.discard_config()
+            return {"status": "no-op", "diff": ""}
+
+        print(f"Config diff:\n{diff}")
+
+        if dry_run:
+            device.discard_config()
+            return {"status": "dry-run", "diff": diff}
+
+        # Commit with 5-minute auto-revert safety net
+        device.commit_config(revert_in=300)  # auto-rolls back in 300s unless confirmed
+
+        # Verify post-state
+        post_bgp = device.get_bgp_neighbors()
+        bgp_ok = _bgp_neighbors_healthy(post_bgp)
+
+        if bgp_ok:
+            device.confirm_commit()  # cancel the auto-revert
+            return {"status": "committed", "diff": diff, "verified": True}
+        else:
+            # BGP unhealthy — let auto-revert run, or manually rollback
+            device.rollback()
+            return {"status": "rolled-back", "diff": diff, "verified": False}
+
+    finally:
+        device.close()
+
+def _bgp_neighbors_healthy(bgp_data: dict) -> bool:
+    """Check all BGP neighbors are established."""
+    for vrf_data in bgp_data.values():
+        for peer_data in vrf_data.get("peers", {}).values():
+            if not peer_data.get("is_up", False):
+                return False
+    return True</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "NAPALM's <code>compare_config()</code> is the idempotency check built in — if diff is empty, I skip the commit entirely. The <code>revert_in=300</code> pattern is critical for production: it auto-rolls back if I forget to <code>confirm_commit()</code>. I always do pre/post health checks around deployments."
+      </div>
+    </div>
+
+    <!-- M12 -->
+    <div class="module-panel" id="panel-m12">
+      <span class="module-group-badge">G3 · Device Automation Libraries</span>
+      <h2>M12 — Nornir (parallel automation)</h2>
+
+      <h3>Concept</h3>
+      <p>Nornir is a pure-Python automation framework — unlike Ansible, it's just Python, so you can debug with <code>pdb</code>, unit test with <code>pytest</code>, and compose tasks freely. <code>InitNornir()</code> loads inventory from YAML files. <code>nr.run(task=fn)</code> runs a function against all hosts in parallel. Each task function receives a <code>Task</code> object and returns a <code>Result</code>.</p>
+
+      <h3>Code</h3>
+<pre><code>from nornir import InitNornir
+from nornir.core.task import Task, Result
+from nornir_netmiko.tasks import netmiko_send_command
+from nornir_utils.plugins.functions import print_result
+
+# hosts.yaml (inventory file):
+# ---
+# core-sw-01:
+#   hostname: 192.168.1.1
+#   groups:
+#     - cisco_ios
+# core-sw-02:
+#   hostname: 192.168.1.2
+#   groups:
+#     - arista_eos
+#
+# groups.yaml:
+# ---
+# cisco_ios:
+#   platform: cisco_ios
+#   username: admin
+#   password: cisco123
+
+def check_interfaces(task: Task) -> Result:
+    """Task function: run on each device in parallel."""
+    # Run a sub-task (Netmiko command)
+    result = task.run(
+        task=netmiko_send_command,
+        command_string="show ip interface brief",
+        use_textfsm=True
+    )
+    # Custom processing
+    interfaces = result.result  # list of dicts from TextFSM
+    down_intfs = [i["INTERFACE"] for i in interfaces if i["STATUS"] != "up"]
+    return Result(
+        host=task.host,
+        result={"down_interfaces": down_intfs, "total": len(interfaces)}
+    )
+
+def run_nornir_check():
+    # Initialize with config file
+    nr = InitNornir(config_file="config.yaml")
+
+    # Filter to specific group
+    core_only = nr.filter(groups=["core"])
+
+    # Run task on all hosts in parallel (default: 20 threads)
+    results = nr.run(task=check_interfaces)
+
+    # Process results
+    for hostname, multi_result in results.items():
+        if multi_result.failed:
+            print(f"FAILED {hostname}: {multi_result.exception}")
+        else:
+            data = multi_result.result
+            print(f"OK {hostname}: {len(data['down_interfaces'])} down interfaces")
+
+    # Print_result shows structured output with pass/fail
+    print_result(results)</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Nornir's key advantage over Ansible: it's just Python, so I can write unit tests with <code>pytest</code>, step through with <code>pdb</code>, and build complex conditional logic without YAML gymnastics. The default <code>num_workers=20</code> runs all hosts in parallel — one device's timeout doesn't block others."
+      </div>
+    </div>
+
+    <!-- M13 -->
+    <div class="module-panel" id="panel-m13">
+      <span class="module-group-badge">G3 · Device Automation Libraries</span>
+      <h2>M13 — Jinja2 Config Templating</h2>
+
+      <h3>Concept</h3>
+      <p>Jinja2 generates device config from templates + data. <code>{{ variable }}</code> for substitution, <code>{% for item in list %}</code> for loops, <code>{% if condition %}</code> for conditional blocks. <code>FileSystemLoader</code> loads templates from a directory. Use to generate interface configs, BGP configs, ACLs from YAML inventory data.</p>
+
+      <h3>Code</h3>
+<pre><code>from jinja2 import Environment, FileSystemLoader, Template
+
+# Simple inline template
+INTERFACE_TEMPLATE = """
+{% for intf in interfaces %}
+interface {{ intf.name }}
+ description {{ intf.description }}
+ ip address {{ intf.ip }} {{ intf.mask }}
+ {% if intf.shutdown %}
+ shutdown
+ {% else %}
+ no shutdown
+ {% endif %}
+!
+{% endfor %}
+""".strip()
+
+# BGP neighbor template
+BGP_TEMPLATE = """
+router bgp {{ local_as }}
+ bgp router-id {{ router_id }}
+ {% for peer in bgp_peers %}
+ neighbor {{ peer.ip }} remote-as {{ peer.remote_as }}
+ neighbor {{ peer.ip }} description {{ peer.description | default("NO-DESC") }}
+ neighbor {{ peer.ip }} update-source Loopback0
+ {% endfor %}
+""".strip()
+
+def render_template(template_str: str, data: dict) -> str:
+    """Render a Jinja2 template with given data."""
+    template = Template(template_str)
+    return template.render(**data)
+
+def render_from_file(template_dir: str, template_name: str, data: dict) -> str:
+    """Render template from filesystem."""
+    env = Environment(
+        loader=FileSystemLoader(template_dir),
+        trim_blocks=True,    # removes newline after {% block %}
+        lstrip_blocks=True   # strips leading whitespace before {% block %}
+    )
+    template = env.get_template(template_name)
+    return template.render(**data)
+
+# Usage
+interface_data = {
+    "interfaces": [
+        {"name": "GigabitEthernet0/0", "description": "UPLINK",
+         "ip": "10.0.0.1", "mask": "255.255.255.252", "shutdown": False},
+        {"name": "GigabitEthernet0/1", "description": "UNUSED",
+         "ip": "unassigned", "mask": "", "shutdown": True},
+    ]
+}
+
+bgp_data = {
+    "local_as": 65001,
+    "router_id": "10.0.0.1",
+    "bgp_peers": [
+        {"ip": "10.1.1.1", "remote_as": 65002, "description": "PEER-A"},
+        {"ip": "10.2.2.2", "remote_as": 65003, "description": "PEER-B"},
+    ]
+}
+
+print(render_template(INTERFACE_TEMPLATE, interface_data))
+print(render_template(BGP_TEMPLATE, bgp_data))</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Jinja2 + YAML inventory = the standard pattern for generating device configs at scale. <code>trim_blocks=True</code> and <code>lstrip_blocks=True</code> prevent extra blank lines in generated configs. I'd use <code>| default('NO-DESC')</code> filters to handle missing keys gracefully rather than crashing on None."
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         GROUP 4 — AUTOMATION DESIGN PATTERNS
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- M14 -->
+    <div class="module-panel" id="panel-m14">
+      <span class="module-group-badge">G4 · Automation Design Patterns</span>
+      <h2>M14 — Concurrency: Multi-Device with ThreadPoolExecutor</h2>
+
+      <h3>Concept</h3>
+      <p>SSH connections are I/O-bound, so <code>ThreadPoolExecutor</code> gives true parallelism. Pattern: submit all tasks, then collect results with <code>as_completed()</code>. Catch per-device exceptions inside the worker function — never let one device kill all futures. Returns structured result dict per device.</p>
+
+      <h3>Code</h3>
+<pre><code>from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Callable, Any
+import time
+
+def run_on_device(device: dict, task_fn: Callable) -> dict:
+    """Worker: run task on one device, catch all exceptions."""
+    host = device.get("host", "unknown")
+    start = time.time()
+    try:
+        output = task_fn(device)
+        return {
+            "host": host,
+            "status": "ok",
+            "output": output,
+            "duration_s": round(time.time() - start, 2),
+            "error": None
+        }
+    except Exception as e:
+        return {
+            "host": host,
+            "status": "error",
+            "output": None,
+            "duration_s": round(time.time() - start, 2),
+            "error": str(e)
+        }
+
+def run_on_all_devices(devices: list[dict], task_fn: Callable,
+                        max_workers: int = 10) -> list[dict]:
+    """Run task on all devices in parallel. Returns all results."""
+    results = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all tasks
+        future_to_device = {
+            executor.submit(run_on_device, device, task_fn): device
+            for device in devices
+        }
+
+        # Collect as they complete (not submission order)
+        for future in as_completed(future_to_device):
+            result = future.result()  # run_on_device never raises — always returns dict
+            results.append(result)
+            print(f"[{result['status'].upper()}] {result['host']} ({result['duration_s']}s)")
+
+    return results
+
+# Summary report
+def summarize(results: list[dict]) -> dict:
+    ok = [r for r in results if r["status"] == "ok"]
+    failed = [r for r in results if r["status"] == "error"]
+    return {
+        "total": len(results),
+        "succeeded": len(ok),
+        "failed": len(failed),
+        "errors": {r["host"]: r["error"] for r in failed}
+    }</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I use <code>as_completed()</code> not <code>executor.map()</code> — it processes results as they arrive rather than waiting for all to finish. With 50 devices, I can print progress in real time. <code>max_workers=10</code> is a conservative default; Netmiko SSH connections hold a socket, so don't set this too high."
+      </div>
+    </div>
+
+    <!-- M15 -->
+    <div class="module-panel" id="panel-m15">
+      <span class="module-group-badge">G4 · Automation Design Patterns</span>
+      <h2>M15 — Idempotency &amp; Check-Before-Set</h2>
+
+      <h3>Concept</h3>
+      <p>Idempotent: running the script twice produces identical state (no duplicates, no errors). Pattern: read current state → compute delta → push only what's missing. NAPALM's <code>compare_config()</code> does this at config level. For manual Netmiko: fetch running-config, check if each desired line exists, push only missing lines.</p>
+
+      <h3>Code</h3>
+<pre><code>from netmiko import ConnectHandler
+
+def idempotent_ntp_deploy(device: dict, desired_ntp_servers: list[str]) -> dict:
+    """
+    Idempotently ensure NTP servers are configured.
+    Only pushes servers not already in running-config.
+    """
+    with ConnectHandler(**device) as conn:
+        conn.enable()
+
+        # 1. Read current state
+        running_config = conn.send_command("show running-config | include ntp server")
+
+        # 2. Find what's missing
+        to_add = []
+        for server in desired_ntp_servers:
+            if f"ntp server {server}" not in running_config:
+                to_add.append(f"ntp server {server}")
+
+        # 3. Push only the delta
+        if not to_add:
+            return {"status": "no-op", "added": [], "reason": "already configured"}
+
+        output = conn.send_config_set(to_add)
+
+        # 4. Verify
+        new_config = conn.send_command("show running-config | include ntp server")
+        verified = all(f"ntp server {s}" in new_config for s in desired_ntp_servers)
+
+        return {
+            "status": "ok" if verified else "error",
+            "added": to_add,
+            "verified": verified,
+            "output": output
+        }
+
+# NAPALM idempotency — compare_config() returns empty string if no change needed
+def napalm_idempotent_check(device_driver, candidate_config: str) -> bool:
+    """Returns True if config is already applied (no diff)."""
+    device_driver.load_merge_candidate(config=candidate_config)
+    diff = device_driver.compare_config()
+    if diff:
+        return False  # changes needed
+    device_driver.discard_config()
+    return True  # already in desired state</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Idempotency is critical for production automation — if a script fails halfway and I re-run it, it should only apply what's still missing. I always implement check-before-set and log whether I made changes or found state already correct ('no-op' status)."
+      </div>
+    </div>
+
+    <!-- M16 -->
+    <div class="module-panel" id="panel-m16">
+      <span class="module-group-badge">G4 · Automation Design Patterns</span>
+      <h2>M16 — Input Validation &amp; Defensive Parsing</h2>
+
+      <h3>Concept</h3>
+      <p>Validate all inputs at system boundaries (function entry, user input, YAML load). Never assume structure. Always check: key exists before access, string is digit before <code>int()</code>, IP format is valid before parsing. Raise <code>ValueError</code> with clear messages so callers know exactly what failed.</p>
+
+      <h3>Code</h3>
+<pre><code>import re
+import ipaddress
+from typing import Any
+
+REQUIRED_DEVICE_KEYS = {"host", "username", "password", "device_type"}
+
+def validate_device_dict(device: dict) -> None:
+    """Raise ValueError if device dict is missing required keys."""
+    if not isinstance(device, dict):
+        raise ValueError(f"device must be a dict, got {type(device).__name__}")
+    missing = REQUIRED_DEVICE_KEYS - set(device.keys())
+    if missing:
+        raise ValueError(f"device dict missing required keys: {sorted(missing)}")
+    if not device["host"]:
+        raise ValueError("device 'host' cannot be empty")
+
+def parse_cidr_safe(cidr: str) -> tuple[str, int]:
+    """
+    Safely parse CIDR string. Returns (network_address, prefix_len).
+    Raises ValueError with descriptive message on any invalid input.
+    """
+    if not isinstance(cidr, str):
+        raise ValueError(f"CIDR must be a string, got {type(cidr).__name__}")
+    if '/' not in cidr:
+        raise ValueError(f"CIDR must contain '/': {cidr!r}")
+    ip_str, prefix_str = cidr.split('/', 1)
+    if not prefix_str.isdigit():
+        raise ValueError(f"prefix length must be numeric, got {prefix_str!r}")
+    prefix_len = int(prefix_str)
+    if not (0 &lt;= prefix_len &lt;= 32):
+        raise ValueError(f"prefix length must be 0-32, got {prefix_len}")
+    try:
+        network = ipaddress.ip_network(cidr, strict=False)
+    except ValueError as e:
+        raise ValueError(f"invalid CIDR {cidr!r}: {e}") from e
+    return str(network.network_address), prefix_len
+
+def safe_int(value: str, field_name: str) -> int:
+    """Convert string to int with descriptive error."""
+    if not str(value).lstrip('-').isdigit():
+        raise ValueError(f"{field_name} must be an integer, got {value!r}")
+    return int(value)
+
+# Validate at entry point — fail fast with clear message
+def process_device(device: Any) -> dict:
+    validate_device_dict(device)  # raises ValueError immediately if bad
+    # ... rest of function safe to proceed
+    return {"host": device["host"], "status": "validated"}</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I validate at the boundary — the moment untrusted data enters my function. Once validated, I trust it throughout. I never do <code>try: int(x) except: pass</code> silently — that hides bugs. I raise <code>ValueError</code> with exactly what was wrong so the caller can fix it."
+      </div>
+    </div>
+
+    <!-- M17 -->
+    <div class="module-panel" id="panel-m17">
+      <span class="module-group-badge">G4 · Automation Design Patterns</span>
+      <h2>M17 — Error Handling, Retries &amp; Partial Failure</h2>
+
+      <h3>Concept</h3>
+      <p>Retry transient failures (network blips, SSH auth delay) with exponential backoff + jitter. Never retry on permanent errors (wrong password, wrong device_type). Collect per-device errors into a structured report. Partial success is success — never fail the whole job because one device failed.</p>
+
+      <h3>Code</h3>
+<pre><code>import time
+import random
+import logging
+from netmiko.exceptions import NetmikoAuthenticationException
+
+logger = logging.getLogger(__name__)
+
+def retry_with_backoff(fn, args=(), kwargs={},
+                        max_attempts=3, base_wait=1.0,
+                        permanent_exceptions=(NetmikoAuthenticationException,)):
+    """
+    Retry fn with exponential backoff + jitter.
+    Immediately re-raises 'permanent' exceptions (no retry).
+    """
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return fn(*args, **kwargs)
+        except permanent_exceptions:
+            raise  # auth failure → no point retrying
+        except Exception as e:
+            if attempt == max_attempts:
+                raise  # exhausted retries
+            wait = base_wait * (2 ** (attempt - 1)) * (0.5 + random.random())
+            logger.warning(
+                "attempt=%d/%d fn=%s error=%s retrying_in=%.2fs",
+                attempt, max_attempts, fn.__name__, e, wait
+            )
+            time.sleep(wait)
+
+def run_with_partial_failure(devices: list[dict], task_fn) -> dict:
+    """Run task on all devices, collecting success and failure separately."""
+    succeeded = []
+    failed = []
+    errors = {}
+
+    for device in devices:
+        host = device.get("host", "unknown")
+        try:
+            result = retry_with_backoff(task_fn, args=(device,))
+            succeeded.append(host)
+        except Exception as e:
+            failed.append(host)
+            errors[host] = str(e)
+            logger.error("host=%s error=%s", host, e)
+
+    return {
+        "succeeded": succeeded,
+        "failed": failed,
+        "errors": errors,
+        "total": len(devices),
+        "success_rate": len(succeeded) / len(devices) if devices else 0
+    }</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I distinguish transient vs permanent errors. Auth failures never benefit from retry — <code>NetmikoAuthenticationException</code> is permanent. Timeout is transient. Jitter (<code>* (0.5 + random.random())</code>) prevents thundering herd when all devices come back online simultaneously."
+      </div>
+    </div>
+
+    <!-- M18 -->
+    <div class="module-panel" id="panel-m18">
+      <span class="module-group-badge">G4 · Automation Design Patterns</span>
+      <h2>M18 — Structured Logging &amp; Audit Trails</h2>
+
+      <h3>Concept</h3>
+      <p>Network automation needs audit trails: what changed, when, on which device. Use Python's <code>logging</code> module. Log every action with structured key=value fields. Write to both file (for audit) and stream (for console progress). Use <code>%(asctime)s</code> in format string for timestamps.</p>
+
+      <h3>Code</h3>
+<pre><code>import logging
+import sys
+import time
+from pathlib import Path
+
+def setup_logger(name: str = "netauto", log_file: str = "audit.log",
+                  level: int = logging.INFO) -> logging.Logger:
+    """Configure logger with file + stream handlers."""
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    if logger.handlers:  # avoid duplicate handlers on re-import
+        return logger
+
+    fmt = logging.Formatter(
+        "%(asctime)s level=%(levelname)s logger=%(name)s %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%SZ"
+    )
+
+    # File handler — audit trail
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+    logger.addHandler(fh)
+
+    # Stream handler — console
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(logging.INFO)
+    sh.setFormatter(fmt)
+    logger.addHandler(sh)
+
+    return logger
+
+# Usage in automation script
+logger = setup_logger()
+
+def deploy_with_logging(device: dict, config: str) -> dict:
+    host = device["host"]
+    logger.info("action=deploy_start host=%s", host)
+    start = time.time()
+
+    try:
+        # ... deployment logic ...
+        duration = time.time() - start
+        logger.info("action=deploy_ok host=%s duration_s=%.2f", host, duration)
+        return {"status": "ok", "host": host}
+    except Exception as e:
+        duration = time.time() - start
+        logger.error("action=deploy_fail host=%s error=%s duration_s=%.2f",
+                      host, e, duration)
+        return {"status": "error", "host": host, "error": str(e)}</code></pre>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I use key=value format (<code>host=%s cmd=%s</code>) instead of freeform strings — it's grep-able and parseable by log aggregators like Splunk or ELK. I always log action, host, and duration. In production I'd use <code>structlog</code> for JSON output, but stdlib <code>logging</code> is fine for interviews."
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         GROUP 5 — DSA PATTERNS FOR NETWORK ENGINEERS
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- M19 -->
+    <div class="module-panel" id="panel-m19">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M19 — Sliding Window</h2>
+
+      <h3>Concept</h3>
+      <p>Two-pointer technique for problems on contiguous sequences. Expand <code>right</code>, shrink <code>left</code> to maintain a constraint. O(n) time. Network context: longest clean window in log stream, max window with packet loss below threshold.</p>
+
+      <h3>Code</h3>
+<pre><code>def length_of_longest_substring(s: str) -> int:
+    """
+    Classic sliding window: longest substring without repeating chars.
+    Time: O(n), Space: O(min(n, charset_size))
+    """
+    char_index = {}   # char → most recent index seen
+    left = 0
+    max_len = 0
+
+    for right, char in enumerate(s):
+        # If char seen and its last position is within our window
+        if char in char_index and char_index[char] &gt;= left:
+            left = char_index[char] + 1  # shrink window
+        char_index[char] = right
+        max_len = max(max_len, right - left + 1)
+
+    return max_len
+
+# Network context: longest window of logs with error_rate &lt; threshold
+def longest_clean_log_window(logs: list[dict], max_error_rate: float) -> int:
+    """Return length of longest contiguous log window with error_rate &lt;= threshold."""
+    left = 0
+    max_len = 0
+    error_count = 0
+
+    for right in range(len(logs)):
+        if logs[right]["level"] == "ERROR":
+            error_count += 1
+
+        # Shrink if error rate too high
+        while right - left + 1 > 0:
+            window_size = right - left + 1
+            if error_count / window_size &lt;= max_error_rate:
+                break
+            if logs[left]["level"] == "ERROR":
+                error_count -= 1
+            left += 1
+
+        max_len = max(max_len, right - left + 1)
+
+    return max_len
+
+# Trace: s = "abcba"
+# right=0 (a): window=a, max=1
+# right=1 (b): window=ab, max=2
+# right=2 (c): window=abc, max=3
+# right=3 (b): b seen at 1, left moves to 2. window=cb, max=3
+# right=4 (a): a seen at 0 &lt; left=2, ok. window=cba, max=3
+print(length_of_longest_substring("abcba"))  # 3</code></pre>
+
+      <p class="complexity">Time: O(n) &nbsp;|&nbsp; Space: O(1) for ASCII charset</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Say aloud: 'I'll use a sliding window — two pointers expanding right, shrinking left to maintain the no-duplicate invariant. I track the last-seen index of each character so I can jump left directly instead of stepping.' Time O(n), space O(1) for ASCII."
+      </div>
+    </div>
+
+    <!-- M20 -->
+    <div class="module-panel" id="panel-m20">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M20 — HashMap &amp; Top-K</h2>
+
+      <h3>Concept</h3>
+      <p>Count frequencies with a dict, then use <code>heapq.nlargest(k, freq_dict, key=freq_dict.get)</code> for top-K. O(n log k) time. Network context: top talkers by IP, top error types in logs, top BGP prefixes.</p>
+
+      <h3>Code</h3>
+<pre><code>import heapq
+from collections import Counter
+
+def top_k_frequent(items: list, k: int) -> list:
+    """Return k most frequent items. O(n log k)."""
+    freq = Counter(items)  # or: freq = {}; for x in items: freq[x] = freq.get(x,0)+1
+    return heapq.nlargest(k, freq, key=freq.get)
+
+# Network: top-K source IPs from flow records
+def top_k_talkers(flows: list[dict], k: int) -> list[dict]:
+    """Return top-K source IPs by byte count."""
+    byte_counts = {}
+    for flow in flows:
+        src = flow["src_ip"]
+        byte_counts[src] = byte_counts.get(src, 0) + flow["bytes"]
+
+    top_ips = heapq.nlargest(k, byte_counts, key=byte_counts.get)
+    return [{"ip": ip, "bytes": byte_counts[ip]} for ip in top_ips]
+
+# O(n) alternative for exact top-1: max(freq, key=freq.get)
+# O(n log n) alternative: sorted(freq, key=freq.get, reverse=True)[:k]
+
+def top_k_log_errors(logs: list[str], k: int) -> list[tuple]:
+    """Top-K error types from log lines."""
+    freq = Counter(logs)
+    return freq.most_common(k)
+
+print(top_k_frequent(["INFO","ERROR","ERROR","WARN","ERROR","INFO"], 2))
+# ['ERROR', 'INFO']</code></pre>
+
+      <p class="complexity">Time: O(n log k) &nbsp;|&nbsp; Space: O(n)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "I use <code>Counter</code> for frequency counting and <code>heapq.nlargest</code> for top-K — both are stdlib. <code>Counter.most_common(k)</code> is even simpler when that's all I need. Time O(n log k) is better than O(n log n) sort when k &lt;&lt; n."
+      </div>
+    </div>
+
+    <!-- M21 -->
+    <div class="module-panel" id="panel-m21">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M21 — Stack</h2>
+
+      <h3>Concept</h3>
+      <p>LIFO structure for matching/nesting problems. Push open brackets/tokens, pop when you see a close. If stack is empty when you try to pop → mismatch. If stack not empty at end → unclosed. Network context: validate nested config blocks (router bgp/address-family), JSON/YAML structure check.</p>
+
+      <h3>Code</h3>
+<pre><code>def is_valid_brackets(s: str) -> bool:
+    """
+    Valid parentheses/brackets. Time O(n), Space O(n).
+    """
+    stack = []
+    matching = {')': '(', ']': '[', '}': '{'}
+
+    for char in s:
+        if char in '([{':
+            stack.append(char)
+        elif char in ')]}':
+            if not stack or stack[-1] != matching[char]:
+                return False
+            stack.pop()
+
+    return len(stack) == 0
+
+# Network: validate Cisco config block nesting
+def validate_config_blocks(config: str) -> list[str]:
+    """Check for unclosed config blocks (router, interface, policy-map, etc.)."""
+    errors = []
+    stack = []
+    open_keywords = {"router", "interface", "policy-map", "route-map", "class-map"}
+
+    for line_num, line in enumerate(config.splitlines(), 1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith('!'):
+            continue
+        first_word = stripped.split()[0]
+        if first_word in open_keywords:
+            stack.append((first_word, line_num))
+        elif stripped == 'exit' and stack:
+            stack.pop()
+
+    for keyword, line_num in stack:
+        errors.append(f"Unclosed '{keyword}' block starting at line {line_num}")
+    return errors
+
+print(is_valid_brackets("({[]})"))  # True
+print(is_valid_brackets("([)]"))    # False
+print(is_valid_brackets("{[}"))     # False</code></pre>
+
+      <p class="complexity">Time: O(n) &nbsp;|&nbsp; Space: O(n)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Stack problems have a telltale sign: the last open thing must be the first one closed. I declare <code>matching = {')': '(', ...}</code> upfront so the close-bracket logic is one line: <code>stack[-1] != matching[char]</code>. I always check empty stack before popping."
+      </div>
+    </div>
+
+    <!-- M22 -->
+    <div class="module-panel" id="panel-m22">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M22 — Sort + Merge Intervals</h2>
+
+      <h3>Concept</h3>
+      <p>Sort intervals by start time, then iterate: if current interval overlaps with last merged (<code>curr.start &lt;= last.end</code>), extend end. Otherwise, append new interval. O(n log n) from sort. Network context: merge maintenance windows, aggregate log time spans.</p>
+
+      <h3>Code</h3>
+<pre><code>def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:
+    """
+    Merge overlapping intervals. Time O(n log n), Space O(n).
+    Input: [[1,3],[2,6],[8,10],[15,18]]
+    Output: [[1,6],[8,10],[15,18]]
+    """
+    if not intervals:
+        return []
+
+    intervals.sort(key=lambda x: x[0])  # sort by start
+    merged = [intervals[0]]
+
+    for curr in intervals[1:]:
+        last = merged[-1]
+        if curr[0] &lt;= last[1]:         # overlap: curr.start &lt;= last.end
+            last[1] = max(last[1], curr[1])  # extend end
+        else:
+            merged.append(curr)        # no overlap: new interval
+
+    return merged
+
+# Network: merge maintenance windows
+def merge_maintenance_windows(windows: list[dict]) -> list[dict]:
+    """Merge overlapping scheduled maintenance windows."""
+    if not windows:
+        return []
+
+    # Convert to [start, end] for sorting, carry description
+    sorted_w = sorted(windows, key=lambda w: w["start"])
+    merged = [sorted_w[0].copy()]
+
+    for curr in sorted_w[1:]:
+        last = merged[-1]
+        if curr["start"] &lt;= last["end"]:
+            last["end"] = max(last["end"], curr["end"])
+            last["description"] += f" + {curr['description']}"
+        else:
+            merged.append(curr.copy())
+
+    return merged
+
+print(merge_intervals([[1,3],[2,6],[8,10],[15,18]]))
+# [[1, 6], [8, 10], [15, 18]]</code></pre>
+
+      <p class="complexity">Time: O(n log n) &nbsp;|&nbsp; Space: O(n)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "The key insight is sort first, then one pass. After sorting, you only need to compare each interval to the last merged one (not all previous). The overlap condition is <code>curr.start &lt;= last.end</code> — equal starts or touching counts as overlap."
+      </div>
+    </div>
+
+    <!-- M23 -->
+    <div class="module-panel" id="panel-m23">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M23 — BFS / DFS (Network Topology)</h2>
+
+      <h3>Concept</h3>
+      <p>BFS (breadth-first, uses queue/deque) for shortest path in unweighted graphs. DFS (depth-first, uses recursion or stack) for reachability, cycle detection. Network topology = graph: routers as nodes, links as edges. BFS gives minimum hop count.</p>
+
+      <h3>Code</h3>
+<pre><code>from collections import deque
+
+def bfs_shortest_path(graph: dict[str, list[str]], start: str, end: str) -> list[str]:
+    """
+    BFS shortest path in unweighted graph.
+    Time O(V+E), Space O(V).
+    graph = {"A": ["B","C"], "B": ["D"], ...}
+    """
+    if start == end:
+        return [start]
+
+    queue = deque([(start, [start])])
+    visited = {start}
+
+    while queue:
+        node, path = queue.popleft()
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                new_path = path + [neighbor]
+                if neighbor == end:
+                    return new_path
+                visited.add(neighbor)
+                queue.append((neighbor, new_path))
+
+    return []  # no path found
+
+def dfs_has_cycle(graph: dict[str, list[str]]) -> bool:
+    """
+    Detect cycle in DIRECTED graph using three-color DFS.
+    WHITE (0) = unvisited, GRAY (1) = in current path, BLACK (2) = done.
+    Time O(V+E), Space O(V).
+    """
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color = {node: WHITE for node in graph}
+
+    def dfs(node: str) -> bool:
+        color[node] = GRAY
+        for neighbor in graph.get(node, []):
+            if color[neighbor] == GRAY:
+                return True   # back edge → cycle!
+            if color[neighbor] == WHITE:
+                if dfs(neighbor):
+                    return True
+        color[node] = BLACK
+        return False
+
+    for node in graph:
+        if color[node] == WHITE:
+            if dfs(node):
+                return True
+    return False
+
+# Network examples
+topology = {
+    "R1": ["R2", "R3"],
+    "R2": ["R4"],
+    "R3": ["R4"],
+    "R4": ["R5"],
+    "R5": []
+}
+print(bfs_shortest_path(topology, "R1", "R5"))  # ['R1', 'R2', 'R4', 'R5']
+
+routing_deps = {"A": ["B"], "B": ["C"], "C": ["A"]}  # cycle!
+print(dfs_has_cycle(routing_deps))  # True</code></pre>
+
+      <p class="complexity">BFS/DFS: Time O(V+E) &nbsp;|&nbsp; Space O(V)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "BFS guarantees shortest path in unweighted graphs because it explores level by level. DFS needs three-color marking (not just visited/unvisited) for directed cycle detection — a GRAY node means we're still on that path, so a back-edge to GRAY is definitively a cycle."
+      </div>
+    </div>
+
+    <!-- M24 -->
+    <div class="module-panel" id="panel-m24">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M24 — Heaps (Latency Percentiles, Top-K)</h2>
+
+      <h3>Concept</h3>
+      <p><code>heapq</code> is a min-heap. For max-heap: negate values. Two-heap running median: keep lower half in max-heap (negated), upper half in min-heap. Rebalance after each insert. Network context: streaming P50/P99 latency, top-K errors.</p>
+
+      <h3>Code</h3>
+<pre><code>import heapq
+
+# Running median using two heaps
+class RunningMedian:
+    """
+    O(log n) insert, O(1) query median.
+    max_heap: lower half (stored negated for max-heap behavior)
+    min_heap: upper half
+    """
+    def __init__(self):
+        self.max_heap = []  # lower half, negated
+        self.min_heap = []  # upper half
+
+    def add(self, val: float) -> None:
+        # Push to max_heap first
+        heapq.heappush(self.max_heap, -val)
+
+        # Ensure max_heap top &lt;= min_heap top
+        if self.min_heap and (-self.max_heap[0]) > self.min_heap[0]:
+            heapq.heappush(self.min_heap, -heapq.heappop(self.max_heap))
+
+        # Rebalance sizes (max_heap can be at most 1 larger)
+        if len(self.max_heap) > len(self.min_heap) + 1:
+            heapq.heappush(self.min_heap, -heapq.heappop(self.max_heap))
+        elif len(self.min_heap) > len(self.max_heap):
+            heapq.heappush(self.max_heap, -heapq.heappop(self.min_heap))
+
+    def median(self) -> float:
+        if len(self.max_heap) == len(self.min_heap):
+            return (-self.max_heap[0] + self.min_heap[0]) / 2
+        return -self.max_heap[0]
+
+# Test with latency stream
+rm = RunningMedian()
+for latency in [10, 20, 30, 15, 25]:
+    rm.add(latency)
+    print(f"After adding {latency}: median = {rm.median()}")
+# After adding 10: median = 10
+# After adding 20: median = 15.0
+# After adding 30: median = 20
+# After adding 15: median = 17.5
+# After adding 25: median = 20</code></pre>
+
+      <p class="complexity">Insert: O(log n) &nbsp;|&nbsp; Median query: O(1) &nbsp;|&nbsp; Space: O(n)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "Two-heap median is the canonical streaming statistics problem. The invariant is: max_heap has lower half, min_heap has upper half, sizes differ by at most 1. Python's heapq is a min-heap, so I negate values to simulate max-heap."
+      </div>
+    </div>
+
+    <!-- M25 -->
+    <div class="module-panel" id="panel-m25">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M25 — LRU Cache (ARP/DNS Cache Simulation)</h2>
+
+      <h3>Concept</h3>
+      <p>LRU = Least Recently Used. On <code>get</code>: move to most-recently-used end. On <code>put</code>: evict least-recently-used if at capacity. <code>collections.OrderedDict</code> gives O(1) <code>move_to_end()</code> and <code>popitem(last=False)</code>.</p>
+
+      <h3>Code</h3>
+<pre><code>from collections import OrderedDict
+
+class LRUCache:
+    """
+    O(1) get and put using OrderedDict.
+    Network context: ARP cache, DNS cache, BGP RIB cache.
+    """
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.cache = OrderedDict()  # maintains insertion/access order
+
+    def get(self, key) -> any:
+        if key not in self.cache:
+            return -1
+        self.cache.move_to_end(key)  # mark as most recently used
+        return self.cache[key]
+
+    def put(self, key, value) -> None:
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)  # evict least recently used (front)
+
+    def __repr__(self):
+        return f"LRUCache({dict(self.cache)})"
+
+# Simulate ARP cache with capacity 3
+arp_cache = LRUCache(3)
+arp_cache.put("192.168.1.1", "aa:bb:cc:dd:ee:01")
+arp_cache.put("192.168.1.2", "aa:bb:cc:dd:ee:02")
+arp_cache.put("192.168.1.3", "aa:bb:cc:dd:ee:03")
+arp_cache.get("192.168.1.1")  # access → moves to recent end
+arp_cache.put("192.168.1.4", "aa:bb:cc:dd:ee:04")  # evicts 192.168.1.2
+print(arp_cache)
+# LRUCache({'192.168.1.3': ..., '192.168.1.1': ..., '192.168.1.4': ...})</code></pre>
+
+      <p class="complexity">get: O(1) &nbsp;|&nbsp; put: O(1) &nbsp;|&nbsp; Space: O(capacity)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "OrderedDict is the right tool here — it's a linked list + hashmap under the hood, giving O(1) <code>move_to_end</code> and <code>popitem</code>. I always explain the network context: ARP caches have fixed capacity and evict least recently used entries, exactly like this."
+      </div>
+    </div>
+
+    <!-- M26 -->
+    <div class="module-panel" id="panel-m26">
+      <span class="module-group-badge">G5 · DSA Patterns for Network Engineers</span>
+      <h2>M26 — Cycle Detection in Directed Graph</h2>
+
+      <h3>Concept</h3>
+      <p>In a directed graph, a cycle means you can reach a node from itself. Standard BFS/DFS with a visited set isn't enough — it can't distinguish between a node in the current search path (back edge = cycle) and a node visited in a previous path (cross edge = no cycle). Three-color DFS solves this: GRAY = currently on stack.</p>
+
+      <h3>Code</h3>
+<pre><code>def has_cycle_directed(graph: dict[str, list[str]]) -> bool:
+    """
+    Three-color DFS cycle detection for directed graphs.
+    WHITE = unvisited, GRAY = on current DFS stack, BLACK = fully processed.
+    Time O(V+E), Space O(V).
+    """
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color = {}
+
+    def dfs(node: str) -> bool:
+        color[node] = GRAY
+        for neighbor in graph.get(node, []):
+            if neighbor not in color:
+                color[neighbor] = WHITE
+            if color[neighbor] == GRAY:
+                return True  # back edge → cycle
+            if color[neighbor] == WHITE:
+                if dfs(neighbor):
+                    return True
+        color[node] = BLACK
+        return False
+
+    for node in graph:
+        if color.get(node, WHITE) == WHITE:
+            if dfs(node):
+                return True
+    return False
+
+# Why two-color fails for directed graphs:
+# A → B → C (no cycle)
+# A → C (direct edge)
+# When processing A→B→C, C is marked visited.
+# When processing A→C directly, C is visited but NOT a cycle.
+# Two-color would incorrectly report a cycle.
+# Three-color: C is BLACK (already finished), not GRAY (on current path) → no cycle.
+
+# Test cases
+print(has_cycle_directed({"A": ["B"], "B": ["C"], "C": []}))    # False
+print(has_cycle_directed({"A": ["B"], "B": ["C"], "C": ["A"]})) # True — routing loop!</code></pre>
+
+      <p class="complexity">Time: O(V+E) &nbsp;|&nbsp; Space: O(V)</p>
+
+      <div class="insight">
+        <strong>Interview Insight</strong>
+        "This comes up for routing loop detection and dependency resolution. I always explain WHY three colors: GRAY means 'on the current recursion stack' — a back edge to GRAY means we can reach the ancestor from a descendant = cycle. BLACK means 'fully explored' — a cross edge to BLACK is not a cycle."
+      </div>
+    </div>
+
+  </main><!-- /content-area -->
+</div><!-- /layout -->
+
+<script>
+  function showModule(id) {
+    // Hide all panels
+    document.querySelectorAll('.module-panel').forEach(function(p) {
+      p.classList.remove('active');
+    });
+    // Hide welcome
+    var welcome = document.getElementById('panel-welcome');
+    if (welcome) welcome.style.display = 'none';
+
+    if (id === 'welcome' || !id) {
+      if (welcome) welcome.style.display = 'block';
+      // Deactivate all sidebar items
+      document.querySelectorAll('.sidebar-item').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+      return;
+    }
+
+    // Show target panel
+    var panel = document.getElementById('panel-' + id);
+    if (panel) {
+      panel.classList.add('active');
+      // Scroll content area to top
+      var ca = document.getElementById('content-area');
+      if (ca) ca.scrollTop = 0;
+    }
+
+    // Update sidebar active state
+    document.querySelectorAll('.sidebar-item').forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+    // Find the button that calls showModule with this id
+    document.querySelectorAll('.sidebar-item').forEach(function(btn) {
+      var onclick = btn.getAttribute('onclick');
+      if (onclick && onclick.indexOf("'" + id + "'") !== -1) {
+        btn.classList.add('active');
+      }
+    });
+
+    // Sync mobile select
+    var sel = document.getElementById('mobile-select');
+    if (sel) sel.value = id;
+  }
+
+  // Show first module by default
+  document.addEventListener('DOMContentLoaded', function() {
+    showModule('m1');
+  });
+</script>
+</body>
+</html>

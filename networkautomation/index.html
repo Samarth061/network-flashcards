@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Network Automation</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f3;
+    --color-background-tertiary: #eeede8;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.22);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background-primary: #1e1e1c;
+      --color-background-secondary: #2a2a28;
+      --color-background-tertiary: #333330;
+      --color-text-primary: #f0ede8;
+      --color-text-secondary: #b4b2a9;
+      --color-text-tertiary: #888780;
+      --color-border-tertiary: rgba(255,255,255,0.1);
+      --color-border-secondary: rgba(255,255,255,0.2);
+    }
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    padding: 3rem 1rem;
+  }
+  .app { max-width: 740px; margin: 0 auto; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); text-decoration: none; margin-bottom: 2rem; }
+  .back-link:hover { color: var(--color-text-primary); }
+  .header { margin-bottom: 2rem; }
+  .title { font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+  .alert {
+    background: #E6F1FB;
+    border: 0.5px solid #85b7eb;
+    border-radius: var(--border-radius-md);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #185FA5;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  @media (prefers-color-scheme: dark) {
+    .alert { background: #0c2e4a; border-color: #378add; color: #85b7eb; }
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+  .card {
+    display: block;
+    text-decoration: none;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem 1.25rem 1rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+  }
+  .card:hover {
+    border-color: var(--color-border-secondary);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .card-icon { font-size: 24px; margin-bottom: 10px; }
+  .card-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .card-desc { font-size: 12px; color: var(--color-text-tertiary); line-height: 1.5; }
+  .card-badge {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .badge-blue { background: #E6F1FB; color: #185FA5; }
+  .badge-green { background: #E1F5EE; color: #0F6E56; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+  .timeline {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem;
+  }
+  .timeline h3 { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .day-row { display: flex; gap: 12px; margin-bottom: 10px; font-size: 13px; align-items: flex-start; }
+  .day-label { font-weight: 500; min-width: 60px; color: var(--color-text-secondary); }
+  .day-tasks { color: var(--color-text-primary); line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="app">
+  <a class="back-link" href="../index.html">← All Topics</a>
+
+  <div class="header">
+    <div class="title">Python Network Automation</div>
+    <div class="subtitle">Amazon NDE Intern interview prep — automation-first study system covering Kirk Byers, Netmiko, NAPALM, DSA patterns, and LiveCode mock interviews.</div>
+  </div>
+
+  <div class="alert">
+    <strong>Interview window: March 23 – April 6, 2026.</strong> Start with the Learning Track (M1–M9 foundations, then M10–M13 libraries), practice daily in the Mock Problems, and drill Network Fundamentals before Interview B.
+  </div>
+
+  <div class="grid">
+    <a class="card" href="learn.html">
+      <div class="card-icon">📖</div>
+      <div class="card-name">Learning Track</div>
+      <div class="card-desc">19 modules: ipaddress, CIDR, subprocess, regex, TextFSM, Netmiko, NAPALM, Nornir, Jinja2, idempotency, logging, DSA patterns</div>
+      <span class="card-badge badge-blue">19 modules</span>
+    </a>
+
+    <a class="card" href="mock.html">
+      <div class="card-icon">💻</div>
+      <div class="card-name">LiveCode Practice</div>
+      <div class="card-desc">12 DSA problems + 8 network-automation problems — each with hints, full solutions, and complexity analysis</div>
+      <span class="card-badge badge-amber">20 problems</span>
+    </a>
+
+    <a class="card" href="networking.html">
+      <div class="card-icon">🌐</div>
+      <div class="card-name">Network Fundamentals</div>
+      <div class="card-desc">Verbal drill flashcards: IP/CIDR, TCP/IP, OSPF neighbor states, BGP best-path, DNS — for Interview B</div>
+      <span class="card-badge badge-green">35+ cards</span>
+    </a>
+
+    <a class="card" href="mock.html#fullmock">
+      <div class="card-icon">⏱</div>
+      <div class="card-name">Full Mock Interviews</div>
+      <div class="card-desc">2 timed 60-min simulations matching Amazon's exact format: LP → LiveCode → network Q&A → model answers</div>
+      <span class="card-badge badge-amber">2 × 60 min</span>
+    </a>
+  </div>
+
+  <div class="timeline">
+    <h3>Suggested 8-day schedule (March 15 – March 22)</h3>
+    <div class="day-row"><span class="day-label">Day 1–2</span><span class="day-tasks">Learn M1–M5 (foundations) + M19–M22 (DSA sliding window, hashmap, stack, intervals). Solve DSA problems 1–4.</span></div>
+    <div class="day-row"><span class="day-label">Day 3–4</span><span class="day-tasks">Learn M6–M9 (parsing + TextFSM) + M23–M26 (BFS/DFS, heaps, LRU, cycle). Solve Net-Auto problems 1–4 + DSA 5–8.</span></div>
+    <div class="day-row"><span class="day-label">Day 5–6</span><span class="day-tasks">Learn M10–M13 (Netmiko, NAPALM, Nornir, Jinja2) + M14–M18 (automation patterns). Solve Net-Auto 5–8 + DSA 9–12.</span></div>
+    <div class="day-row"><span class="day-label">Day 7</span><span class="day-tasks">Full Mock A (timed, 60 min). Network Fundamentals drill — OSPF + BGP categories.</span></div>
+    <div class="day-row"><span class="day-label">Day 8</span><span class="day-tasks">Full Mock B (timed, 60 min). Network Fundamentals — TCP/IP + DNS. Review mistake log.</span></div>
+  </div>
+</div>
+</body>
+</html>

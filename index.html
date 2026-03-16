@@ -91,22 +91,27 @@
 const topics = [
   {
     name: "OSPF",
-    file: "ospf",
+    href: "topics/ospf.html",
     icon: "🔁",
     desc: "Link-state routing, areas, LSA types, neighbor states",
-    cards: 54
+    badge: "55 cards"
   },
-  // Add more topics here, e.g.:
-  // { name: "BGP", file: "bgp", icon: "🌐", desc: "Border Gateway Protocol, path attributes, policies", cards: 0 },
+  {
+    name: "Python Automation",
+    href: "networkautomation/index.html",
+    icon: "🐍",
+    desc: "19-module learning track, 20 LiveCode problems, 38 networking flashcards, 2 full mock interviews",
+    badge: "NDE Interview Prep"
+  },
 ];
 
 const grid = document.getElementById('grid');
 grid.innerHTML = topics.map(t => `
-  <a class="topic-card" href="topics/${t.file}.html">
+  <a class="topic-card" href="${t.href}">
     <div class="topic-icon">${t.icon}</div>
     <div class="topic-name">${t.name}</div>
     <div class="topic-desc">${t.desc}</div>
-    <span class="topic-badge">${t.cards} cards</span>
+    <span class="topic-badge">${t.badge}</span>
   </a>
 `).join('');
 </script>

@@ -3,22 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amazon LiveCode Practice Problems</title>
+<title>Amazon LiveCode Practice</title>
 <style>
 :root {
   --color-background-primary: #ffffff;
   --color-background-secondary: #f5f5f3;
   --color-background-tertiary: #eeede8;
-  --color-background-info: #e6f1fb;
   --color-text-primary: #1a1a18;
   --color-text-secondary: #5f5e5a;
   --color-text-tertiary: #888780;
-  --color-text-info: #185fa5;
   --color-border-tertiary: rgba(0,0,0,0.12);
   --color-border-secondary: rgba(0,0,0,0.22);
-  --color-border-info: #85b7eb;
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'SFMono-Regular', 'Consolas', monospace;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
 }
@@ -27,66 +24,65 @@
     --color-background-primary: #1e1e1c;
     --color-background-secondary: #2a2a28;
     --color-background-tertiary: #333330;
-    --color-background-info: #0c2e4a;
     --color-text-primary: #f0ede8;
     --color-text-secondary: #b4b2a9;
     --color-text-tertiary: #888780;
-    --color-text-info: #85b7eb;
     --color-border-tertiary: rgba(255,255,255,0.1);
     --color-border-secondary: rgba(255,255,255,0.2);
-    --color-border-info: #378add;
   }
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: var(--font-sans);
   background: var(--color-background-primary);
   color: var(--color-text-primary);
   line-height: 1.6;
-  font-size: 15px;
+  min-height: 100vh;
 }
 
 .page-wrapper {
   max-width: 900px;
   margin: 0 auto;
-  padding: 24px 20px 60px;
+  padding: 24px 20px 64px;
 }
 
-/* Back link */
 .back-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--color-text-info);
+  color: var(--color-text-secondary);
   text-decoration: none;
   font-size: 14px;
-  margin-bottom: 20px;
-  transition: opacity 0.15s;
+  margin-bottom: 24px;
+  transition: color 0.15s;
 }
-.back-link:hover { opacity: 0.75; }
+.back-link:hover { color: var(--color-text-primary); }
+.back-link svg { width: 16px; height: 16px; }
 
-/* Page title */
 h1 {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--color-text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  letter-spacing: -0.4px;
 }
+
 .page-subtitle {
+  font-size: 15px;
   color: var(--color-text-secondary);
-  font-size: 14px;
   margin-bottom: 28px;
 }
 
 /* Tabs */
-.tab-nav {
+.tab-bar {
   display: flex;
-  gap: 4px;
+  gap: 0;
   border-bottom: 2px solid var(--color-border-tertiary);
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
+
 .tab-btn {
   background: none;
   border: none;
@@ -97,759 +93,717 @@ h1 {
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.15s, border-color 0.15s;
+  font-family: var(--font-sans);
 }
-.tab-btn:hover {
-  color: var(--color-text-primary);
-  background: var(--color-background-secondary);
-}
+.tab-btn:hover { color: var(--color-text-primary); }
 .tab-btn.active {
-  color: var(--color-text-info);
-  border-bottom-color: var(--color-text-info);
-  background: var(--color-background-info);
+  color: #1a6dd6;
+  border-bottom-color: #1a6dd6;
 }
 
-/* Tab content */
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-/* Problem card */
+/* Problem cards */
 .problem-card {
   background: var(--color-background-secondary);
   border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-lg);
-  padding: 24px;
-  margin-bottom: 24px;
-}
-.problem-card:hover {
-  border-color: var(--color-border-secondary);
+  padding: 20px 24px;
+  margin-bottom: 16px;
 }
 
-.card-header {
+.problem-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
-.problem-number {
+
+.problem-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.problem-num {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+  margin-right: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-easy { background: #E1F5EE; color: #0F6E56; }
+.badge-medium { background: #FAEEDA; color: #854F0B; }
+
+@media (prefers-color-scheme: dark) {
+  .badge-easy { background: #0d3d2e; color: #3fd9a0; }
+  .badge-medium { background: #3d2b0d; color: #f5a623; }
+}
+
+.problem-desc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.example-block {
+  background: var(--color-background-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.section-label {
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.problem-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-  flex: 1;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
 }
 
-/* Difficulty badges */
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-.badge-easy {
-  background: #d4edda;
-  color: #1a6930;
-  border: 1px solid #a3d9b0;
-}
-.badge-medium {
-  background: #fff3cd;
-  color: #7d5a00;
-  border: 1px solid #ffd87a;
-}
-@media (prefers-color-scheme: dark) {
-  .badge-easy { background: #0f3d1f; color: #5fca7e; border-color: #266038; }
-  .badge-medium { background: #3d2f00; color: #f0b429; border-color: #6b4f00; }
-}
-
-.problem-description {
-  color: var(--color-text-primary);
+.clarify-list {
+  list-style: none;
   margin-bottom: 14px;
-  line-height: 1.7;
 }
-
-/* Example block */
-.example-block {
-  background: var(--color-background-tertiary);
-  border: 1px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-md);
-  padding: 14px 16px;
-  margin-bottom: 16px;
-  font-family: var(--font-mono);
+.clarify-list li {
   font-size: 13px;
   color: var(--color-text-secondary);
-  white-space: pre-wrap;
-  overflow-x: auto;
-}
-
-/* Clarify section */
-.clarify-section {
-  background: var(--color-background-info);
-  border: 1px solid var(--color-border-info);
-  border-radius: var(--border-radius-md);
-  padding: 14px 16px;
-  margin-bottom: 16px;
-}
-.clarify-title {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-info);
-  margin-bottom: 8px;
-}
-.clarify-section ul {
-  list-style: none;
-  padding: 0;
-}
-.clarify-section li {
-  color: var(--color-text-info);
-  font-size: 14px;
-  padding: 3px 0;
-  padding-left: 18px;
+  padding: 3px 0 3px 18px;
   position: relative;
 }
-.clarify-section li::before {
-  content: "?";
+.clarify-list li::before {
+  content: '?';
   position: absolute;
   left: 0;
+  color: #1a6dd6;
   font-weight: 700;
-  opacity: 0.7;
+  font-size: 12px;
 }
 
-/* Details/summary expandable */
 details {
+  margin-bottom: 8px;
   border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-md);
-  margin-bottom: 10px;
   overflow: hidden;
 }
-details[open] {
-  border-color: var(--color-border-secondary);
-}
-summary {
-  padding: 12px 16px;
-  cursor: pointer;
+
+details summary {
+  padding: 10px 14px;
+  font-size: 13px;
   font-weight: 600;
-  font-size: 14px;
-  color: var(--color-text-primary);
+  cursor: pointer;
+  user-select: none;
   background: var(--color-background-tertiary);
+  color: var(--color-text-primary);
   list-style: none;
   display: flex;
   align-items: center;
   gap: 8px;
-  user-select: none;
   transition: background 0.15s;
 }
-summary::-webkit-details-marker { display: none; }
-summary::before {
-  content: "▶";
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+  content: '\25B6';
   font-size: 10px;
   color: var(--color-text-tertiary);
   transition: transform 0.2s;
+  display: inline-block;
 }
 details[open] summary::before { transform: rotate(90deg); }
-summary:hover { background: var(--color-background-secondary); }
+details summary:hover { background: var(--color-border-tertiary); }
 
-.details-body {
-  padding: 16px;
-  background: var(--color-background-primary);
-}
-
-/* Code blocks */
-pre {
-  background: var(--color-background-tertiary);
-  border: 1px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-md);
-  padding: 16px;
-  overflow-x: auto;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--color-text-primary);
-  margin: 10px 0;
-}
-code {
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-
-.complexity-note {
-  margin-top: 12px;
-  padding: 10px 14px;
-  background: var(--color-background-secondary);
-  border-left: 3px solid var(--color-text-info);
-  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+details .details-content {
+  padding: 14px;
   font-size: 13px;
   color: var(--color-text-secondary);
+  background: var(--color-background-secondary);
 }
-.complexity-note strong { color: var(--color-text-primary); }
 
-.say-note {
-  margin-top: 12px;
-  padding: 10px 14px;
-  background: #f0faf4;
-  border-left: 3px solid #2ea349;
-  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
-  font-size: 13px;
-  color: #1a5a2e;
+details .details-content p {
+  margin-bottom: 8px;
 }
+
+pre {
+  background: #1a1a18;
+  color: #e8e6e0;
+  border-radius: var(--border-radius-md);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  overflow-x: auto;
+  margin: 10px 0;
+  white-space: pre;
+}
+
 @media (prefers-color-scheme: dark) {
-  .say-note { background: #0d2c18; color: #6bd98a; border-left-color: #2ea349; }
+  pre {
+    background: #111110;
+    border: 1px solid var(--color-border-tertiary);
+  }
 }
 
-/* Section label */
-.section-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-tertiary);
-  margin-bottom: 6px;
+code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--color-background-tertiary);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--color-text-primary);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
   margin-top: 10px;
 }
-
-/* Tab count chip */
-.tab-count {
-  display: inline-block;
+.complexity-table th, .complexity-table td {
+  padding: 7px 12px;
+  border: 1px solid var(--color-border-tertiary);
+  text-align: left;
+}
+.complexity-table th {
   background: var(--color-background-tertiary);
-  color: var(--color-text-tertiary);
-  font-size: 11px;
   font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 10px;
-  margin-left: 4px;
+  color: var(--color-text-secondary);
 }
 
-/* Mock simulation styling */
+/* Mock card & timer */
 .mock-card {
   background: var(--color-background-secondary);
   border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-lg);
-  padding: 0;
-  margin-bottom: 36px;
-  overflow: hidden;
+  padding: 24px;
+  margin-bottom: 20px;
 }
-.mock-header {
-  background: var(--color-background-tertiary);
-  border-bottom: 1px solid var(--color-border-tertiary);
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
+
 .mock-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--color-text-primary);
+  margin-bottom: 6px;
 }
-.mock-duration {
+
+.mock-subtitle {
   font-size: 13px;
   color: var(--color-text-tertiary);
+  margin-bottom: 20px;
 }
 
-/* Timer */
-.timer-block {
+.timer-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  background: var(--color-background-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
 }
+
 .timer-display {
   font-family: var(--font-mono);
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 700;
   color: var(--color-text-primary);
-  min-width: 90px;
-  letter-spacing: 0.05em;
+  letter-spacing: 2px;
+  min-width: 110px;
 }
+
+.timer-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .timer-btn {
-  background: var(--color-background-info);
-  border: 1px solid var(--color-border-info);
-  color: var(--color-text-info);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-md);
   font-size: 13px;
   font-weight: 600;
-  padding: 6px 14px;
-  border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: opacity 0.15s;
-}
-.timer-btn:hover { opacity: 0.8; }
-.timer-btn.danger {
-  background: #fde8e8;
-  border-color: #f5a5a5;
-  color: #c0392b;
-}
-@media (prefers-color-scheme: dark) {
-  .timer-btn.danger { background: #3d1010; border-color: #8b2020; color: #f07070; }
+  border: 1px solid var(--color-border-secondary);
+  font-family: var(--font-sans);
+  transition: all 0.15s;
 }
 
-.mock-body { padding: 24px; }
-
-.phase-block {
-  margin-bottom: 28px;
+.btn-start {
+  background: #1a6dd6;
+  color: #fff;
+  border-color: #1a6dd6;
 }
+.btn-start:hover { background: #1559b8; }
+
+.btn-pause {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+}
+.btn-pause:hover { background: var(--color-background-tertiary); }
+
+.btn-reset {
+  background: var(--color-background-secondary);
+  color: var(--color-text-tertiary);
+}
+.btn-reset:hover { background: var(--color-background-tertiary); }
+
+/* Phases */
+.phase {
+  margin-bottom: 16px;
+  border: 1px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
 .phase-header {
+  background: var(--color-background-tertiary);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 14px;
 }
-.phase-badge {
-  background: var(--color-background-info);
-  color: var(--color-text-info);
-  border: 1px solid var(--color-border-info);
+
+.phase-pill {
+  background: #1a6dd6;
+  color: #fff;
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 2px 9px;
+  border-radius: 999px;
   white-space: nowrap;
 }
+
 .phase-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--color-text-primary);
 }
+
 .phase-time {
   font-size: 12px;
   color: var(--color-text-tertiary);
   margin-left: auto;
+  white-space: nowrap;
 }
 
-.question-block {
-  background: var(--color-background-tertiary);
-  border-left: 4px solid var(--color-text-info);
-  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  font-size: 15px;
-  color: var(--color-text-primary);
-  font-style: italic;
-}
-
-.reveal-block details summary {
-  background: var(--color-background-info);
-  color: var(--color-text-info);
-  border: none;
-  font-size: 13px;
-}
-.reveal-block details[open] summary {
-  border-bottom: 1px solid var(--color-border-info);
-}
-.reveal-block .details-body {
+.phase-body {
+  padding: 16px;
   background: var(--color-background-secondary);
-  padding: 20px;
 }
 
-.star-label {
-  display: inline-block;
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--color-text-info);
-  min-width: 90px;
-  padding-right: 8px;
-}
-
-.star-row {
-  margin-bottom: 10px;
+.phase-question {
   font-size: 14px;
+  font-style: italic;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-left: 3px solid #1a6dd6;
+  background: var(--color-background-tertiary);
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+}
+
+.rubric {
+  background: var(--color-background-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 14px 16px;
+  margin-top: 16px;
+}
+
+.rubric-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 10px;
+}
+
+.rubric-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--color-border-tertiary);
+}
+.rubric-item:last-child { border-bottom: none; }
+
+.rubric-pts { font-weight: 600; color: #0F6E56; }
+
+.rubric-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+/* Model answers */
+.model-answer {
+  font-size: 13px;
+  color: var(--color-text-secondary);
   line-height: 1.7;
 }
+.model-answer strong { color: var(--color-text-primary); }
+.model-answer p { margin-bottom: 8px; }
 
-.step-block {
-  border-left: 2px solid var(--color-border-secondary);
-  padding-left: 16px;
-  margin-bottom: 16px;
-}
-.step-num {
+.step-block { margin-bottom: 12px; }
+.step-label {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-info);
+  letter-spacing: 0.5px;
+  color: #1a6dd6;
   margin-bottom: 6px;
 }
 
-.rubric-list {
+/* Good questions */
+.good-questions {
   list-style: none;
-  padding: 0;
+  counter-reset: q-counter;
 }
-.rubric-list li {
-  padding: 5px 0;
-  font-size: 14px;
-  color: var(--color-text-secondary);
-  padding-left: 20px;
+.good-questions li {
+  counter-increment: q-counter;
+  padding: 8px 0 8px 28px;
   position: relative;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border-tertiary);
 }
-.rubric-list li::before {
-  content: "✓";
+.good-questions li:last-child { border-bottom: none; }
+.good-questions li::before {
+  content: counter(q-counter);
   position: absolute;
   left: 0;
-  color: #2ea349;
+  top: 9px;
+  background: #1a6dd6;
+  color: #fff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
   font-weight: 700;
+  text-align: center;
+  line-height: 18px;
 }
 
-.ordered-list {
-  padding-left: 20px;
+.section-divider {
+  height: 1px;
+  background: var(--color-border-tertiary);
+  margin: 16px 0;
 }
-.ordered-list li {
-  padding: 4px 0;
-  font-size: 14px;
-  color: var(--color-text-primary);
+
+/* BGP mnemonic */
+.mnemonic-block {
+  background: var(--color-background-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #1a6dd6;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+ol.answer-list { padding-left: 20px; }
+ol.answer-list li {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
   line-height: 1.6;
 }
-
-.followup-block {
-  background: var(--color-background-tertiary);
-  border: 1px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-md);
-  padding: 12px 16px;
-  margin-top: 10px;
-  font-size: 13px;
-}
-.followup-q {
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: 4px;
-}
-.followup-a {
-  color: var(--color-text-secondary);
-}
-
-.memory-trick {
-  background: #fff8e1;
-  border: 1px solid #ffe082;
-  border-radius: var(--border-radius-md);
-  padding: 12px 16px;
-  margin-top: 12px;
-  font-size: 13px;
-  color: #6d4c00;
-}
-@media (prefers-color-scheme: dark) {
-  .memory-trick { background: #2e2200; border-color: #6b4f00; color: #f0c050; }
-}
-
-.network-qa-block {
-  margin-bottom: 24px;
-}
-
-.divider {
-  border: none;
-  border-top: 1px solid var(--color-border-tertiary);
-  margin: 24px 0;
-}
-
-/* Hint details */
-.hint-details summary { color: var(--color-text-primary); }
-.solution-details summary { color: var(--color-text-primary); }
-
-/* Scrollbar */
-pre::-webkit-scrollbar { height: 6px; }
-pre::-webkit-scrollbar-track { background: transparent; }
-pre::-webkit-scrollbar-thumb { background: var(--color-border-secondary); border-radius: 3px; }
+ol.answer-list li strong { color: var(--color-text-primary); }
 
 /* Responsive */
 @media (max-width: 600px) {
-  .tab-btn { padding: 8px 10px; font-size: 13px; }
-  h1 { font-size: 21px; }
-  .mock-header { flex-direction: column; align-items: flex-start; }
-  .timer-block { flex-wrap: wrap; }
+  .problem-header { flex-direction: column; align-items: flex-start; }
+  .timer-display { font-size: 28px; }
+  .tab-btn { padding: 10px 10px; font-size: 12px; }
+  .phase-header { flex-wrap: wrap; }
+  .phase-time { margin-left: 0; }
 }
 </style>
 </head>
 <body>
 <div class="page-wrapper">
 
-  <a href="index.html" class="back-link">&#8592; Back</a>
+  <a href="../index.html" class="back-link">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 12L6 8l4-4"/>
+    </svg>
+    Back to index
+  </a>
 
-  <h1>Amazon LiveCode Practice Problems</h1>
-  <p class="page-subtitle">Amazon NDE Intern LiveCode Interview Prep &mdash; Interview window: March 23 &ndash; April 6, 2026</p>
+  <h1>Amazon LiveCode Practice</h1>
+  <p class="page-subtitle">12 DSA problems &middot; 8 Network Automation problems &middot; 2 &times; 60-min full mock simulations</p>
 
-  <nav class="tab-nav" role="tablist">
-    <button class="tab-btn active" onclick="showTab('dsa', this)" role="tab" aria-selected="true">
-      DSA Problems <span class="tab-count">12</span>
-    </button>
-    <button class="tab-btn" onclick="showTab('netauto', this)" role="tab" aria-selected="false">
-      Network Automation <span class="tab-count">8</span>
-    </button>
-    <button class="tab-btn" onclick="showTab('mocks', this)" role="tab" aria-selected="false">
-      Full Mock Simulations <span class="tab-count">2</span>
-    </button>
-  </nav>
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('dsa', event)">DSA Problems (12)</button>
+    <button class="tab-btn" onclick="showTab('netauto', event)">Network Automation (8)</button>
+    <button class="tab-btn" onclick="showTab('mock', event)">Full Mock Interviews (2)</button>
+  </div>
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- TAB A: DSA PROBLEMS                                     -->
-  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- ================================================================ -->
+  <!--  TAB 1 — DSA PROBLEMS                                            -->
+  <!-- ================================================================ -->
   <div id="tab-dsa" class="tab-panel active">
 
     <!-- Problem 1 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 1</span>
-        <h2 class="problem-title">Longest Substring Without Repeating Characters</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">1.</span> Longest Substring Without Repeating Characters</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given a string <code>s</code>, find the length of the longest substring without repeating characters.
-      </p>
-      <div class="example-block">Input:  s = "abcabcbb"  →  Output: 3  ("abc")
-Input:  s = "bbbbb"     →  Output: 1
-Input:  s = "pwwkew"   →  Output: 3  ("wke")</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>What characters? ASCII only, or Unicode?</li>
-          <li>Return length only, or the actual substring?</li>
-          <li>Empty string input &rarr; return 0?</li>
-          <li>Single character &rarr; return 1?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Use a <strong>sliding window</strong> <code>[left..right]</code>. Keep a dict mapping char &rarr; last seen index. When you see a duplicate inside the window, jump <code>left</code> past it.
+      <p class="problem-desc">Given a string <code>s</code>, find the length of the longest substring without repeating characters.</p>
+      <div class="example-block">Input:  s = "abcabcbb"
+Output: 3   (substring "abc")</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>What should we return for an empty string?</li>
+        <li>Are Unicode characters possible, or ASCII only?</li>
+        <li>Should we return the substring itself or just the length?</li>
+        <li>Is the input always a string (not None)?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Use a <strong>sliding window</strong> with two pointers (<code>left</code> and <code>right</code>). Maintain a hash map of each character's last-seen index. When a duplicate is found inside the window, advance <code>left</code> past it. Track the maximum window size.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>def length_of_longest_substring(s: str) -&gt; int:
-    last_seen = {}
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def length_of_longest_substring(s: str) -> int:
+    char_index = {}
     left = 0
-    best = 0
-    for right, ch in enumerate(s):
-        if ch in last_seen and last_seen[ch] &gt;= left:
-            left = last_seen[ch] + 1
-        last_seen[ch] = right
-        best = max(best, right - left + 1)
-    return best
+    max_len = 0
+    for right, char in enumerate(s):
+        if char in char_index and char_index[char] >= left:
+            left = char_index[char] + 1
+        char_index[char] = right
+        max_len = max(max_len, right - left + 1)
+    return max_len
 
-# Trace s="abba":
-# r=0 a: window=[a] best=1
-# r=1 b: window=[ab] best=2
-# r=2 b: b seen at 1 &gt;= left=0 → left=2, window=[b] best=2
-# r=3 a: a seen at 0 &lt; left=2 → no shrink, window=[ba] best=2
-assert length_of_longest_substring("abcabcbb") == 3
-assert length_of_longest_substring("bbbbb") == 1
-assert length_of_longest_substring("abba") == 2</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) &nbsp;&nbsp; <strong>Space:</strong> O(min(n, alphabet))</div>
-          <div class="say-note"><strong>What to say:</strong> "Window invariant: all chars in [left..right] are unique. The <code>&gt;= left</code> check prevents shrinking left backward when we see a stale entry."</div>
+# Tests
+print(length_of_longest_substring("abcabcbb"))  # 3
+print(length_of_longest_substring("bbbbb"))     # 1
+print(length_of_longest_substring("pwwkew"))    # 3
+print(length_of_longest_substring(""))          # 0</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n)</td></tr>
+            <tr><td>Space</td><td>O(min(n, charset))</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 2 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 2</span>
-        <h2 class="problem-title">Top-K Most Frequent Elements</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">2.</span> Top-K Most Frequent Log Severities</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given an array of log severity strings, return the <em>k</em> most frequent ones in descending order of frequency.
-      </p>
-      <div class="example-block">Input:  logs = ["ERROR","WARN","ERROR","INFO","ERROR","WARN"],  k = 2
-Output: ["ERROR", "WARN"]   (3 and 2 occurrences)</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Return just names, or (name, count) pairs?</li>
-          <li>Ties: any order acceptable?</li>
-          <li>Is k guaranteed &le; distinct elements?</li>
-          <li>Case sensitive?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Count with a dict or <code>Counter</code>. Then use <code>heapq.nlargest(k, freq, key=freq.get)</code> &mdash; O(n log k) vs sort O(n log n).
+      <p class="problem-desc">Given a list of log severity strings and an integer k, return the k most frequent severities.</p>
+      <div class="example-block">Input:  logs = ["INFO","ERROR","ERROR","WARN","ERROR","INFO"], k = 2
+Output: ["ERROR", "INFO"]</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>How should ties be broken &mdash; any order acceptable?</li>
+        <li>Does the order of the result matter?</li>
+        <li>What if k is larger than the number of distinct severities?</li>
+        <li>Can the list be empty?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Use <code>Counter</code> for frequencies, then <code>heapq.nlargest(k, freq, key=freq.get)</code>. Alternatively, <code>Counter.most_common(k)</code> does both steps in one call.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
 <pre><code>import heapq
 from collections import Counter
-from typing import List
 
-def top_k_frequent(logs: List[str], k: int) -&gt; List[str]:
+def top_k_severities(logs: list[str], k: int) -> list[str]:
     freq = Counter(logs)
-    # heapq.nlargest: O(n log k) — better than sort when k &lt;&lt; n
     return heapq.nlargest(k, freq, key=freq.get)
 
-# Also works: return [item for item, _ in Counter(logs).most_common(k)]
+# Alternative using most_common
+def top_k_severities_v2(logs: list[str], k: int) -> list[str]:
+    return [item for item, _ in Counter(logs).most_common(k)]
 
-assert top_k_frequent(["ERROR","WARN","ERROR","INFO","ERROR","WARN"], 2) == ["ERROR","WARN"]</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n log k) &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "Counter is a dict subclass &mdash; mention the manual version: <code>freq[x] = freq.get(x,0)+1</code>. <code>heapq.nlargest</code> beats sorting when k is small."</div>
+print(top_k_severities(["INFO","ERROR","ERROR","WARN","ERROR","INFO"], 2))
+# ['ERROR', 'INFO']</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n log k)</td></tr>
+            <tr><td>Space</td><td>O(n)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 3 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 3</span>
-        <h2 class="problem-title">Merge Overlapping Intervals</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">3.</span> Merge Overlapping Maintenance Windows</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given a list of maintenance windows <code>[start, end]</code>, merge all overlapping windows and return the result.
-      </p>
-      <div class="example-block">Input:  [[1,3],[2,6],[8,10],[15,18],[9,12]]
-Output: [[1,6],[8,12],[15,18]]</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Is input already sorted?</li>
-          <li>Are intervals inclusive on both ends?</li>
-          <li>What if the list is empty?</li>
-          <li>What if there is only one interval?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Sort by start time first. Then iterate: if current start &le; last merged end, extend the last merged interval. Otherwise append new.
+      <p class="problem-desc">Given a list of <code>[start, end]</code> time intervals (in minutes since midnight), merge all overlapping intervals and return the merged list.</p>
+      <div class="example-block">Input:  [[60,120],[90,180],[300,360],[330,420]]
+Output: [[60,180],[300,420]]</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Are intervals already sorted, or do we need to sort them?</li>
+        <li>Can start equal end (zero-length interval)?</li>
+        <li>Should adjacent but touching intervals like [1,3] and [3,5] be merged?</li>
+        <li>What if the input list is empty?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Sort by start time. Iterate keeping a <code>merged</code> list. For each interval, check if its start is &le; the last merged end &mdash; if so, extend; otherwise append as new.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>from typing import List
-
-def merge(intervals: List[List[int]]) -&gt; List[List[int]]:
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def merge_windows(intervals: list[list[int]]) -> list[list[int]]:
     if not intervals:
         return []
     intervals.sort(key=lambda x: x[0])
     merged = [intervals[0]]
-    for start, end in intervals[1:]:
-        if start &lt;= merged[-1][1]:           # overlapping
-            merged[-1][1] = max(merged[-1][1], end)
+    for curr in intervals[1:]:
+        last = merged[-1]
+        if curr[0] <= last[1]:
+            last[1] = max(last[1], curr[1])
         else:
-            merged.append([start, end])
+            merged.append(curr)
     return merged
 
-assert merge([[1,3],[2,6],[8,10],[15,18],[9,12]]) == [[1,6],[8,12],[15,18]]
-assert merge([[1,4],[4,5]]) == [[1,5]]  # touching intervals merge</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n log n) &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "Sort first &mdash; O(n log n) total. Then one linear sweep. Key edge case: touching intervals [1,4],[4,5] &rarr; should merge to [1,5] because start &le; prev_end (4 &le; 4)."</div>
+print(merge_windows([[60,120],[90,180],[300,360],[330,420]]))
+# [[60, 180], [300, 420]]
+print(merge_windows([[1,4],[4,5]]))  # [[1, 5]] (touching intervals merged)</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n log n)</td></tr>
+            <tr><td>Space</td><td>O(n)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 4 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 4</span>
-        <h2 class="problem-title">Valid Parentheses</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">4.</span> Valid Parentheses</div>
         <span class="badge badge-easy">Easy</span>
       </div>
-      <p class="problem-description">
-        Given a string containing <code>'('</code>, <code>')'</code>, <code>'{'</code>, <code>'}'</code>, <code>'['</code>, <code>']'</code>, determine if the brackets are valid (correctly matched and nested).
-      </p>
-      <div class="example-block">"([])"   → True
-"([)]"   → False
-"{[]}"   → True
-"("      → False
-""       → True</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Other characters: ignored or invalid?</li>
-          <li>Empty string &rarr; True?</li>
-          <li>Uppercase letters mixed in?</li>
-          <li>Return bool only?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Use a stack. Push open brackets. On close bracket, check top of stack matches.
+      <p class="problem-desc">Given a string containing only <code>(</code>, <code>)</code>, <code>{</code>, <code>}</code>, <code>[</code>, <code>]</code>, determine if the input is valid (brackets close in correct order).</p>
+      <div class="example-block">Input:  s = "({[]})"  -&gt; True
+Input:  s = "([)]"   -&gt; False</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Is an empty string considered valid?</li>
+        <li>Are only these 6 characters guaranteed in the input?</li>
+        <li>Is there an upper bound on string length?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Stack approach: push open brackets onto the stack. On a close bracket, check if the top of the stack is the matching open bracket and pop it. At the end, the stack must be empty.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>def is_valid(s: str) -&gt; bool:
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def is_valid(s: str) -> bool:
     stack = []
-    closing = {')': '(', ']': '[', '}': '{'}
-    for ch in s:
-        if ch in '([{':
-            stack.append(ch)
-        elif ch in ')]}':
-            if not stack or stack[-1] != closing[ch]:
+    matching = {')': '(', ']': '[', '}': '{'}
+    for char in s:
+        if char in '([{':
+            stack.append(char)
+        elif char in ')]}':
+            if not stack or stack[-1] != matching[char]:
                 return False
             stack.pop()
     return len(stack) == 0
 
-assert is_valid("([])")  is True
-assert is_valid("([)]")  is False
-assert is_valid("")      is True
-assert is_valid("(")     is False</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "Three edge cases before coding: empty string &rarr; True; opener with no closer &rarr; stack non-empty at end &rarr; False; closer with empty stack &rarr; False."</div>
+print(is_valid("({[]})"))  # True
+print(is_valid("([)]"))    # False
+print(is_valid(""))        # True</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n)</td></tr>
+            <tr><td>Space</td><td>O(n)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 5 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 5</span>
-        <h2 class="problem-title">BFS Shortest Path in Network Graph</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">5.</span> BFS Shortest Path in Network Topology</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given a network topology as an adjacency list and two nodes, return the minimum number of hops between them, or -1 if unreachable.
-      </p>
-      <div class="example-block">graph = {
-  "core":    ["dist1", "dist2"],
-  "dist1":   ["access1"],
-  "dist2":   ["access2"],
-  "access1": [],
-  "access2": []
-}
-shortest_path("core", "access1") → 2</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Directed or undirected graph?</li>
-          <li>Return hop count or the actual path?</li>
-          <li>Are edge weights all equal (unweighted)?</li>
-          <li>Can start == end?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          BFS guarantees shortest path in unweighted graphs. Use a <code>deque</code> for O(1) popleft. Track visited set to avoid cycles.
+      <p class="problem-desc">Given a network topology as an adjacency list and two router names, find the minimum number of hops between them. Return -1 if unreachable.</p>
+      <div class="example-block">graph = {"R1":["R2","R3"],"R2":["R4"],"R3":["R4"],"R4":["R5"],"R5":[]}
+min_hops(graph, "R1", "R5") -&gt; 3</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Is the graph directed or undirected?</li>
+        <li>Are all edge weights equal to 1 hop?</li>
+        <li>What should we return if start == end?</li>
+        <li>Can a node have no outgoing edges?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>BFS with a deque. Track a <code>visited</code> set to avoid cycles. Store <code>(node, hop_count)</code> tuples in the queue. When you dequeue the destination node, return the hop count.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
 <pre><code>from collections import deque
-from typing import Dict, List
 
-def shortest_hops(graph: Dict[str, List[str]], start: str, end: str) -&gt; int:
+def min_hops(graph: dict[str, list[str]], start: str, end: str) -> int:
     if start == end:
         return 0
+    queue = deque([(start, 0)])
     visited = {start}
-    queue   = deque([(start, 0)])
     while queue:
         node, hops = queue.popleft()
         for neighbor in graph.get(node, []):
@@ -858,1442 +812,1361 @@ def shortest_hops(graph: Dict[str, List[str]], start: str, end: str) -&gt; int:
             if neighbor not in visited:
                 visited.add(neighbor)
                 queue.append((neighbor, hops + 1))
-    return -1  # unreachable
+    return -1
 
-topo = {"core":["dist1","dist2"],"dist1":["access1"],"dist2":["access2"],"access1":[],"access2":[]}
-assert shortest_hops(topo, "core", "access1") == 2
-assert shortest_hops(topo, "core", "core") == 0
-assert shortest_hops(topo, "access1", "access2") == -1</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(V+E) &nbsp;&nbsp; <strong>Space:</strong> O(V)</div>
-          <div class="say-note"><strong>What to say:</strong> "BFS explores level by level &mdash; the first time you reach end is the shortest path. Initialize visited with start before the loop. <code>deque</code> is O(1) popleft vs list's O(n)."</div>
+topology = {"R1":["R2","R3"],"R2":["R4"],"R3":["R4"],"R4":["R5"],"R5":[]}
+print(min_hops(topology, "R1", "R5"))  # 3
+print(min_hops(topology, "R1", "R1"))  # 0
+print(min_hops(topology, "R5", "R1"))  # -1 (directed graph)</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(V + E)</td></tr>
+            <tr><td>Space</td><td>O(V)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 6 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 6</span>
-        <h2 class="problem-title">Parse Key-Value Config String</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">6.</span> Parse Key=Value Config String</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Parse a string of space-separated key=value pairs into a dict. Values may be quoted strings containing spaces. Handle missing values gracefully.
-      </p>
-      <div class="example-block">Input:  'host=10.0.0.1 port=22 description="my router"'
-Output: {"host": "10.0.0.1", "port": "22", "description": "my router"}</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Can values contain <code>=</code> signs?</li>
-          <li>Are quoted values always double-quoted?</li>
-          <li>What if a key appears twice?</li>
-          <li>Unquoted values &mdash; can they contain special chars?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Use <code>shlex.split()</code> to handle quoted strings, then split each token on the first <code>'='</code> using <code>str.partition('=')</code>.
+      <p class="problem-desc">Parse a config string like <code>"host=10.0.0.1 port=22 desc='core switch' enabled=true"</code> into a dict. Values can be quoted strings containing spaces. Unquoted values are plain strings.</p>
+      <div class="example-block">Input:  "host=10.0.0.1 port=22 desc='core switch'"
+Output: {"host": "10.0.0.1", "port": "22", "desc": "core switch"}</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Should double quotes also be supported?</li>
+        <li>Are escaped characters inside quotes possible (e.g., \' or \")?</li>
+        <li>What happens with keys that have no value (no = sign)?</li>
+        <li>Should we strip whitespace from values?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Use a single regex with alternation: match <code>key=</code> followed by either a double-quoted group, a single-quoted group, or an unquoted run of non-whitespace characters. Use <code>finditer</code> to iterate all matches.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>import shlex
-from typing import Dict
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>import re
 
-def parse_kv_config(s: str) -&gt; Dict[str, str]:
-    """
-    Parse 'key=value key2="quoted value"' into a dict.
-    Uses shlex.split to handle quoted values with spaces.
-    """
+def parse_kv_config(config: str) -> dict:
+    """Parse key=value config string, supporting quoted values."""
     result = {}
-    try:
-        tokens = shlex.split(s)
-    except ValueError:
-        # Fallback: simple split on whitespace if shlex fails
-        tokens = s.split()
-
-    for token in tokens:
-        if '=' in token:
-            key, _, value = token.partition('=')
-            key = key.strip()
-            if key:
-                result[key] = value
-        # Silently skip tokens without '=' (malformed)
+    pattern = re.compile(
+        r'(\w+)='           # key
+        r'(?:'
+        r'"([^"]*)"'        # double-quoted value
+        r"|'([^']*)'"       # single-quoted value
+        r'|(\S+)'           # unquoted value
+        r')'
+    )
+    for m in pattern.finditer(config):
+        key = m.group(1)
+        value = m.group(2) or m.group(3) or m.group(4) or ""
+        result[key] = value
     return result
 
-s = 'host=10.0.0.1 port=22 description="my router" timeout=30'
-result = parse_kv_config(s)
-assert result['host'] == '10.0.0.1'
-assert result['description'] == 'my router'
-assert result['port'] == '22'</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "<code>shlex.split</code> handles quoted strings correctly &mdash; it's stdlib. <code>str.partition('=')</code> splits on the FIRST <code>=</code> only, so values containing <code>=</code> are preserved. Edge case: <code>key=</code> &rarr; empty string value, which is fine."</div>
+s = "host=10.0.0.1 port=22 desc='core switch' enabled=true"
+print(parse_kv_config(s))
+# {'host': '10.0.0.1', 'port': '22', 'desc': 'core switch', 'enabled': 'true'}</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n)</td></tr>
+            <tr><td>Space</td><td>O(k) &mdash; k = number of keys</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 7 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 7</span>
-        <h2 class="problem-title">LRU Cache</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">7.</span> LRU Cache</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Implement a Least Recently Used (LRU) cache with O(1) get and put operations. When capacity is reached, evict the least recently used item.
-      </p>
-      <div class="example-block">LRUCache(2)
-put(1, 1); put(2, 2)
-get(1)   → 1
-put(3, 3)              ← evicts key 2
-get(2)   → -1          ← was evicted</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li><code>get()</code> on missing key returns -1?</li>
-          <li>Is capacity always positive?</li>
-          <li><code>put()</code> on existing key updates value and marks as recently used?</li>
-          <li>Thread safety needed?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          <code>OrderedDict</code> maintains insertion order AND supports <code>move_to_end(key)</code>. Most recently used = end; LRU = front.
+      <p class="problem-desc">Design a data structure with <code>get(key)</code> and <code>put(key, value)</code> that operates in O(1) time and evicts the least recently used entry when capacity is exceeded.</p>
+      <div class="example-block">capacity=2 -&gt; put(1,"a"), put(2,"b"), get(1)-&gt;"a"
+put(3,"c")  evicts key 2
+get(2) -&gt; -1  (evicted)
+get(3) -&gt; "c"</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>What should get() return on a cache miss?</li>
+        <li>Is capacity guaranteed to be >= 1?</li>
+        <li>Does put() on an existing key update the value AND recency?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p><code>OrderedDict</code> from <code>collections</code>: <code>move_to_end(key)</code> marks a key as most recently used in O(1), and <code>popitem(last=False)</code> evicts the least recently used in O(1).</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
 <pre><code>from collections import OrderedDict
 
 class LRUCache:
     def __init__(self, capacity: int):
-        self.cap   = capacity
+        self.capacity = capacity
         self.cache = OrderedDict()
 
-    def get(self, key: int) -&gt; int:
+    def get(self, key) -> any:
         if key not in self.cache:
             return -1
-        self.cache.move_to_end(key)   # mark as recently used
+        self.cache.move_to_end(key)
         return self.cache[key]
 
-    def put(self, key: int, value: int) -&gt; None:
+    def put(self, key, value) -> None:
         if key in self.cache:
             self.cache.move_to_end(key)
         self.cache[key] = value
-        if len(self.cache) &gt; self.cap:
-            self.cache.popitem(last=False)  # evict LRU (front)
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)
 
-c = LRUCache(2)
-c.put(1, 1); c.put(2, 2)
-assert c.get(1) == 1    # moves 1 to end; order: [2, 1]
-c.put(3, 3)             # evicts 2 (front)
-assert c.get(2) == -1</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(1) per get/put &nbsp;&nbsp; <strong>Space:</strong> O(capacity)</div>
-          <div class="say-note"><strong>What to say:</strong> "<code>OrderedDict.move_to_end(key)</code> is O(1) &mdash; that's the key insight. <code>popitem(last=False)</code> removes from the front (LRU). If they ask for the doubly-linked list version, that's the follow-up."</div>
+# Test
+cache = LRUCache(2)
+cache.put(1, "a"); cache.put(2, "b")
+print(cache.get(1))  # "a"
+cache.put(3, "c")
+print(cache.get(2))  # -1  (evicted)
+print(cache.get(3))  # "c"</code></pre>
+          <table class="complexity-table">
+            <tr><th>Operation</th><th>Complexity</th></tr>
+            <tr><td>get / put</td><td>O(1)</td></tr>
+            <tr><td>Space</td><td>O(capacity)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 8 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 8</span>
-        <h2 class="problem-title">Detect Cycle in Directed Graph</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">8.</span> Detect Cycle in Directed Graph</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given a directed graph as an adjacency list, return True if there is a cycle, False otherwise.
-      </p>
-      <div class="example-block">{"A":["B"], "B":["C"], "C":["A"]}  → True   (A→B→C→A)
-{"A":["B"], "B":["C"], "C":[]}    → False
-{"A":["A"]}                        → True   (self-loop)</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Self-loops count as cycles?</li>
-          <li>Disconnected graph &mdash; check all components?</li>
-          <li>Directed or undirected? (affects algorithm choice)</li>
-          <li>Return which nodes form the cycle, or just bool?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          DFS with three colors: WHITE (unvisited), GRAY (on current stack), BLACK (done). If you reach a GRAY node, that's a back-edge = cycle.
+      <p class="problem-desc">Given a directed graph as an adjacency list, return <code>True</code> if the graph contains a cycle.</p>
+      <div class="example-block">{"A":["B"],"B":["C"],"C":["A"]}  -&gt; True
+{"A":["B"],"B":["C"],"C":[]}    -&gt; False</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Can the graph have isolated nodes?</li>
+        <li>Does a self-loop (A -&gt; A) count as a cycle?</li>
+        <li>Are all nodes guaranteed to appear as keys in the adjacency list?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Three-color DFS: WHITE = unvisited, GRAY = currently on the DFS stack, BLACK = fully processed. If during DFS you reach a GRAY node, you've found a back edge &mdash; that's a cycle.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>from typing import Dict, List
-
-def has_cycle(graph: Dict[str, List[str]]) -&gt; bool:
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def has_cycle(graph: dict[str, list[str]]) -> bool:
     WHITE, GRAY, BLACK = 0, 1, 2
-    color = {n: WHITE for n in graph}
+    color = {node: WHITE for node in graph}
 
-    def dfs(node):
+    def dfs(node: str) -> bool:
         color[node] = GRAY
         for neighbor in graph.get(node, []):
             if neighbor not in color:
                 color[neighbor] = WHITE
-            if color[neighbor] == GRAY:  # back-edge
+            if color[neighbor] == GRAY:
                 return True
             if color[neighbor] == WHITE and dfs(neighbor):
                 return True
         color[node] = BLACK
         return False
 
-    return any(dfs(n) for n in list(graph) if color.get(n) == WHITE)
+    return any(dfs(n) for n in graph if color[n] == WHITE)
 
-assert has_cycle({"A":["B"],"B":["C"],"C":["A"]}) is True
-assert has_cycle({"A":["B"],"B":["C"],"C":[]})    is False
-assert has_cycle({"A":["A"]})                      is True</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(V+E) &nbsp;&nbsp; <strong>Space:</strong> O(V)</div>
-          <div class="say-note"><strong>What to say:</strong> "Why three colors and not two? In a directed graph, reaching a visited node via a different path is NOT a cycle. GRAY means 'currently on the recursion stack' &mdash; that's the back-edge condition. BLACK means fully explored."</div>
+print(has_cycle({"A":["B"],"B":["C"],"C":["A"]}))  # True
+print(has_cycle({"A":["B"],"B":["C"],"C":[]}))      # False
+print(has_cycle({"A":["A"]}))                        # True (self-loop)</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(V + E)</td></tr>
+            <tr><td>Space</td><td>O(V)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 9 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 9</span>
-        <h2 class="problem-title">Running Median of Latency Stream</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">9.</span> Running Median of Latency Stream</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Design a data structure that supports adding integers and querying the median at any point.
-      </p>
-      <div class="example-block">add(5)   → median = 5
-add(15)  → median = 10.0
-add(1)   → median = 5
-add(3)   → median = 4.0
-add(8)   → median = 5</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Integer or float inputs?</li>
-          <li>Can the median be a float (average of two middle values)?</li>
-          <li>How many elements expected &mdash; do we need streaming efficiency?</li>
-          <li><code>add()</code> + <code>median()</code> interface?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Two heaps: a max-heap for the lower half, min-heap for the upper half. Keep them balanced (sizes differ by at most 1).
+      <p class="problem-desc">Design a data structure that accepts a stream of latency values (floats) and returns the current median after each insertion.</p>
+      <div class="example-block">Stream:  [10, 20, 30, 15]
+Medians: [10, 15.0, 20, 17.5]</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Are values integers or can they be floats?</li>
+        <li>Do we need all historical medians or just the current one?</li>
+        <li>What if only one element has been inserted so far?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Two heaps: a max-heap for the lower half (negate values for Python's min-heap) and a min-heap for the upper half. After each insertion, rebalance so sizes differ by at most 1. Median = top of the larger heap, or average of both tops.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
 <pre><code>import heapq
 
-class MedianFinder:
+class RunningMedian:
     def __init__(self):
-        self.lo = []  # max-heap (negate for Python)
-        self.hi = []  # min-heap
+        self.max_heap = []  # lower half, values negated
+        self.min_heap = []  # upper half
 
-    def add(self, num: float) -&gt; None:
-        heapq.heappush(self.lo, -num)
-        # Ensure lo's max &lt;= hi's min
-        if self.hi and -self.lo[0] &gt; self.hi[0]:
-            heapq.heappush(self.hi, -heapq.heappop(self.lo))
-        # Balance sizes: lo can be 1 larger than hi
-        if len(self.lo) &gt; len(self.hi) + 1:
-            heapq.heappush(self.hi, -heapq.heappop(self.lo))
-        elif len(self.hi) &gt; len(self.lo):
-            heapq.heappush(self.lo, -heapq.heappop(self.hi))
+    def add(self, val: float) -> float:
+        heapq.heappush(self.max_heap, -val)
+        # Ensure ordering: max of lower half <= min of upper half
+        if self.min_heap and (-self.max_heap[0]) > self.min_heap[0]:
+            heapq.heappush(self.min_heap, -heapq.heappop(self.max_heap))
+        # Rebalance sizes
+        if len(self.max_heap) > len(self.min_heap) + 1:
+            heapq.heappush(self.min_heap, -heapq.heappop(self.max_heap))
+        elif len(self.min_heap) > len(self.max_heap):
+            heapq.heappush(self.max_heap, -heapq.heappop(self.min_heap))
+        return self.median()
 
-    def median(self) -&gt; float:
-        if len(self.lo) == len(self.hi):
-            return (-self.lo[0] + self.hi[0]) / 2.0
-        return float(-self.lo[0])
+    def median(self) -> float:
+        if len(self.max_heap) == len(self.min_heap):
+            return (-self.max_heap[0] + self.min_heap[0]) / 2
+        return float(-self.max_heap[0])
 
-mf = MedianFinder()
-for x in [5, 15, 1, 3, 8]:
-    mf.add(x)
-assert mf.median() == 5.0</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(log n) per add, O(1) median &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "Lower half = max-heap (negate for Python's min-heap). Upper half = min-heap. Invariant: max(lo) &le; min(hi) and |len(lo) - len(hi)| &le; 1. Equal sizes &rarr; median = average of both tops."</div>
+rm = RunningMedian()
+for v in [10, 20, 30, 15]:
+    print(rm.add(v))  # 10.0, 15.0, 20.0, 17.5</code></pre>
+          <table class="complexity-table">
+            <tr><th>Operation</th><th>Complexity</th></tr>
+            <tr><td>add (insert)</td><td>O(log n)</td></tr>
+            <tr><td>median query</td><td>O(1)</td></tr>
+            <tr><td>Space</td><td>O(n)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 10 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 10</span>
-        <h2 class="problem-title">Longest Common Prefix of Hostnames</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">10.</span> Longest Common Prefix of Hostnames</div>
         <span class="badge badge-easy">Easy</span>
       </div>
-      <p class="problem-description">
-        Given a list of hostnames, find the longest common prefix string.
-      </p>
-      <div class="example-block">["flower", "flow", "flight"]  → "fl"
-["dog", "racecar", "car"]     → ""
-["abc"]                        → "abc"</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Empty list &rarr; return <code>""</code>?</li>
-          <li>Single element &rarr; return that element?</li>
-          <li>Case-sensitive?</li>
-          <li>All same string &rarr; return that string?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Compare character by character using <code>zip(*strs)</code> which zips all strings together column by column. <code>zip</code> stops at the shortest string automatically.
+      <p class="problem-desc">Given a list of hostnames, find the longest common prefix string. Return <code>""</code> if none exists.</p>
+      <div class="example-block">["core-sw-01","core-sw-02","core-sw-03"]  -&gt;  "core-sw-0"
+["abc","abcdef","ab"]                    -&gt;  "ab"
+["dog","racecar","car"]                  -&gt;  ""</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>What if the list is empty?</li>
+        <li>What if there is only one element?</li>
+        <li>Is comparison case-sensitive?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Sort the list lexicographically. The first and last elements are the most different &mdash; find where they diverge character by character. That point is also where the full list diverges.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>from typing import List
-
-def longest_common_prefix(strs: List[str]) -&gt; str:
-    if not strs:
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def longest_common_prefix(names: list[str]) -> str:
+    if not names:
         return ""
-    result = []
-    for chars in zip(*strs):  # zip stops at shortest string
-        if len(set(chars)) == 1:
-            result.append(chars[0])
-        else:
-            break
-    return ''.join(result)
-
-# Alternative: sort + compare first/last
-def longest_common_prefix_v2(strs: List[str]) -&gt; str:
-    if not strs:
-        return ""
-    strs.sort()
-    a, b = strs[0], strs[-1]  # min and max after sort
+    names_sorted = sorted(names)
+    first, last = names_sorted[0], names_sorted[-1]
     i = 0
-    while i &lt; len(a) and i &lt; len(b) and a[i] == b[i]:
+    while i < len(first) and i < len(last) and first[i] == last[i]:
         i += 1
-    return a[:i]
+    return first[:i]
 
-assert longest_common_prefix(["flower","flow","flight"]) == "fl"
-assert longest_common_prefix(["dog","racecar","car"]) == ""
-assert longest_common_prefix(["abc"]) == "abc"</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n&middot;m) where m = shortest string length &nbsp;&nbsp; <strong>Space:</strong> O(m)</div>
-          <div class="say-note"><strong>What to say:</strong> "<code>zip(*strs)</code> is Pythonic &mdash; it transposes the list of strings into columns. The sort-then-compare approach is clean too: min and max after sort differ only after the shared prefix."</div>
+print(longest_common_prefix(["core-sw-01","core-sw-02","core-sw-03"]))  # "core-sw-0"
+print(longest_common_prefix(["abc","abcdef","ab"]))  # "ab"
+print(longest_common_prefix(["dog","racecar","car"]))  # ""
+print(longest_common_prefix(["only"]))  # "only"</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n log n + L) &mdash; L = prefix length</td></tr>
+            <tr><td>Space</td><td>O(1)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 11 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 11</span>
-        <h2 class="problem-title">Two Sum (Port Pairs)</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">11.</span> Two Sum (Port Pair)</div>
         <span class="badge badge-easy">Easy</span>
       </div>
-      <p class="problem-description">
-        Given a list of port numbers and a target sum, return indices of the two ports that add up to target. Each input has exactly one solution.
-      </p>
-      <div class="example-block">ports = [80, 443, 22, 8080],  target = 465
-Output: [1, 2]   (443 + 22 = 465)</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Return indices or values?</li>
-          <li>Exactly one solution guaranteed?</li>
-          <li>Same element used twice allowed?</li>
-          <li>Sorted or unsorted input?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Single-pass hashmap: for each number, check if <code>target - num</code> is already in the map. If yes, done. If not, store <code>num &rarr; index</code>.
+      <p class="problem-desc">Given a list of port numbers and a target sum, return the indices of the two ports that add up to the target.</p>
+      <div class="example-block">ports = [80, 443, 22, 8080], target = 523
+Output: [0, 1]   (80 + 443 = 523)</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Is exactly one solution guaranteed to exist?</li>
+        <li>Can the same element be used twice?</li>
+        <li>Is any valid pair acceptable if multiple solutions exist?</li>
+        <li>What should we return if no pair is found?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Hash map approach: as you iterate, compute <code>complement = target - current</code> and check if it's already in <code>seen</code>. Store <code>seen[value] = index</code> as you go. One pass, O(n).</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>from typing import List
-
-def two_sum(nums: List[int], target: int) -&gt; List[int]:
-    seen = {}  # value → index
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def two_sum(nums: list[int], target: int) -> list[int]:
+    seen = {}  # value -> index
     for i, num in enumerate(nums):
         complement = target - num
         if complement in seen:
             return [seen[complement], i]
         seen[num] = i
-    return []  # no solution (won't happen per guarantee)
+    return []
 
-assert two_sum([80, 443, 22, 8080], 465) == [1, 2]
-assert two_sum([2, 7, 11, 15], 9) == [0, 1]</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "One-pass: store <code>num &rarr; index</code> as we go. When we see a number, check if its complement was already seen. Avoids the naive O(n&sup2;) double loop."</div>
+print(two_sum([80, 443, 22, 8080], 523))  # [0, 1]  (80+443)
+print(two_sum([2, 7, 11, 15], 9))         # [0, 1]
+print(two_sum([3, 2, 4], 6))              # [1, 2]</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n)</td></tr>
+            <tr><td>Space</td><td>O(n)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- Problem 12 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">Problem 12</span>
-        <h2 class="problem-title">Group Hostnames by Pattern (Anagram Groups)</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">12.</span> Group Hostnames by Anagram Key</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given a list of hostnames, group those that are anagrams of each other (same characters in different order).
-      </p>
-      <div class="example-block">Input:  ["eat","tea","tan","ate","nat","bat"]
-Output: [["bat"], ["nat","tan"], ["ate","eat","tea"]]</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Case-sensitive?</li>
-          <li>Return any order within groups?</li>
-          <li>Return list of lists or dict?</li>
-          <li>Empty list input?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Key = sorted characters of the string. Group by this key using a <code>defaultdict</code>.
+      <p class="problem-desc">Given a list of hostnames (or strings), group those that are anagrams of each other (contain the same characters in any order).</p>
+      <div class="example-block">["eat","tea","tan","ate","nat","bat"]
+-&gt; [["eat","tea","ate"], ["tan","nat"], ["bat"]]</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Is the comparison case-sensitive?</li>
+        <li>What if there are empty strings in the input?</li>
+        <li>Does the order within groups or between groups matter?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>For each string, create a canonical form by sorting its characters: <code>tuple(sorted(s))</code>. Strings with the same canonical form are anagrams. Use a <code>defaultdict(list)</code> keyed by this tuple.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
 <pre><code>from collections import defaultdict
-from typing import List
 
-def group_anagrams(strs: List[str]) -&gt; List[List[str]]:
+def group_anagrams(strs: list[str]) -> list[list[str]]:
     groups = defaultdict(list)
     for s in strs:
         key = tuple(sorted(s))  # canonical form
         groups[key].append(s)
     return list(groups.values())
 
-result = group_anagrams(["eat","tea","tan","ate","nat","bat"])
-# Sort for deterministic comparison
-result_sets = sorted([sorted(g) for g in result])
-assert result_sets == [["bat"], ["ate","eat","tea"], ["nat","tan"]]</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n &middot; k log k) where k = max string length &nbsp;&nbsp; <strong>Space:</strong> O(n&middot;k)</div>
-          <div class="say-note"><strong>What to say:</strong> "The canonical key is <code>tuple(sorted(s))</code> &mdash; all anagrams share the same key. <code>defaultdict(list)</code> groups them automatically. Network use case: normalizing hostname variants, grouping BGP prefixes by prefix length."</div>
+print(group_anagrams(["eat","tea","tan","ate","nat","bat"]))
+# [['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]
+print(group_anagrams([""]))   # [['']]
+print(group_anagrams(["a"]))  # [['a']]</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n &times; L log L) &mdash; L = avg string length</td></tr>
+            <tr><td>Space</td><td>O(n &times; L)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
-  </div><!-- /tab-dsa -->
+  </div><!-- end tab-dsa -->
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- TAB B: NETWORK AUTOMATION                              -->
-  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- ================================================================ -->
+  <!--  TAB 2 — NETWORK AUTOMATION PROBLEMS                             -->
+  <!-- ================================================================ -->
   <div id="tab-netauto" class="tab-panel">
 
     <!-- NA-1 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-1</span>
-        <h2 class="problem-title">IPv4 &harr; Integer Conversion</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-1.</span> IPv4 String &harr; 32-bit Integer</div>
         <span class="badge badge-easy">Easy</span>
       </div>
-      <p class="problem-description">
-        Write functions to convert an IPv4 dotted-decimal string to a 32-bit integer and back.
-      </p>
-      <div class="example-block">ipv4_to_int("192.168.1.1")  → 3232235777
-int_to_ipv4(3232235777)     → "192.168.1.1"</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Handle leading zeros in octets?</li>
-          <li>Validate range 0-255 per octet?</li>
-          <li>Return -1 on error or raise?</li>
-          <li>IPv6 needed?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Process each octet, shift left 8 bits, OR with octet value. Reverse for int &rarr; string.
+      <p class="problem-desc">Implement <code>ipv4_to_int(ip)</code> that converts <code>"192.168.1.1"</code> to its 32-bit integer, and <code>int_to_ipv4(n)</code> that converts back.</p>
+      <div class="example-block">ipv4_to_int("192.168.1.1")  -&gt; 3232235777
+int_to_ipv4(3232235777)    -&gt; "192.168.1.1"
+ipv4_to_int("10.0.0.1")    -&gt; 167772161</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Should we validate the IP format, or assume well-formed input?</li>
+        <li>IPv4 only, or should we handle IPv6?</li>
+        <li>Should int_to_ipv4 raise on negative or out-of-range integers?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Each octet is 8 bits. Build the integer with <code>result = (result &lt;&lt; 8) | int(octet)</code> for each octet left-to-right. Reverse: extract each byte with <code>(n &gt;&gt; (8*i)) &amp; 0xFF</code> for i in range(3, -1, -1).</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>def ipv4_to_int(ip: str) -&gt; int:
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def ipv4_to_int(ip: str) -> int:
     parts = ip.split('.')
     if len(parts) != 4:
-        raise ValueError(f"Invalid IP: {ip!r}")
+        raise ValueError(f"invalid IP: {ip}")
     result = 0
-    for p in parts:
-        if not p.isdigit():
-            raise ValueError(f"Non-numeric octet: {p!r}")
-        v = int(p)
-        if v &lt; 0 or v &gt; 255:
-            raise ValueError(f"Octet out of range: {v}")
-        result = (result &lt;&lt; 8) | v
+    for part in parts:
+        result = (result << 8) | int(part)
     return result
 
-def int_to_ipv4(n: int) -&gt; str:
-    return '.'.join(str((n &gt;&gt; shift) &amp; 0xFF) for shift in (24, 16, 8, 0))
+def int_to_ipv4(n: int) -> str:
+    if not (0 <= n <= 0xFFFFFFFF):
+        raise ValueError(f"out of range: {n}")
+    return '.'.join(str((n >> (8 * i)) & 0xFF) for i in range(3, -1, -1))
 
-assert ipv4_to_int("192.168.1.1") == 3232235777
-assert int_to_ipv4(3232235777) == "192.168.1.1"
-assert int_to_ipv4(ipv4_to_int("10.0.0.1")) == "10.0.0.1"
-assert ipv4_to_int("0.0.0.0") == 0
-assert ipv4_to_int("255.255.255.255") == 0xFFFFFFFF</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(1) &nbsp;&nbsp; <strong>Space:</strong> O(1)</div>
-          <div class="say-note"><strong>What to say:</strong> "Each octet is 8 bits. Shift current result left 8, OR with octet. For reverse: right-shift and mask with <code>0xFF</code> to extract each 8-bit group. Always validate octets &mdash; out-of-range values are a common interview trap."</div>
+print(ipv4_to_int("192.168.1.1"))   # 3232235777
+print(int_to_ipv4(3232235777))      # 192.168.1.1
+print(ipv4_to_int("10.0.0.1"))      # 167772161
+print(int_to_ipv4(0))               # 0.0.0.0
+print(int_to_ipv4(0xFFFFFFFF))      # 255.255.255.255</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(1) &mdash; always 4 octets</td></tr>
+            <tr><td>Space</td><td>O(1)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- NA-2 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-2</span>
-        <h2 class="problem-title">CIDR Membership Check</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-2.</span> CIDR Membership Check</div>
         <span class="badge badge-easy">Easy</span>
       </div>
-      <p class="problem-description">
-        Given an IPv4 address and a CIDR block, determine if the IP is within the network.
-      </p>
-      <div class="example-block">ip_in_cidr("10.1.2.3",  "10.0.0.0/8")   → True
-ip_in_cidr("11.0.0.1", "10.0.0.0/8")   → False
-ip_in_cidr("10.0.0.0", "10.0.0.0/32")  → True
-ip_in_cidr("10.0.0.1", "10.0.0.0/32")  → False</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Is IP guaranteed valid?</li>
-          <li>Prefix length 0 &rarr; all IPs match (default route)?</li>
-          <li>Prefix length 32 &rarr; only exact host match?</li>
-          <li>Use stdlib <code>ipaddress</code> module or raw bit ops?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          <code>(ip_int &amp; mask) == network_int</code>. Mask = <code>(0xFFFFFFFF &lt;&lt; (32-prefix)) &amp; 0xFFFFFFFF</code>.
+      <p class="problem-desc">Write <code>cidr_contains(ip, cidr)</code> that returns <code>True</code> if the given IP address belongs to the CIDR block.</p>
+      <div class="example-block">cidr_contains("192.168.1.100", "192.168.1.0/24")  -&gt; True
+cidr_contains("192.168.2.1",  "192.168.1.0/24")  -&gt; False
+cidr_contains("10.0.0.1",     "10.0.0.0/8")      -&gt; True</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>IPv4 only?</li>
+        <li>Should we handle CIDRs with host bits set (e.g., 192.168.1.100/24)?</li>
+        <li>What should /32 and /0 return?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Build a 32-bit mask from the prefix length: <code>mask = 0xFFFFFFFF ^ ((1 &lt;&lt; (32 - plen)) - 1)</code>. Then check: <code>(ip_int &amp; mask) == (network_int &amp; mask)</code>.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>def ipv4_to_int(ip):
-    r = 0
-    for p in ip.split('.'): r = (r &lt;&lt; 8) | int(p)
-    return r
-
-def ip_in_cidr(ip: str, cidr: str) -&gt; bool:
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def cidr_contains(ip: str, cidr: str) -> bool:
     ip_str, prefix_str = cidr.split('/')
-    prefix = int(prefix_str)
-    mask = (0xFFFFFFFF &lt;&lt; (32 - prefix)) &amp; 0xFFFFFFFF if prefix &gt; 0 else 0
-    ip_int  = ipv4_to_int(ip)
-    net_int = ipv4_to_int(ip_str) &amp; mask
-    return (ip_int &amp; mask) == net_int
+    prefix_len = int(prefix_str)
+    mask = (
+        ((1 << 32) - 1) ^ ((1 << (32 - prefix_len)) - 1)
+        if prefix_len < 32 else 0xFFFFFFFF
+    )
 
-# Alternative with stdlib:
-import ipaddress
-def ip_in_cidr_stdlib(ip, cidr):
-    return ipaddress.ip_address(ip) in ipaddress.ip_network(cidr, strict=False)
+    def to_int(s):
+        result = 0
+        for part in s.split('.'):
+            result = (result << 8) | int(part)
+        return result
 
-assert ip_in_cidr("10.1.2.3", "10.0.0.0/8")  is True
-assert ip_in_cidr("11.0.0.1", "10.0.0.0/8")  is False
-assert ip_in_cidr("10.0.0.0", "10.0.0.0/32") is True
-assert ip_in_cidr("10.0.0.1", "10.0.0.0/32") is False</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(1) &nbsp;&nbsp; <strong>Space:</strong> O(1)</div>
-          <div class="say-note"><strong>What to say:</strong> "Always network the network address against the mask before comparing. Edge case: prefix=0 means mask=0, so all IPs match (default route 0.0.0.0/0). prefix=32 is an exact host match."</div>
+    return (to_int(ip) & mask) == (to_int(ip_str) & mask)
+
+print(cidr_contains("192.168.1.100", "192.168.1.0/24"))  # True
+print(cidr_contains("192.168.2.1",   "192.168.1.0/24"))  # False
+print(cidr_contains("10.0.0.1",      "10.0.0.0/8"))      # True
+print(cidr_contains("10.0.0.1",      "10.0.0.1/32"))     # True</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(1)</td></tr>
+            <tr><td>Space</td><td>O(1)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- NA-3 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-3</span>
-        <h2 class="problem-title">Longest Prefix Match</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-3.</span> Longest Prefix Match</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given an IP address and a list of CIDR prefixes (routing table), return the most specific matching prefix (longest prefix length), or None if no match.
-      </p>
-      <div class="example-block">cidrs = ["0.0.0.0/0", "10.0.0.0/8", "10.1.0.0/16", "10.1.2.0/24"]
-lpm("10.1.2.99", cidrs)   → "10.1.2.0/24"
-lpm("10.1.5.1",  cidrs)   → "10.1.0.0/16"
-lpm("172.16.0.1",cidrs)   → "0.0.0.0/0"</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Can the list be empty?</li>
-          <li>IP guaranteed valid?</li>
-          <li>Return the CIDR string or just prefix length?</li>
-          <li>No match &rarr; return None or default route?</li>
-          <li>Is <code>0.0.0.0/0</code> always in the list?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Linear scan all CIDRs. For each matching CIDR, track the one with highest prefix length. O(n) &mdash; mention trie for O(32) lookup if asked.
+      <p class="problem-desc">Given an IP address and a list of CIDR routes, return the most specific (longest prefix) route that contains the IP. Return <code>None</code> if no route matches.</p>
+      <div class="example-block">ip = "10.1.2.3"
+routes = ["10.0.0.0/8","10.1.0.0/16","10.1.2.0/24","192.168.0.0/16"]
+-&gt; "10.1.2.0/24"</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>If two routes have the same prefix length, which should be returned?</li>
+        <li>Are all CIDRs guaranteed valid and well-formed?</li>
+        <li>Should a default route (0.0.0.0/0) be treated as a valid match?</li>
+        <li>What if routes list is empty?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Linear scan: for each route check membership and compare prefix length to <code>best_len</code>. Track the best matching route. Follow-up: a Patricia trie reduces lookup to O(prefix_length) for large route tables.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>from typing import List, Optional
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def longest_prefix_match(ip: str, routes: list[str]) -> str | None:
+    def to_int(s):
+        r = 0
+        for p in s.split('.'): r = (r << 8) | int(p)
+        return r
 
-def ipv4_to_int(ip):
-    r = 0
-    for p in ip.split('.'): r = (r &lt;&lt; 8) | int(p)
-    return r
+    def parse_cidr(cidr):
+        ip_str, plen_str = cidr.split('/')
+        plen = int(plen_str)
+        mask = (
+            ((1 << 32) - 1) ^ ((1 << (32 - plen)) - 1)
+            if plen < 32 else 0xFFFFFFFF
+        )
+        return to_int(ip_str) & mask, mask, plen
 
-def parse_cidr(cidr):
-    ip_str, plen = cidr.split('/')
-    prefix = int(plen)
-    mask = (0xFFFFFFFF &lt;&lt; (32 - prefix)) &amp; 0xFFFFFFFF if prefix &gt; 0 else 0
-    return ipv4_to_int(ip_str) &amp; mask, prefix
-
-def longest_prefix_match(ip: str, cidrs: List[str]) -&gt; Optional[str]:
-    ip_int = ipv4_to_int(ip)
+    ip_int = to_int(ip)
     best, best_len = None, -1
-    for cidr in cidrs:
-        net, plen = parse_cidr(cidr)
-        mask = (0xFFFFFFFF &lt;&lt; (32 - plen)) &amp; 0xFFFFFFFF if plen &gt; 0 else 0
-        if (ip_int &amp; mask) == net and plen &gt; best_len:
-            best, best_len = cidr, plen
+
+    for route in routes:
+        try:
+            net_int, mask, plen = parse_cidr(route)
+            if (ip_int & mask) == net_int and plen > best_len:
+                best, best_len = route, plen
+        except (ValueError, IndexError):
+            continue
+
     return best
 
-cidrs = ["0.0.0.0/0","10.0.0.0/8","10.1.0.0/16","10.1.2.0/24"]
-assert longest_prefix_match("10.1.2.99", cidrs) == "10.1.2.0/24"
-assert longest_prefix_match("10.1.5.1",  cidrs) == "10.1.0.0/16"
-assert longest_prefix_match("172.16.0.1",cidrs) == "0.0.0.0/0"</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) &nbsp;&nbsp; <strong>Space:</strong> O(1) &nbsp;&nbsp; <strong>Follow-up:</strong> Trie = O(32) lookup</div>
-          <div class="say-note"><strong>What to say:</strong> "Linear scan is fine for small routing tables. For large tables (millions of prefixes in a real router), use a prefix trie (Patricia tree / radix tree) for O(prefix_length) = O(32) lookup. Always mention this as a follow-up."</div>
+routes = ["10.0.0.0/8","10.1.0.0/16","10.1.2.0/24","192.168.0.0/16"]
+print(longest_prefix_match("10.1.2.3", routes))    # 10.1.2.0/24
+print(longest_prefix_match("10.5.0.1", routes))    # 10.0.0.0/8
+print(longest_prefix_match("172.16.0.1", routes))  # None</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n) &mdash; one pass over routes</td></tr>
+            <tr><td>Space</td><td>O(1)</td></tr>
+            <tr><td>Follow-up (Trie)</td><td>O(prefix_length) lookup</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- NA-4 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-4</span>
-        <h2 class="problem-title">Detect CIDR Overlap</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-4.</span> Detect CIDR Overlap</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given two CIDR blocks, determine if they share any IP addresses.
-      </p>
-      <div class="example-block">cidrs_overlap("10.0.0.0/8",    "10.1.0.0/16")      → True   (b inside a)
-cidrs_overlap("10.0.0.0/8",    "11.0.0.0/8")       → False  (no overlap)
-cidrs_overlap("192.168.0.0/24","192.168.0.128/25")  → True   (partial)
-cidrs_overlap("10.0.0.0/8",    "10.0.0.0/8")        → True   (identical)</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Does a subnet completely inside another count as overlapping?</li>
-          <li>What if they are identical?</li>
-          <li>What if prefix=0 (all IPs)?</li>
-          <li>Return bool only, or also the overlapping range?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Two ranges [a_start, a_end] and [b_start, b_end] overlap iff <code>max(a_start, b_start) &le; min(a_end, b_end)</code>.
+      <p class="problem-desc">Given two CIDR blocks, return <code>True</code> if they share any IP addresses (including containment).</p>
+      <div class="example-block">"10.0.0.0/24" and "10.0.0.128/25"  -&gt; True  (overlap)
+"10.0.0.0/25" and "10.0.0.128/25"  -&gt; False (adjacent, no overlap)
+"10.0.0.0/8"  and "10.5.5.0/24"    -&gt; True  (containment)</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Does containment (one block fully inside the other) count as overlap?</li>
+        <li>Should adjacent CIDRs that share no addresses return False?</li>
+        <li>Can one CIDR be /0 (entire IPv4 space)?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Convert each CIDR to an integer range [start, end]. Two ranges A and B overlap iff <code>max(start_A, start_B) &le; min(end_A, end_B)</code>.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>def ipv4_to_int(ip):
-    r = 0
-    for p in ip.split('.'): r = (r &lt;&lt; 8) | int(p)
-    return r
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>def cidrs_overlap(cidr_a: str, cidr_b: str) -> bool:
+    def cidr_range(cidr):
+        ip_str, plen_str = cidr.split('/')
+        plen = int(plen_str)
+        mask = (
+            ((1 << 32) - 1) ^ ((1 << (32 - plen)) - 1)
+            if plen < 32 else 0xFFFFFFFF
+        )
+        r = 0
+        for p in ip_str.split('.'): r = (r << 8) | int(p)
+        start = r & mask
+        end = start | (~mask & 0xFFFFFFFF)
+        return start, end
 
-def cidr_range(cidr):
-    """Returns (first_ip_int, last_ip_int) for a CIDR block."""
-    ip_str, plen = cidr.split('/')
-    prefix = int(plen)
-    mask  = (0xFFFFFFFF &lt;&lt; (32 - prefix)) &amp; 0xFFFFFFFF if prefix &gt; 0 else 0
-    start = ipv4_to_int(ip_str) &amp; mask
-    end   = start + (1 &lt;&lt; (32 - prefix)) - 1
-    return start, end
+    s_a, e_a = cidr_range(cidr_a)
+    s_b, e_b = cidr_range(cidr_b)
+    return max(s_a, s_b) <= min(e_a, e_b)
 
-def cidrs_overlap(cidr_a: str, cidr_b: str) -&gt; bool:
-    a_start, a_end = cidr_range(cidr_a)
-    b_start, b_end = cidr_range(cidr_b)
-    return max(a_start, b_start) &lt;= min(a_end, b_end)
-
-assert cidrs_overlap("10.0.0.0/8",   "10.1.0.0/16")     is True
-assert cidrs_overlap("10.0.0.0/8",   "11.0.0.0/8")      is False
-assert cidrs_overlap("192.168.0.0/24","192.168.0.128/25") is True
-assert cidrs_overlap("10.0.0.0/8",   "10.0.0.0/8")      is True</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(1) &nbsp;&nbsp; <strong>Space:</strong> O(1)</div>
-          <div class="say-note"><strong>What to say:</strong> "Reduce to range intersection: two ranges overlap iff max(starts) &le; min(ends). End of a CIDR: start + 2^(32-prefix) - 1. Edge cases: identical CIDRs and one completely inside another both correctly return True."</div>
+print(cidrs_overlap("10.0.0.0/24", "10.0.0.128/25"))  # True
+print(cidrs_overlap("10.0.0.0/25", "10.0.0.128/25"))  # False (adjacent)
+print(cidrs_overlap("10.0.0.0/8",  "10.5.5.0/24"))    # True (containment)
+print(cidrs_overlap("192.168.0.0/16", "10.0.0.0/8"))  # False</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(1)</td></tr>
+            <tr><td>Space</td><td>O(1)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- NA-5 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-5</span>
-        <h2 class="problem-title">Parse Ping Output &rarr; JSON</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-5.</span> Parse Ping Output &rarr; JSON</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given raw ping output text, extract packet statistics and RTT values into a structured dict.
-      </p>
-      <div class="example-block">Input:  Linux ping stdout (4 packets)
-Output: {
-  "transmitted": 4, "received": 4, "loss_pct": 0.0,
-  "rtt_avg_ms": 14.0, "rtt_min_ms": 12.9, "rtt_max_ms": 15.1
-}</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Linux/macOS format or Windows?</li>
-          <li>What if ping timed out completely (no RTT line)?</li>
-          <li>Return None or 0 on missing fields?</li>
-          <li>Individual per-packet RTTs needed?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Compile three regex patterns: RTT per line (<code>time=X.X ms</code>), stats line (transmitted/received), RTT summary line (min/avg/max).
+      <p class="problem-desc">Write <code>parse_ping_output(text)</code> that parses Linux/macOS <code>ping</code> stdout and returns a dict with keys: <code>transmitted</code>, <code>received</code>, <code>loss_pct</code>, <code>avg_rtt_ms</code>, and <code>reachable</code>.</p>
+      <div class="example-block">Input: stdout of "ping -c 3 8.8.8.8"
+Output: {"transmitted":3,"received":3,"loss_pct":0.0,
+         "avg_rtt_ms":10.5,"reachable":true}</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Linux format, macOS format, or both?</li>
+        <li>What if all packets are lost (no RTT line present)?</li>
+        <li>Should missing fields return None or 0?</li>
+        <li>What about Windows ping format?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Two regex patterns: one for the statistics line (<code>X packets transmitted, Y received</code>) and one for the RTT line (different format on Linux vs macOS). Always check if the match is <code>None</code> before accessing groups.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>import re
-from typing import Dict, Any
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>import re, json
 
-_RTT_RE   = re.compile(r'time=(\d+(?:\.\d+)?)\s*ms')
-_STATS_RE = re.compile(r'(\d+)\s+packets?\s+transmitted[,\s]+(\d+)\s+(?:packets?\s+)?received')
-_LOSS_RE  = re.compile(r'(\d+(?:\.\d+)?)\s*%\s*packet\s+loss')
-_RTT_SUM  = re.compile(r'rtt\s+min/avg/max(?:/mdev)?\s*=\s*(\d+(?:\.\d+)?)/(\d+(?:\.\d+)?)/(\d+(?:\.\d+)?)')
+def parse_ping_output(text: str) -> dict:
+    result = {
+        "transmitted": None, "received": None,
+        "loss_pct": None, "avg_rtt_ms": None, "reachable": False
+    }
 
-def parse_ping(text: str) -&gt; Dict[str, Any]:
-    tx = rx = loss = rmin = ravg = rmax = None
-    times = []
-    for line in text.splitlines():
-        m = _RTT_RE.search(line)
-        if m: times.append(float(m.group(1)))
-        m = _STATS_RE.search(line)
-        if m: tx, rx = int(m.group(1)), int(m.group(2))
-        m = _LOSS_RE.search(line)
-        if m: loss = float(m.group(1))
-        m = _RTT_SUM.search(line)
-        if m: rmin, ravg, rmax = float(m.group(1)), float(m.group(2)), float(m.group(3))
-    if ravg is None and times:
-        ravg = round(sum(times)/len(times), 3)
-        rmin, rmax = min(times), max(times)
-    return {"transmitted":tx,"received":rx,"loss_pct":loss,
-            "rtt_min_ms":rmin,"rtt_avg_ms":ravg,"rtt_max_ms":rmax}</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) where n = lines &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "Compile regex at module level. Three separate patterns for maintainability. Graceful fallback: if RTT summary line is missing (complete loss), compute avg from individual times if present. Return None for truly missing values &mdash; don't return 0 (which could be a valid RTT)."</div>
+    stats_re = re.compile(
+        r'(?P&lt;tx&gt;\d+) packets transmitted, (?P&lt;rx&gt;\d+) received'
+        r'.*?(?P&lt;loss&gt;\d+(?:\.\d+)?)% packet loss'
+    )
+    m = stats_re.search(text)
+    if m:
+        result["transmitted"] = int(m.group("tx"))
+        result["received"]    = int(m.group("rx"))
+        result["loss_pct"]    = float(m.group("loss"))
+        result["reachable"]   = result["received"] > 0
+
+    # Linux RTT line: rtt min/avg/max/mdev = 10.1/10.5/11.0/0.3 ms
+    rtt_re = re.compile(r'rtt min/avg/max/mdev = \S+/(?P&lt;avg&gt;\d+\.\d+)/')
+    m = rtt_re.search(text)
+    if m:
+        result["avg_rtt_ms"] = float(m.group("avg"))
+
+    # macOS RTT line: round-trip min/avg/max/stddev = ...
+    if result["avg_rtt_ms"] is None:
+        mac_re = re.compile(
+            r'round-trip min/avg/max/stddev = \S+/(?P&lt;avg&gt;\d+\.\d+)/')
+        m = mac_re.search(text)
+        if m:
+            result["avg_rtt_ms"] = float(m.group("avg"))
+
+    return result
+
+ping_out = """
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 10.1/10.5/11.0/0.3 ms
+"""
+print(json.dumps(parse_ping_output(ping_out), indent=2))</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n)</td></tr>
+            <tr><td>Space</td><td>O(1)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- NA-6 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-6</span>
-        <h2 class="problem-title">Parse Traceroute &rarr; First Lossy Hop</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-6.</span> Parse Traceroute &rarr; First Lossy Hop</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given traceroute output, find the first hop where packet loss exceeds a given threshold percentage.
-      </p>
-      <div class="example-block">If hop 2 shows only 1 of 3 probes (66% loss) and threshold=30,
-return: {"hop": 2, "host": "10.0.0.2", "rtts_ms": [12.3], "loss_pct": 66.7}</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>What probe count does traceroute use? (default 3)</li>
-          <li>Is <code>* * *</code> definitely loss or possibly a firewall?</li>
-          <li>Return hop number only, or full dict?</li>
-          <li>Threshold inclusive or exclusive?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          Parse each line for hop number and RTT values. Count responded probes vs expected (3). Loss % = (1 - responded/3) &times; 100.
+      <p class="problem-desc">Parse traceroute stdout and return the first hop where all 3 probes timed out (<code>* * *</code>) or where &gt;50% probes were lost. Return <code>None</code> if all hops respond.</p>
+      <div class="example-block">Hop 1:  192.168.1.1  -- all respond
+Hop 2:  10.0.0.1    -- all respond
+Hop 3:  * * *       -- first lossy hop
+-&gt; {"hop": 3, "ip": None, "unreachable": True}</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Define "lossy": only full <code>* * *</code> hops, or also partial timeouts?</li>
+        <li>Should we return hop number, IP, or a structured dict?</li>
+        <li>How many probes per hop &mdash; always 3?</li>
+        <li>Linux traceroute format, or also Windows/macOS?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Parse each hop line with regex matching hop number + rest of line. Count <code>*</code> tokens vs RTT values (<code>X ms</code>). If &gt;50% are stars, return that hop's info.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
 <pre><code>import re
-from typing import List, Dict, Any, Optional
+from typing import Optional
 
-HOP_RE = re.compile(r'^\s*(\d+)\s+(\S+)', re.MULTILINE)
-RTT_RE = re.compile(r'(\d+(?:\.\d+)?)\s*ms')
+def parse_traceroute_first_lossy(text: str) -> Optional[dict]:
+    """Return first hop where >50% probes timed out."""
+    hop_re = re.compile(r'^\s*(\d+)\s+(.*)', re.MULTILINE)
 
-def parse_traceroute(text: str) -&gt; List[Dict[str, Any]]:
-    hops = []
-    for m in HOP_RE.finditer(text):
-        line    = text[m.start():text.find('\n', m.start())]
+    for m in hop_re.finditer(text):
         hop_num = int(m.group(1))
-        host    = m.group(2)
-        rtts    = [float(v) for v in RTT_RE.findall(line)]
-        hops.append({
-            'hop': hop_num,
-            'host': None if host == '*' else host,
-            'rtts_ms': rtts,
-            'avg_rtt_ms': round(sum(rtts)/len(rtts), 2) if rtts else None,
-        })
-    return hops
+        rest = m.group(2).strip()
 
-def first_lossy_hop(text: str, threshold_pct: float = 30.0) -&gt; Optional[Dict]:
-    probes = 3  # traceroute default
-    for hop in parse_traceroute(text):
-        loss = (1 - len(hop['rtts_ms']) / probes) * 100
-        if loss &gt; threshold_pct:
-            return {**hop, 'loss_pct': round(loss, 1)}
-    return None</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "Key insight: traceroute sends 3 probes per hop. If you see fewer RTT values than 3, that's implied loss. A hop showing <code>* * *</code> might just be a firewall blocking ICMP &mdash; mention this distinction. Correlate with the next hop to distinguish true loss from ICMP filtering."</div>
+        probes    = rest.split()
+        star_count = probes.count('*')
+        rtt_count  = len(re.findall(r'\d+\.?\d*\s*ms', rest))
+        total      = star_count + rtt_count
+
+        if total > 0 and star_count / total > 0.5:
+            ip_match = re.search(r'\((\d+\.\d+\.\d+\.\d+)\)', rest)
+            return {
+                "hop": hop_num,
+                "ip": ip_match.group(1) if ip_match else None,
+                "star_count": star_count,
+                "total_probes": total,
+                "unreachable": star_count == total
+            }
+    return None
+
+trace_out = """
+ 1  gateway (192.168.1.1)  1.2 ms  1.1 ms  1.3 ms
+ 2  10.0.0.1 (10.0.0.1)  5.4 ms  5.2 ms  5.6 ms
+ 3  * * *
+ 4  * * *
+"""
+print(parse_traceroute_first_lossy(trace_out))
+# {'hop': 3, 'ip': None, 'star_count': 3, 'total_probes': 3, 'unreachable': True}</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n)</td></tr>
+            <tr><td>Space</td><td>O(1)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- NA-7 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-7</span>
-        <h2 class="problem-title">Parse BGP Neighbor Summary</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-7.</span> Parse BGP Summary &rarr; Non-Established Neighbors</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Parse <code>show bgp summary</code> text and return a list of neighbors NOT in Established state.
-      </p>
-      <div class="example-block">Input:  Cisco IOS BGP summary text
-Output: ["10.0.0.2", "10.0.0.4"]   (those in Active / Idle state)</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Cisco IOS format only, or multiple vendors?</li>
-          <li>Return IPs only or full neighbor dict?</li>
-          <li>How to distinguish Established from not? (State/PfxRcd column)</li>
-          <li>VRF-aware?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          The State/PfxRcd column: if it's a number &rarr; Established (prefix count). If text (Active, Idle, Connect) &rarr; not Established.
+      <p class="problem-desc">Parse Cisco IOS <code>show bgp summary</code> output and return a list of neighbor IPs not in Established state. If the State/PfxRcd column is a number &rarr; Established; if text &rarr; not Established.</p>
+      <div class="example-block">Line: "10.2.2.2  4 65003  5  3  0  0  0  00:02:15  Active"
+-&gt; Include "10.2.2.2"  (state is text, not a digit count)</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>IPv4 unicast BGP only, or also VPNv4?</li>
+        <li>Should OpenSent and OpenConfirm also be flagged as non-Established?</li>
+        <li>How should header lines and blank lines be handled?</li>
+        <li>Is the column count always the same?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>Match lines that start with an IPv4 address. The last field is State/PfxRcd &mdash; if it is NOT all digits, the session is not Established.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
 <pre><code>import re
-from typing import List, Dict
 
-_NEIGHBOR_RE = re.compile(
-    r'^(?P&lt;neighbor&gt;\d{1,3}(?:\.\d{1,3}){3})'
-    r'\s+\d+'              # version
-    r'\s+(?P&lt;asn&gt;\d+)'     # AS
-    r'(?:\s+\S+){4}'       # MsgRcvd MsgSent TblVer InQ
-    r'\s+\S+'              # OutQ
-    r'\s+(?P&lt;updown&gt;\S+)'  # Up/Down
-    r'\s+(?P&lt;state&gt;\S+)',  # State/PfxRcd
-    re.MULTILINE
-)
-
-def parse_bgp_summary(text: str) -&gt; List[Dict]:
+def non_established_bgp_neighbors(text: str) -> list[str]:
+    """Return neighbor IPs not in Established state."""
     results = []
-    for m in _NEIGHBOR_RE.finditer(text):
-        state = m.group('state')
-        established = state.isdigit()
-        results.append({
-            'neighbor':    m.group('neighbor'),
-            'asn':         int(m.group('asn')),
-            'state':       'Established' if established else state,
-            'prefix_count': int(state) if established else None,
-            'established': established,
-        })
+    line_re = re.compile(
+        r'^(?P&lt;neighbor&gt;\d+\.\d+\.\d+\.\d+)'
+        r'(?:\s+\S+){8}'
+        r'\s+(?P&lt;state&gt;\S+)',
+        re.MULTILINE
+    )
+    for m in line_re.finditer(text):
+        if not m.group("state").isdigit():
+            results.append(m.group("neighbor"))
     return results
 
-def non_established_neighbors(text: str) -&gt; List[str]:
-    return [n['neighbor'] for n in parse_bgp_summary(text) if not n['established']]
+bgp_out = """
+BGP router identifier 10.0.0.1, local AS number 65001
 
-SAMPLE = """
-Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
-10.0.0.1        4        65001    1234    1100        5    0    0 1d02h          250
-10.0.0.2        4        65002       0       0        0    0    0 never       Active
-10.0.0.3        4        65003     500     490        5    0    0 12:30:00       180
-10.0.0.4        4        65004       0       0        0    0    0 00:01:05        Idle
+Neighbor        V    AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+10.1.1.1        4 65002    1234    1200        42    0    0 1d02h          250
+10.2.2.2        4 65003       5       3         0    0    0 00:02:15   Active
+10.3.3.3        4 65004    9999    9876        42    0    0 5d12h          180
+10.4.4.4        4 65005       0       0         0    0    0 never        Idle
 """
-assert non_established_neighbors(SAMPLE) == ['10.0.0.2', '10.0.0.4']</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n) &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "<code>state.isdigit()</code> is the key insight &mdash; numeric = established, showing prefix count. Text states: Idle (not trying), Active (trying, no response), Connect (TCP connecting), OpenSent/OpenConfirm (mid-handshake). Arista: same column logic, slightly different formatting."</div>
+print(non_established_bgp_neighbors(bgp_out))
+# ['10.2.2.2', '10.4.4.4']</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n)</td></tr>
+            <tr><td>Space</td><td>O(k) &mdash; k = non-established neighbors</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
     <!-- NA-8 -->
     <div class="problem-card">
-      <div class="card-header">
-        <span class="problem-number">NA-8</span>
-        <h2 class="problem-title">Config Compliance Check</h2>
+      <div class="problem-header">
+        <div class="problem-title"><span class="problem-num">NA-8.</span> Config Compliance Check</div>
         <span class="badge badge-medium">Medium</span>
       </div>
-      <p class="problem-description">
-        Given a device's running config text and a list of required configuration stanzas, check compliance and return a structured report.
-      </p>
-      <div class="example-block">required = ["ntp server 10.1.1.10", "logging host 10.1.1.20"]
-If both present → compliant: True
-If one missing  → compliant: False, missing: ["logging host 10.1.1.20"]</div>
-      <div class="clarify-section">
-        <div class="clarify-title">Clarify First</div>
-        <ul>
-          <li>Exact line match or substring check?</li>
-          <li>Case-sensitive?</li>
-          <li>Report missing only, or also extra (unexpected) lines?</li>
-          <li>Multiple required variants for same feature (any OK)?</li>
-          <li>Output format: dict, list, or print?</li>
-        </ul>
-      </div>
-      <details class="hint-details">
-        <summary>&#128161; Hint</summary>
-        <div class="details-body">
-          For each required stanza, check if it (or a substring version) appears in the running config. Collect violations in a list.
+      <p class="problem-desc">Given a device's running config (string) and a list of required config stanzas, check which are present and which are missing. Return a structured compliance report.</p>
+      <div class="example-block">required = ["ntp server 10.0.0.1", "ip ssh version 2", "logging 10.0.0.2"]
+-&gt; {"compliant": False, "compliance_pct": 66.7,
+    "present": [...], "missing": ["logging 10.0.0.2"]}</div>
+      <div class="section-label">Clarify First</div>
+      <ul class="clarify-list">
+        <li>Exact match or substring match?</li>
+        <li>Case-sensitive comparison?</li>
+        <li>What if a required stanza spans multiple lines?</li>
+        <li>What does 100% compliance mean?</li>
+      </ul>
+      <details>
+        <summary>Hint</summary>
+        <div class="details-content">
+          <p>For each required stanza, use <code>if stanza in running_config</code> (substring check). Build two lists: present and missing. Compute compliance percentage from the counts.</p>
         </div>
       </details>
-      <details class="solution-details">
-        <summary>&#9989; Solution + Complexity</summary>
-        <div class="details-body">
-<pre><code>from typing import List, Dict, Any
+      <details>
+        <summary>Solution + Complexity</summary>
+        <div class="details-content">
+<pre><code>import json
 
-def check_compliance(
-    running_config: str,
-    required_stanzas: List[str],
-    case_sensitive: bool = False
-) -&gt; Dict[str, Any]:
-    config = running_config if case_sensitive else running_config.lower()
-
-    present = []
-    missing = []
+def check_compliance(running_config: str, required_stanzas: list[str]) -> dict:
+    """Check config compliance: present vs missing stanzas."""
+    present, missing = [], []
     for stanza in required_stanzas:
-        check = stanza if case_sensitive else stanza.lower()
-        if check in config:
-            present.append(stanza)
-        else:
-            missing.append(stanza)
-
-    compliant = len(missing) == 0
+        (present if stanza in running_config else missing).append(stanza)
+    total = len(required_stanzas)
     return {
-        'compliant':  compliant,
-        'present':    present,
-        'missing':    missing,
-        'total':      len(required_stanzas),
-        'pass_count': len(present),
-        'fail_count': len(missing),
-        'summary':    'PASS' if compliant else f'FAIL ({len(missing)} violations)',
+        "compliant":      len(missing) == 0,
+        "compliance_pct": round(len(present) / total * 100, 1) if total else 100.0,
+        "present":        present,
+        "missing":        missing,
+        "total_checked":  total
     }
 
-running = """
-hostname router-1
-ntp server 10.1.1.10
-ntp server 10.1.1.11
-logging host 10.1.1.20
-ip routing
+config = """
+hostname core-sw-01
+ip ssh version 2
+ntp server 10.0.0.1
+ntp server 10.0.0.2
+service password-encryption
+no ip http server
 """
+
 required = [
-    "ntp server 10.1.1.10",
-    "ntp server 10.1.1.11",
-    "logging host 10.1.1.20",
-    "snmp-server community monitoring",  # missing
+    "ntp server 10.0.0.1",
+    "ip ssh version 2",
+    "logging 10.0.0.2",
+    "service password-encryption",
+    "no ip cdp run"
 ]
-report = check_compliance(running, required)
-assert report['compliant'] is False
-assert report['missing']   == ["snmp-server community monitoring"]
-assert report['pass_count'] == 3</code></pre>
-          <div class="complexity-note"><strong>Time:</strong> O(n&middot;m) where n=stanzas, m=config length &nbsp;&nbsp; <strong>Space:</strong> O(n)</div>
-          <div class="say-note"><strong>What to say:</strong> "Simple substring check works for most compliance checks. More sophisticated: parse config into a tree for hierarchy-aware matching. Structured report dict makes it easy to aggregate across 100+ devices &mdash; this could feed a compliance dashboard. Case-insensitive by default since CLI output formatting varies."</div>
+
+print(json.dumps(check_compliance(config, required), indent=2))
+# compliant: false, 60.0%, missing: ["logging 10.0.0.2", "no ip cdp run"]</code></pre>
+          <table class="complexity-table">
+            <tr><th>Dimension</th><th>Complexity</th></tr>
+            <tr><td>Time</td><td>O(n &times; m) &mdash; n=config length, m=stanzas</td></tr>
+            <tr><td>Space</td><td>O(m)</td></tr>
+          </table>
         </div>
       </details>
     </div>
 
-  </div><!-- /tab-netauto -->
+  </div><!-- end tab-netauto -->
 
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <!-- TAB C: FULL MOCK SIMULATIONS                           -->
-  <!-- ═══════════════════════════════════════════════════════ -->
-  <div id="tab-mocks" class="tab-panel">
 
-    <!-- MOCK A -->
-    <div class="mock-card">
-      <div class="mock-header">
-        <div>
-          <div class="mock-title">Mock A &mdash; LiveCode Focus</div>
-          <div class="mock-duration">60-minute simulation &bull; 3 phases</div>
-        </div>
-        <div class="timer-block">
-          <span id="timer-a" class="timer-display">60:00</span>
-          <button class="timer-btn" onclick="startTimer('a')">Start</button>
-          <button class="timer-btn" onclick="pauseTimer('a')">Pause</button>
-          <button class="timer-btn danger" onclick="resetTimer('a')">Reset</button>
+  <!-- ================================================================ -->
+  <!--  TAB 3 — FULL MOCK INTERVIEWS                                    -->
+  <!-- ================================================================ -->
+  <div id="tab-mock" class="tab-panel">
+
+    <!-- ===== MOCK A ===== -->
+    <div class="mock-card" id="mock-a">
+      <div class="mock-title">Mock Interview A &mdash; LiveCode Heavy</div>
+      <div class="mock-subtitle">Focus: Leadership Principles + Network Automation LiveCode &middot; 60 minutes</div>
+
+      <div class="timer-container">
+        <div class="timer-display">60:00</div>
+        <div class="timer-buttons">
+          <button class="timer-btn btn-start">Start</button>
+          <button class="timer-btn btn-pause">Pause</button>
+          <button class="timer-btn btn-reset">Reset</button>
         </div>
       </div>
 
-      <div class="mock-body">
-
-        <!-- Phase 1 -->
-        <div class="phase-block">
-          <div class="phase-header">
-            <span class="phase-badge">Phase 1</span>
-            <span class="phase-title">Leadership Principles Question</span>
-            <span class="phase-time">0 &ndash; 10 min</span>
-          </div>
-          <div class="question-block">
-            "Tell me about a time you automated a repetitive process. What was the impact?"
-          </div>
-          <div class="reveal-block">
-            <details>
-              <summary>&#128065; Reveal Model STAR Answer</summary>
-              <div class="details-body">
-                <div class="star-row"><span class="star-label">Situation:</span> The team was manually running the same set of validation commands on every device after each config change &mdash; tcpdump, ping checks, show commands &mdash; and recording results in a spreadsheet inconsistently.</div>
-                <div class="star-row"><span class="star-label">Task:</span> I took ownership to build a repeatable validation workflow that would eliminate ad-hoc manual checks and produce consistent, comparable outputs.</div>
-                <div class="star-row"><span class="star-label">Action:</span> I wrote a Python script using subprocess to run ping and traceroute, parsed the outputs with regex into structured JSON, and added structured logging with timestamps and host fields. I iterated with the team on what signals mattered, added error handling for unreachable hosts, and wrote a README so anyone could run the same playbook.</div>
-                <div class="star-row"><span class="star-label">Result:</span> Time-to-validate dropped from ~15 minutes of manual effort per device to under 30 seconds automated. Outputs were consistent across runs &mdash; you could grep the logs for <code>status=failed</code> to instantly see issues.</div>
-                <div class="star-row"><span class="star-label">Lessons:</span> Next time I'd define success metrics up front &mdash; "X minutes saved per incident" &mdash; and add unit tests for the parsers to catch regressions when device output format changes.</div>
-                <div class="star-row"><span class="star-label">LP Alignment:</span> <strong>Invent &amp; Simplify</strong> (eliminated manual process), <strong>Ownership</strong> (proactively solved without being asked), <strong>Dive Deep</strong> (used packet captures to verify behavior).</div>
-                <hr class="divider">
-                <div class="followup-block">
-                  <div class="followup-q">Follow-up: "How did you handle devices that were unreachable?"</div>
-                  <div class="followup-a">try/except with timeout, added to a 'failed_hosts' list, continued the rest of the run, reported at the end.</div>
-                </div>
-                <div class="followup-block" style="margin-top: 8px;">
-                  <div class="followup-q">Follow-up: "How would you scale this to 100 devices?"</div>
-                  <div class="followup-a">ThreadPoolExecutor with max_workers=10-20. Each device task is independent, so parallel execution is safe.</div>
-                </div>
-              </div>
-            </details>
-          </div>
+      <!-- Phase 1 -->
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-pill">Phase 1</span>
+          <span class="phase-title">Leadership Principles</span>
+          <span class="phase-time">0 &ndash; 10 min</span>
         </div>
-
-        <hr class="divider">
-
-        <!-- Phase 2 -->
-        <div class="phase-block">
-          <div class="phase-header">
-            <span class="phase-badge">Phase 2</span>
-            <span class="phase-title">LiveCode Problem</span>
-            <span class="phase-time">10 &ndash; 50 min</span>
-          </div>
-          <div class="question-block">
-            "Given a list of CIDR prefixes representing a routing table, and an IP address, return the most specific CIDR that contains the IP (longest prefix match). If no match, return None."
-          </div>
-          <div class="reveal-block">
-            <details>
-              <summary>&#128065; Reveal Guided Walkthrough</summary>
-              <div class="details-body">
-
-                <div class="step-block">
-                  <div class="step-num">Step 1 &mdash; Clarify</div>
-                  <p style="font-size:14px; color: var(--color-text-secondary);">
-                    "Is input validated? Can I assume valid CIDR format? Return the CIDR string or just prefix length? What if list is empty &rarr; None? What if no match &rarr; None or default route?"
-                  </p>
-                </div>
-
-                <div class="step-block">
-                  <div class="step-num">Step 2 &mdash; Think Aloud</div>
-                  <p style="font-size:14px; color: var(--color-text-secondary);">
-                    "I need to check each CIDR: does the IP fall inside it? Among all matching CIDRs, return the one with the highest prefix length (most specific). Linear scan is O(n) &mdash; mention that a trie would be O(32) for a follow-up."
-                  </p>
-                </div>
-
-                <div class="step-block">
-                  <div class="step-num">Step 3 &mdash; Code</div>
-<pre><code>from typing import List, Optional
-
-def ipv4_to_int(ip: str) -&gt; int:
-    r = 0
-    for p in ip.split('.'): r = (r &lt;&lt; 8) | int(p)
-    return r
-
-def longest_prefix_match(ip: str, cidrs: List[str]) -&gt; Optional[str]:
-    ip_int = ipv4_to_int(ip)
-    best, best_len = None, -1
-    for cidr in cidrs:
-        ip_str, plen_str = cidr.split('/')
-        plen = int(plen_str)
-        mask = (0xFFFFFFFF &lt;&lt; (32 - plen)) &amp; 0xFFFFFFFF if plen &gt; 0 else 0
-        net  = ipv4_to_int(ip_str) &amp; mask
-        if (ip_int &amp; mask) == net and plen &gt; best_len:
-            best, best_len = cidr, plen
-    return best</code></pre>
-                </div>
-
-                <div class="step-block">
-                  <div class="step-num">Step 4 &mdash; Dry Run</div>
-                  <p style="font-size:14px; color: var(--color-text-secondary); margin-bottom: 8px;">
-                    cidrs = ["0.0.0.0/0", "10.0.0.0/8", "10.1.0.0/16"] &nbsp;&nbsp; ip = "10.1.5.1"
-                  </p>
-                  <div class="example-block" style="font-size:12px;">"0.0.0.0/0":   mask=0x00000000, net=0,          10.1.5.1 &amp; 0 == 0 ✓  → best="0.0.0.0/0" (plen=0)
-"10.0.0.0/8":  mask=0xFF000000, net=0x0A000000, 10.1.5.1 &amp; mask=0x0A000000 ✓ → best="10.0.0.0/8" (plen=8)
-"10.1.0.0/16": mask=0xFFFF0000, net=0x0A010000, 10.1.5.1 &amp; mask=0x0A010000 ✓ → best="10.1.0.0/16" (plen=16)
-→ Returns "10.1.0.0/16" ✓</div>
-                </div>
-
-                <div class="step-block">
-                  <div class="step-num">Step 5 &mdash; Complexity</div>
-                  <p style="font-size:14px; color: var(--color-text-secondary);">Time O(n), Space O(1)</p>
-                </div>
-
-                <div class="step-block">
-                  <div class="step-num">Step 6 &mdash; Edge Cases</div>
-                  <ul style="font-size:14px; color: var(--color-text-secondary); padding-left:20px; line-height:1.8;">
-                    <li>Empty list &rarr; None (loop never executes, best stays None)</li>
-                    <li>IP not in any CIDR and no 0.0.0.0/0 &rarr; returns None</li>
-                    <li>plen=0 &rarr; mask=0, all IPs match (default route)</li>
-                    <li>plen=32 &rarr; exact host match only</li>
-                  </ul>
-                </div>
-
+        <div class="phase-body">
+          <div class="phase-question">"Tell me about a time you automated a repetitive process to improve efficiency."</div>
+          <details>
+            <summary>Reveal Model Answer (STAR)</summary>
+            <div class="details-content">
+              <div class="model-answer">
+                <p><strong>Situation:</strong> At [Company/Project], I noticed our team was manually SSHing into 30+ devices every week to collect interface error counters and paste them into a spreadsheet &mdash; taking 2&ndash;3 hours per run.</p>
+                <p><strong>Task:</strong> I needed to automate this to free up time and make it more reliable (eliminate copy-paste errors).</p>
+                <p><strong>Action:</strong> I wrote a Python script using Netmiko to connect to all devices in parallel using <code>ThreadPoolExecutor</code>, ran <code>show interfaces</code> on each, parsed the output with regex to extract error counters, and output a CSV. I added error handling so one unreachable device wouldn't stop the rest. I tested it on 5 devices first, then rolled it out to the full fleet.</p>
+                <p><strong>Result:</strong> Reduced the weekly task from 2&ndash;3 hours to 5 minutes. Zero copy-paste errors. The team now runs it on-demand, and I added a cron job for automated daily reports.</p>
+                <p><strong>LP demonstrated:</strong> <em>Invent and Simplify</em>, <em>Deliver Results</em>.</p>
               </div>
-            </details>
-          </div>
+            </div>
+          </details>
         </div>
+      </div>
 
-        <hr class="divider">
-
-        <!-- Phase 3 -->
-        <div class="phase-block">
-          <div class="phase-header">
-            <span class="phase-badge">Phase 3</span>
-            <span class="phase-title">Follow-up Coding</span>
-            <span class="phase-time">50 &ndash; 60 min</span>
-          </div>
-          <div class="question-block">
-            "Now write a function that uses your result: given a list of hosts and a routing table, return a dict mapping each host to its best-matching route."
-          </div>
-          <div class="reveal-block">
-            <details>
-              <summary>&#128065; Reveal Answer + Rubric</summary>
-              <div class="details-body">
-<pre><code>from typing import Dict
-
-def route_lookup_batch(
-    hosts: List[str], cidrs: List[str]
-) -&gt; Dict[str, Optional[str]]:
-    return {host: longest_prefix_match(host, cidrs) for host in hosts}
-
-# Total complexity: O(H * C) where H = hosts, C = CIDRs
-# With a trie:      O(H * 32)</code></pre>
-                <hr class="divider">
-                <div class="section-label">Interviewer Rubric</div>
-                <ul class="rubric-list">
-                  <li>Asked clarifying questions before coding</li>
-                  <li>Explained approach out loud before writing code</li>
-                  <li>Dry-ran a concrete example step by step</li>
-                  <li>Stated time and space complexity</li>
-                  <li>Identified edge cases (empty list, no match, /0, /32)</li>
-                  <li>Syntactically correct Python</li>
+      <!-- Phase 2 -->
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-pill">Phase 2</span>
+          <span class="phase-title">LiveCode &mdash; Longest Prefix Match</span>
+          <span class="phase-time">10 &ndash; 50 min</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-question">"Implement Longest Prefix Match. Given an IP address and a list of CIDR routes, return the most specific (longest prefix) route that contains the IP."</div>
+          <details>
+            <summary>Reveal Full Walkthrough</summary>
+            <div class="details-content">
+              <div class="step-block">
+                <div class="step-label">Step 1 &mdash; Clarify (2 min)</div>
+                <ul class="clarify-list">
+                  <li>"IPv4 only?" &rarr; "Yes"</li>
+                  <li>"What to return if no match?" &rarr; "None"</li>
+                  <li>"Can CIDRs have host bits set?" &rarr; "Assume clean network addresses"</li>
+                  <li>"Are routes guaranteed valid format?" &rarr; "Yes, assume well-formed"</li>
                 </ul>
               </div>
-            </details>
-          </div>
-        </div>
+              <div class="step-block">
+                <div class="step-label">Step 2 &mdash; Explain Approach (3 min)</div>
+                <p class="model-answer">"I'll implement CIDR membership as: convert both the IP and the network address to 32-bit integers, build a mask from the prefix length, then check <code>(ip_int &amp; mask) == network_int</code>. Scan all routes keeping track of the longest matching prefix length."</p>
+              </div>
+              <div class="step-block">
+                <div class="step-label">Step 3 &mdash; Code</div>
+<pre><code>def ipv4_to_int(ip: str) -> int:
+    result = 0
+    for part in ip.split('.'):
+        result = (result << 8) | int(part)
+    return result
 
-      </div><!-- /mock-body -->
-    </div><!-- /mock-card A -->
+def longest_prefix_match(ip: str, routes: list[str]) -> str | None:
+    ip_int = ipv4_to_int(ip)
+    best, best_len = None, -1
 
-    <!-- MOCK B -->
-    <div class="mock-card">
-      <div class="mock-header">
-        <div>
-          <div class="mock-title">Mock B &mdash; Network + Automation</div>
-          <div class="mock-duration">60-minute simulation &bull; 4 phases</div>
-        </div>
-        <div class="timer-block">
-          <span id="timer-b" class="timer-display">60:00</span>
-          <button class="timer-btn" onclick="startTimer('b')">Start</button>
-          <button class="timer-btn" onclick="pauseTimer('b')">Pause</button>
-          <button class="timer-btn danger" onclick="resetTimer('b')">Reset</button>
+    for route in routes:
+        net_str, plen_str = route.split('/')
+        plen = int(plen_str)
+        mask = ((1 << 32) - 1) ^ ((1 << (32 - plen)) - 1)
+        net_int = ipv4_to_int(net_str) & mask
+
+        if (ip_int & mask) == net_int and plen > best_len:
+            best, best_len = route, plen
+
+    return best
+
+# Test
+routes = ["0.0.0.0/0", "10.0.0.0/8", "10.1.0.0/16", "10.1.2.0/24"]
+print(longest_prefix_match("10.1.2.3", routes))    # 10.1.2.0/24
+print(longest_prefix_match("10.5.0.1", routes))    # 10.0.0.0/8
+print(longest_prefix_match("172.16.0.1", routes))  # 0.0.0.0/0 (default route)</code></pre>
+              </div>
+              <div class="step-block">
+                <div class="step-label">Step 4 &mdash; Complexity (1 min)</div>
+                <p class="model-answer">"O(n) time for n routes &mdash; one pass. O(1) space. Follow-up: for large route tables, a binary trie or Patricia trie reduces this to O(prefix_length) &mdash; hardware FIBs do exactly this."</p>
+              </div>
+              <div class="step-block">
+                <div class="step-label">Step 5 &mdash; Edge Cases</div>
+                <ul class="clarify-list">
+                  <li>Empty routes list &rarr; returns None</li>
+                  <li>/0 default route matches every IP address</li>
+                  <li>Tie on prefix length &rarr; return first found (add a clarification question)</li>
+                </ul>
+              </div>
+            </div>
+          </details>
         </div>
       </div>
 
-      <div class="mock-body">
+      <!-- Phase 3 -->
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-pill">Phase 3</span>
+          <span class="phase-title">Quick Follow-Up &mdash; Ping Reachability</span>
+          <span class="phase-time">50 &ndash; 60 min</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-question">"Now add a function to check reachability: parse a ping output string and return True if the host responded."</div>
+          <details>
+            <summary>Reveal Answer</summary>
+            <div class="details-content">
+<pre><code>import re
 
-        <!-- Phase 1 -->
-        <div class="phase-block">
-          <div class="phase-header">
-            <span class="phase-badge">Phase 1</span>
-            <span class="phase-title">Leadership Principles Question</span>
-            <span class="phase-time">0 &ndash; 10 min</span>
-          </div>
-          <div class="question-block">
-            "Tell me about a time you found a root cause that others had missed."
-          </div>
-          <div class="reveal-block">
-            <details>
-              <summary>&#128065; Reveal Model STAR Answer</summary>
-              <div class="details-body">
-                <div class="star-row"><span class="star-label">Situation:</span> The team was debugging intermittent packet drops &mdash; everyone assumed it was a congestion issue at the core switch.</div>
-                <div class="star-row"><span class="star-label">Task:</span> I was assigned to investigate further after initial fixes didn't help.</div>
-                <div class="star-row"><span class="star-label">Action:</span> Instead of assuming congestion, I ran traceroute from multiple sources to multiple destinations and noticed the drops were asymmetric &mdash; only affecting traffic from one subnet to another. I then checked BGP tables and found a route reflector was advertising a more-specific /28 prefix for one subnet via a suboptimal path with higher latency and packet loss. The /28 was being preferred over the /24 due to longer prefix match.</div>
-                <div class="star-row"><span class="star-label">Result:</span> Fixed by withdrawing the incorrect /28 advertisement. Packet loss dropped to 0%. I documented the process as a runbook for future BGP prefix anomaly detection.</div>
-                <div class="star-row"><span class="star-label">LP Alignment:</span> <strong>Dive Deep</strong> (root-caused the actual issue), <strong>Invent &amp; Simplify</strong> (created runbook for future use).</div>
+def is_reachable_from_ping(ping_output: str) -> bool:
+    m = re.search(r'(\d+) received', ping_output)
+    if m and int(m.group(1)) > 0:
+        return True
+    return False
+
+# Tests
+print(is_reachable_from_ping("3 packets transmitted, 3 received, 0% loss"))    # True
+print(is_reachable_from_ping("3 packets transmitted, 0 received, 100% loss"))  # False</code></pre>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Rubric A -->
+      <div class="rubric">
+        <div class="rubric-title">Scoring Rubric</div>
+        <div class="rubric-item"><span>Clarification questions asked</span><span class="rubric-pts">4 pts</span></div>
+        <div class="rubric-item"><span>Explained approach before coding</span><span class="rubric-pts">3 pts</span></div>
+        <div class="rubric-item"><span>Correct bit manipulation</span><span class="rubric-pts">5 pts</span></div>
+        <div class="rubric-item"><span>Edge cases handled</span><span class="rubric-pts">3 pts</span></div>
+        <div class="rubric-item"><span>Complexity stated</span><span class="rubric-pts">3 pts</span></div>
+        <div class="rubric-item"><span>Clean, readable code</span><span class="rubric-pts">2 pts</span></div>
+        <div class="rubric-total"><span>Total</span><span>20 pts</span></div>
+      </div>
+    </div><!-- end mock-a -->
+
+
+    <!-- ===== MOCK B ===== -->
+    <div class="mock-card" id="mock-b">
+      <div class="mock-title">Mock Interview B &mdash; Network + Automation</div>
+      <div class="mock-subtitle">Focus: Root-cause storytelling + Verbal networking + Automation scenario &middot; 60 minutes</div>
+
+      <div class="timer-container">
+        <div class="timer-display">60:00</div>
+        <div class="timer-buttons">
+          <button class="timer-btn btn-start">Start</button>
+          <button class="timer-btn btn-pause">Pause</button>
+          <button class="timer-btn btn-reset">Reset</button>
+        </div>
+      </div>
+
+      <!-- Phase 1 -->
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-pill">Phase 1</span>
+          <span class="phase-title">Leadership Principles</span>
+          <span class="phase-time">0 &ndash; 10 min</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-question">"Tell me about a time you found the root cause of a problem that others had missed."</div>
+          <details>
+            <summary>Reveal Model Answer (STAR)</summary>
+            <div class="details-content">
+              <div class="model-answer">
+                <p><strong>Situation:</strong> During a network upgrade, intermittent packet loss was reported but ping tests looked fine. The NOC had been investigating it for a week without finding the cause.</p>
+                <p><strong>Task:</strong> I was asked to do a deeper investigation.</p>
+                <p><strong>Action:</strong> I wrote a Python script to run traceroute to multiple destinations and parse the output for <code>* * *</code> patterns across all hops. I correlated timestamps and found that a specific transit hop was dropping ICMP but passing TCP &mdash; classic ICMP rate-limiting that hid the real problem. I also used <code>show interface</code> counters to spot input errors on one link that were invisible to ping. I presented the data with a timeline graph.</p>
+                <p><strong>Result:</strong> Identified a failing SFP on a transit link. Replaced it, and the issue cleared immediately.</p>
+                <p><strong>LP demonstrated:</strong> <em>Dive Deep</em>, <em>Are Right A Lot</em>.</p>
               </div>
-            </details>
-          </div>
+            </div>
+          </details>
         </div>
+      </div>
 
-        <hr class="divider">
-
-        <!-- Phase 2 -->
-        <div class="phase-block">
-          <div class="phase-header">
-            <span class="phase-badge">Phase 2</span>
-            <span class="phase-title">Network Verbal Q&amp;A</span>
-            <span class="phase-time">10 &ndash; 30 min</span>
-          </div>
-
-          <div class="network-qa-block">
-            <div class="question-block">
-              "An OSPF neighbor is stuck in EXSTART state. What are 3 plausible causes?"
-            </div>
-            <div class="reveal-block">
-              <details>
-                <summary>&#128065; Reveal Model Answer</summary>
-                <div class="details-body">
-                  <ol class="ordered-list">
-                    <li><strong>MTU mismatch:</strong> The two routers have different interface MTUs. OSPF DBD packets may exceed the smaller MTU and be dropped. The master/slave negotiation never completes. Fix: <code>ip ospf mtu-ignore</code> or match MTUs.</li>
-                    <li><strong>Duplicate Router ID:</strong> Two routers have the same Router ID. The ExStart master/slave negotiation (which uses the higher RID as master) creates ambiguity. Fix: <code>show ip ospf</code> to verify RIDs, then manually set unique RID.</li>
-                    <li><strong>Authentication mismatch:</strong> One side has MD5 or plain-text authentication configured, the other doesn't. DBD packets fail authentication and are dropped. Fix: verify <code>ip ospf authentication</code> and key chains match on both sides.</li>
-                  </ol>
-                  <div class="followup-block" style="margin-top: 12px;">
-                    <div class="followup-q">Follow-up: "How would you diagnose which cause it is?"</div>
-                    <div class="followup-a"><code>debug ip ospf adj</code> or <code>show ip ospf neighbor detail</code> &mdash; look for MTU and auth fields in the detail output.</div>
-                  </div>
-                </div>
-              </details>
-            </div>
-          </div>
-
-          <div class="network-qa-block">
-            <div class="question-block">
-              "Walk me through BGP best-path selection tiebreaks in order."
-            </div>
-            <div class="reveal-block">
-              <details>
-                <summary>&#128065; Reveal Model Answer</summary>
-                <div class="details-body">
-                  <ol class="ordered-list">
-                    <li><strong>Highest WEIGHT</strong> &mdash; Cisco proprietary, local to the router only</li>
-                    <li><strong>Highest LOCAL_PREF</strong> &mdash; inbound traffic preference, propagated via iBGP</li>
-                    <li><strong>Locally originated</strong> &mdash; network statement &gt; redistribute &gt; aggregated</li>
-                    <li><strong>Shortest AS_PATH length</strong></li>
-                    <li><strong>Lowest ORIGIN code</strong> &mdash; IGP &lt; EGP &lt; incomplete</li>
-                    <li><strong>Lowest MED</strong> &mdash; metric hint from neighbor AS</li>
-                    <li><strong>eBGP over iBGP</strong> paths preferred</li>
-                    <li><strong>Lowest IGP metric to NEXT_HOP</strong></li>
-                    <li><strong>Oldest eBGP path</strong> (if multipath disabled)</li>
-                    <li><strong>Lowest router-id</strong> of advertising BGP router</li>
-                  </ol>
-                  <div class="memory-trick">
-                    <strong>Memory trick:</strong> "We Love Oranges As Oranges Mean Pure Refreshment"<br>
-                    Weight &rarr; Local_pref &rarr; Originated &rarr; AS_path &rarr; Origin &rarr; MED &rarr; Prefer_eBGP &rarr; Routing_metric
-                  </div>
-                </div>
-              </details>
-            </div>
-          </div>
+      <!-- Phase 2 -->
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-pill">Phase 2</span>
+          <span class="phase-title">Verbal Networking</span>
+          <span class="phase-time">10 &ndash; 30 min</span>
         </div>
+        <div class="phase-body">
+          <div class="phase-question" style="margin-bottom:14px;">"OSPF neighbor is stuck in EXSTART/EXCHANGE state. Give 3 causes."</div>
+          <details>
+            <summary>Reveal Answer</summary>
+            <div class="details-content">
+              <ol class="answer-list">
+                <li><strong>MTU mismatch</strong> &mdash; OSPF verifies that DBD packets fit the link MTU. If two routers have different MTU values, DBDs are fragmented or dropped, stalling negotiation. Fix with <code>ip ospf mtu-ignore</code> or match MTU on both sides.</li>
+                <li><strong>Duplicate Router ID</strong> &mdash; Two routers with the same RID conflict during Master/Slave negotiation in ExStart. Check <code>show ip ospf</code> for duplicate RIDs across the area.</li>
+                <li><strong>Authentication mismatch</strong> &mdash; One side has OSPF MD5/SHA authentication enabled, the other does not (or uses different keys). Packets arrive at IP level but fail the OSPF auth check, so adjacency stalls.</li>
+              </ol>
+              <p class="model-answer" style="margin-top:10px;"><strong>Bonus:</strong> ACL blocking OSPF (protocol 89 / multicast 224.0.0.5) on the interface.</p>
+            </div>
+          </details>
 
-        <hr class="divider">
+          <div class="section-divider"></div>
 
-        <!-- Phase 3 -->
-        <div class="phase-block">
-          <div class="phase-header">
-            <span class="phase-badge">Phase 3</span>
-            <span class="phase-title">Automation Scenario</span>
-            <span class="phase-time">30 &ndash; 50 min</span>
-          </div>
-          <div class="question-block">
-            "Write a Python function that validates deployment health after a network config change. It should: (1) check that all expected BGP neighbors are in Established state, (2) ping a set of test hosts and check for packet loss, (3) return a structured JSON-able report."
-          </div>
-          <div class="reveal-block">
-            <details>
-              <summary>&#128065; Reveal Model Solution + Design Decisions</summary>
-              <div class="details-body">
-<pre><code>import subprocess, re, json
-from typing import List, Dict, Any
+          <div class="phase-question" style="margin-bottom:14px;">"Walk me through BGP best-path selection in order."</div>
+          <details>
+            <summary>Reveal Answer</summary>
+            <div class="details-content">
+              <div class="mnemonic-block">"We Love Oranges As Oranges Mean Pure Refreshment"</div>
+              <ol class="answer-list">
+                <li><strong>Weight</strong> &mdash; Cisco-proprietary, highest wins, local to router only</li>
+                <li><strong>Local Preference</strong> &mdash; iBGP, highest wins, propagated within the AS</li>
+                <li><strong>Locally Originated</strong> &mdash; locally originated routes preferred over received ones</li>
+                <li><strong>AS-path length</strong> &mdash; shortest wins</li>
+                <li><strong>Origin type</strong> &mdash; IGP (i) &gt; EGP (e) &gt; incomplete (?)</li>
+                <li><strong>MED</strong> &mdash; lowest wins; only compared from the same neighboring AS</li>
+                <li><strong>Peer type</strong> &mdash; eBGP preferred over iBGP</li>
+                <li><strong>Route information</strong> &mdash; lowest IGP metric to BGP next hop</li>
+                <li><strong>Oldest eBGP path</strong> &mdash; prefer oldest established path (tie-break)</li>
+                <li><strong>Lowest Router-ID</strong> &mdash; final tie-break</li>
+              </ol>
+            </div>
+          </details>
+        </div>
+      </div>
 
-def parse_bgp_established(bgp_text: str) -&gt; Dict[str, bool]:
-    """Return {neighbor_ip: is_established}"""
-    result = {}
-    pattern = re.compile(
-        r'^(\d{1,3}(?:\.\d{1,3}){3})\s+\d+\s+\d+'
-        r'(?:\s+\S+){4}\s+\S+\s+(\S+)',
-        re.MULTILINE
-    )
-    for m in pattern.finditer(bgp_text):
-        result[m.group(1)] = m.group(2).isdigit()
-    return result
+      <!-- Phase 3 -->
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-pill">Phase 3</span>
+          <span class="phase-title">Automation Scenario &mdash; Deployment Health Check</span>
+          <span class="phase-time">30 &ndash; 50 min</span>
+        </div>
+        <div class="phase-body">
+          <div class="phase-question">"Write a Python function that validates deployment health: connect to a device, check BGP neighbors are all Established, ping a test IP, and return a structured JSON report."</div>
+          <details>
+            <summary>Reveal Full Solution</summary>
+            <div class="details-content">
+<pre><code>import re, json
+from netmiko import ConnectHandler
 
-def check_ping(host: str, count: int = 3) -&gt; Dict[str, Any]:
-    """Run ping, return {host, reachable, loss_pct, avg_rtt_ms}"""
-    try:
-        res = subprocess.run(
-            ['ping', '-c', str(count), host],
-            capture_output=True, text=True, timeout=15
-        )
-        loss_m = re.search(r'(\d+(?:\.\d+)?)\s*%\s*packet\s+loss', res.stdout)
-        rtt_m  = re.search(r'min/avg/max(?:/mdev)?\s*=\s*[\d.]+/([\d.]+)/', res.stdout)
-        loss   = float(loss_m.group(1)) if loss_m else 100.0
-        rtt    = float(rtt_m.group(1))  if rtt_m  else None
-        return {'host': host, 'reachable': loss &lt; 100, 'loss_pct': loss, 'avg_rtt_ms': rtt}
-    except subprocess.TimeoutExpired:
-        return {'host': host, 'reachable': False, 'loss_pct': 100.0, 'avg_rtt_ms': None}
-
-def validate_deployment(
-    bgp_summary_text: str,
-    expected_neighbors: List[str],
-    test_hosts: List[str]
-) -&gt; Dict[str, Any]:
+def validate_deployment_health(device: dict, test_ip: str) -> dict:
+    """
+    Post-deployment health check:
+    1. Connect and get BGP neighbor summary
+    2. Check all BGP neighbors are Established
+    3. Ping test_ip from device
+    4. Return structured JSON report
+    """
     report = {
-        'bgp': {'expected': expected_neighbors, 'down': [], 'up': []},
-        'connectivity': [],
-        'overall_pass': True,
+        "device":               device["host"],
+        "test_ip":              test_ip,
+        "bgp_ok":               False,
+        "bgp_non_established":  [],
+        "ping_ok":              False,
+        "ping_loss_pct":        None,
+        "overall_healthy":      False,
+        "errors":               []
     }
-    # BGP check
-    states = parse_bgp_established(bgp_summary_text)
-    for neighbor in expected_neighbors:
-        if states.get(neighbor, False):
-            report['bgp']['up'].append(neighbor)
-        else:
-            report['bgp']['down'].append(neighbor)
-            report['overall_pass'] = False
 
-    # Connectivity check
-    for host in test_hosts:
-        result = check_ping(host)
-        report['connectivity'].append(result)
-        if not result['reachable']:
-            report['overall_pass'] = False
+    try:
+        with ConnectHandler(**device) as conn:
+            conn.enable()
 
+            # BGP check
+            bgp_raw  = conn.send_command("show bgp summary")
+            non_est  = parse_non_established_bgp(bgp_raw)
+            report["bgp_non_established"] = non_est
+            report["bgp_ok"] = len(non_est) == 0
+
+            # Ping check (from device)
+            ping_raw    = conn.send_command(f"ping {test_ip} repeat 5")
+            ping_result = parse_cisco_ping(ping_raw)
+            report["ping_ok"]       = ping_result.get("reachable", False)
+            report["ping_loss_pct"] = ping_result.get("loss_pct")
+
+    except Exception as e:
+        report["errors"].append(str(e))
+
+    report["overall_healthy"] = (
+        report["bgp_ok"] and report["ping_ok"] and not report["errors"]
+    )
     return report
 
-# Usage:
-# bgp_text = conn.send_command('show bgp summary')
-# report = validate_deployment(bgp_text, ['10.0.0.1','10.0.0.2'], ['8.8.8.8','1.1.1.1'])
-# print(json.dumps(report, indent=2))</code></pre>
-                <div class="section-label" style="margin-top: 16px;">Design Decisions to Mention</div>
-                <ol class="ordered-list">
-                  <li>Separate BGP parsing from ping &mdash; each function is independently testable</li>
-                  <li><code>overall_pass</code> flag provides quick pass/fail signal for CI/CD integration</li>
-                  <li>Timeout on ping subprocess &mdash; never hang on an unreachable host</li>
-                  <li>Return structured dict, not just print &mdash; callers can serialize to JSON or feed to a dashboard</li>
-                </ol>
-              </div>
-            </details>
-          </div>
+
+def parse_non_established_bgp(text: str) -> list[str]:
+    non_est = []
+    for m in re.finditer(
+        r'^(\d+\.\d+\.\d+\.\d+)(?:\s+\S+){8}\s+(\S+)', text, re.MULTILINE
+    ):
+        if not m.group(2).isdigit():
+            non_est.append(m.group(1))
+    return non_est
+
+
+def parse_cisco_ping(text: str) -> dict:
+    """Parse Cisco IOS ping: 'Success rate is 100 percent (5/5)'"""
+    m = re.search(r'Success rate is (\d+) percent \((\d+)/(\d+)\)', text)
+    if m:
+        success_rate = int(m.group(1))
+        return {"reachable": success_rate > 0, "loss_pct": 100 - success_rate}
+    return {"reachable": False, "loss_pct": 100}
+
+
+# Usage (requires Netmiko + real device)
+device = {
+    "device_type": "cisco_ios",
+    "host":        "10.0.0.1",
+    "username":    "admin",
+    "password":    "cisco123",
+    "secret":      "enable123"
+}
+result = validate_deployment_health(device, "8.8.8.8")
+print(json.dumps(result, indent=2))</code></pre>
+            </div>
+          </details>
         </div>
+      </div>
 
-        <hr class="divider">
-
-        <!-- Phase 4 -->
-        <div class="phase-block">
-          <div class="phase-header">
-            <span class="phase-badge">Phase 4</span>
-            <span class="phase-title">Your Questions for the Interviewer</span>
-            <span class="phase-time">50 &ndash; 60 min</span>
-          </div>
-          <div class="question-block">
-            Always have thoughtful questions prepared. This signals genuine interest.
-          </div>
-          <div class="reveal-block">
-            <details>
-              <summary>&#128065; Reveal Good Questions to Ask</summary>
-              <div class="details-body">
-                <ol class="ordered-list">
-                  <li>"What does a typical sprint look like for the NDE intern team &mdash; is work driven by infrastructure milestones or ad-hoc incidents?"</li>
-                  <li>"How much of the automation work is greenfield vs maintaining existing tooling?"</li>
-                  <li>"What does the on-call rotation look like for interns, if any?"</li>
-                  <li>"What's the biggest automation gap on the team right now?"</li>
-                  <li>"How does the team handle multi-vendor environments &mdash; do you standardize on one library or mix Netmiko/NAPALM/Ansible?"</li>
-                </ol>
-              </div>
-            </details>
-          </div>
+      <!-- Phase 4 -->
+      <div class="phase">
+        <div class="phase-header">
+          <span class="phase-pill">Phase 4</span>
+          <span class="phase-title">Your Questions for the Interviewer</span>
+          <span class="phase-time">50 &ndash; 60 min</span>
         </div>
+        <div class="phase-body">
+          <details>
+            <summary>Reveal 5 Strong Questions</summary>
+            <div class="details-content">
+              <ol class="good-questions">
+                <li>"What does the typical automation stack look like for the NDE team today &mdash; are you using Nornir, Ansible, or custom Python scripts?"</li>
+                <li>"What's the biggest pain point in the current automation workflow that a new team member could help address?"</li>
+                <li>"How does the team handle rollback when a config push causes an outage &mdash; is there a standard revert procedure?"</li>
+                <li>"What does the on-call process look like for automation-related incidents &mdash; how do you debug a script that's misbehaving against production devices?"</li>
+                <li>"What opportunities are there for new interns to contribute to open-source tools like Netmiko or NAPALM?"</li>
+              </ol>
+            </div>
+          </details>
+        </div>
+      </div>
 
-      </div><!-- /mock-body -->
-    </div><!-- /mock-card B -->
+      <!-- Rubric B -->
+      <div class="rubric">
+        <div class="rubric-title">Scoring Rubric</div>
+        <div class="rubric-item"><span>Clarification questions asked</span><span class="rubric-pts">4 pts</span></div>
+        <div class="rubric-item"><span>Explained approach before coding</span><span class="rubric-pts">3 pts</span></div>
+        <div class="rubric-item"><span>Correct implementation (Netmiko + regex)</span><span class="rubric-pts">5 pts</span></div>
+        <div class="rubric-item"><span>Error handling present</span><span class="rubric-pts">3 pts</span></div>
+        <div class="rubric-item"><span>Structured JSON report returned</span><span class="rubric-pts">3 pts</span></div>
+        <div class="rubric-item"><span>Clean, readable code</span><span class="rubric-pts">2 pts</span></div>
+        <div class="rubric-total"><span>Total</span><span>20 pts</span></div>
+      </div>
+    </div><!-- end mock-b -->
 
-  </div><!-- /tab-mocks -->
+  </div><!-- end tab-mock -->
 
-</div><!-- /page-wrapper -->
+</div><!-- end page-wrapper -->
 
 <script>
-// ── Tab switching ──────────────────────────────────────────────────────
-function showTab(name, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('active');
-    b.setAttribute('aria-selected', 'false');
+// ── Tab switching ─────────────────────────────────────────────────
+function showTab(tabName, evt) {
+  document.querySelectorAll('.tab-panel').forEach(function(p) {
+    p.style.display = 'none';
+    p.classList.remove('active');
   });
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
-  btn.setAttribute('aria-selected', 'true');
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  var panel = document.getElementById('tab-' + tabName);
+  if (panel) {
+    panel.style.display = 'block';
+    panel.classList.add('active');
+  }
+  if (evt && evt.target) {
+    evt.target.classList.add('active');
+  }
 }
 
-// ── Timers ─────────────────────────────────────────────────────────────
-const timers = {
-  a: { interval: null, remaining: 3600 },
-  b: { interval: null, remaining: 3600 },
-};
+// Ensure DSA tab visible on load
+document.getElementById('tab-dsa').style.display = 'block';
+document.getElementById('tab-netauto').style.display = 'none';
+document.getElementById('tab-mock').style.display = 'none';
 
-function updateDisplay(id) {
-  const state = timers[id];
-  const m = Math.floor(state.remaining / 60);
-  const s = state.remaining % 60;
-  const el = document.getElementById('timer-' + id);
-  el.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-  el.style.color = state.remaining <= 300 ? '#e74c3c' : '';
-}
+// ── Countdown timer factory ───────────────────────────────────────
+function createTimer(containerId, totalSeconds) {
+  var remaining = totalSeconds;
+  var interval  = null;
+  var container = document.getElementById(containerId);
+  var display   = container.querySelector('.timer-display');
 
-function startTimer(id) {
-  const state = timers[id];
-  if (state.interval !== null) return; // already running
-  state.interval = setInterval(() => {
-    state.remaining--;
-    updateDisplay(id);
-    if (state.remaining <= 0) {
-      clearInterval(state.interval);
-      state.interval = null;
+  function pad(n) { return n.toString().padStart(2, '0'); }
+
+  function render() {
+    var m = Math.floor(remaining / 60);
+    var s = remaining % 60;
+    display.textContent = pad(m) + ':' + pad(s);
+  }
+
+  function tick() {
+    if (remaining > 0) {
+      remaining--;
+      render();
+    } else {
+      clearInterval(interval);
+      interval = null;
+      display.style.color = '#d9534f';
     }
-  }, 1000);
+  }
+
+  container.querySelector('.btn-start').addEventListener('click', function() {
+    if (!interval) {
+      interval = setInterval(tick, 1000);
+    }
+  });
+
+  container.querySelector('.btn-pause').addEventListener('click', function() {
+    clearInterval(interval);
+    interval = null;
+  });
+
+  container.querySelector('.btn-reset').addEventListener('click', function() {
+    clearInterval(interval);
+    interval = null;
+    remaining = totalSeconds;
+    display.style.color = '';
+    render();
+  });
+
+  render(); // show initial time
 }
 
-function pauseTimer(id) {
-  const state = timers[id];
-  clearInterval(state.interval);
-  state.interval = null;
-}
-
-function resetTimer(id) {
-  const state = timers[id];
-  clearInterval(state.interval);
-  state.interval = null;
-  state.remaining = 3600;
-  updateDisplay(id);
-}
+// Initialise timers
+createTimer('mock-a', 3600);
+createTimer('mock-b', 3600);
 </script>
 </body>
 </html>

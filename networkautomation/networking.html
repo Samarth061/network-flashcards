@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Network Fundamentals — Verbal Drill</title>
+<title>Network Fundamentals — Verbal Drill (Interview B)</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -50,11 +50,12 @@
   .app { max-width: 740px; margin: 0 auto; }
   .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); text-decoration: none; margin-bottom: 1.25rem; padding: 5px 0; }
   .back-link:hover { color: var(--color-text-primary); }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 8px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
   .title { font-size: 20px; font-weight: 500; }
   .mode-btns { display: flex; gap: 6px; }
   .mode-btn { font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
   .mode-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
+  .info-banner { background: var(--color-background-info); border: 0.5px solid var(--color-border-info); border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 13px; color: var(--color-text-info); margin-bottom: 1.25rem; line-height: 1.5; }
   .cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
   .cat-btn { font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: 20px; cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; white-space: nowrap; }
   .cat-btn.active { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
@@ -72,7 +73,6 @@
   .card-a code { font-family: var(--font-mono); font-size: 13px; background: var(--color-background-secondary); padding: 2px 6px; border-radius: 4px; border: 0.5px solid var(--color-border-tertiary); }
   .card-a ul, .card-a ol { text-align: left; padding-left: 1.2rem; }
   .card-a ul li, .card-a ol li { margin-bottom: 4px; }
-  .card-a p { text-align: left; margin-top: 6px; font-size: 14px; }
   .card-hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: 1rem; align-self: center; }
   .card-cat-badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: #E1F5EE; color: #0F6E56; align-self: flex-start; margin-bottom: 0.5rem; }
   .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -95,7 +95,6 @@
   table.cheat th { text-align: left; font-weight: 500; font-size: 11px; color: var(--color-text-tertiary); padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
   table.cheat td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; }
   table.cheat tr:last-child td { border-bottom: none; }
-  table.cheat td code { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); padding: 1px 5px; border-radius: 3px; border: 0.5px solid var(--color-border-tertiary); }
   .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 20px; background: #E1F5EE; color: #0F6E56; margin-right: 4px; }
   .tag.red { background: #FCEBEB; color: #A32D2D; }
   .tag.blue { background: #E6F1FB; color: #185FA5; }
@@ -104,13 +103,17 @@
 </head>
 <body>
 <div class="app">
-  <a class="back-link" href="index.html">← Network Automation</a>
+  <a class="back-link" href="../index.html">&#8592; All Topics</a>
   <div class="header">
-    <div class="title">Network Fundamentals — Verbal Drill</div>
+    <div class="title">Network Fundamentals &#8212; Verbal Drill (Interview B)</div>
     <div class="mode-btns">
       <button class="mode-btn active" onclick="setMode('flash')">Flashcards</button>
       <button class="mode-btn" onclick="setMode('notes')">Cheat Sheet</button>
     </div>
+  </div>
+
+  <div class="info-banner">
+    These are verbal answer questions for Interview B &#8212; the networking + automation session. Practice saying answers aloud, not just reading them.
   </div>
 
   <div id="flash-mode">
@@ -120,7 +123,7 @@
       <div class="card" id="card" onclick="flipCard()">
         <div class="card-face card-front">
           <div class="card-cat-badge" id="cat-badge"></div>
-          <div class="card-label">Question — tap to reveal</div>
+          <div class="card-label">Question &#8212; tap to reveal</div>
           <div class="card-content"><div class="card-q" id="card-q"></div></div>
         </div>
         <div class="card-face card-back">
@@ -132,109 +135,97 @@
       </div>
     </div>
     <div class="controls">
-      <button class="nav-btn" id="prev-btn" onclick="nav(-1)">← Prev</button>
+      <button class="nav-btn" id="prev-btn" onclick="nav(-1)">&#8592; Prev</button>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
         <span class="counter" id="counter"></span>
-        <button class="shuffle-btn" onclick="shuffle()">↻ Shuffle</button>
+        <button class="shuffle-btn" onclick="shuffle()">&#x21BB; Shuffle</button>
       </div>
-      <button class="nav-btn" id="next-btn" onclick="nav(1)">Next →</button>
+      <button class="nav-btn" id="next-btn" onclick="nav(1)">Next &#8594;</button>
     </div>
   </div>
 
   <div id="notes-mode">
 
     <div class="notes-section">
-      <h3>BGP best-path order</h3>
+      <h3>BGP Best-Path Selection</h3>
       <table class="cheat">
-        <tr><th>Priority</th><th>Attribute</th><th>Direction</th></tr>
-        <tr><td>1</td><td>Weight</td><td>Highest wins (Cisco local — not advertised)</td></tr>
-        <tr><td>2</td><td>Local Preference</td><td>Highest wins (AS-wide, shared via iBGP)</td></tr>
-        <tr><td>3</td><td>Locally Originated</td><td>Prefer self-originated (network stmt &gt; redistribute)</td></tr>
-        <tr><td>4</td><td>AS_PATH Length</td><td>Shortest wins</td></tr>
-        <tr><td>5</td><td>Origin</td><td>IGP (i) &lt; EGP (e) &lt; Incomplete (?)</td></tr>
-        <tr><td>6</td><td>MED</td><td>Lowest wins (hint from neighboring AS)</td></tr>
-        <tr><td>7</td><td>Path Type</td><td>eBGP preferred over iBGP</td></tr>
-        <tr><td>8</td><td>IGP Metric to Next-Hop</td><td>Lowest wins (hot-potato routing)</td></tr>
-        <tr><td>9+</td><td>Oldest eBGP path / Router-ID</td><td>Tiebreakers — most stable / lowest RID</td></tr>
-      </table>
-      <div style="margin-top:8px; font-size:12px; color:var(--color-text-tertiary);">Mnemonic: <em>We Love Oranges As Oranges Mean Pure Refreshment</em></div>
-    </div>
-
-    <div class="notes-section">
-      <h3>OSPF neighbor states</h3>
-      <table class="cheat">
-        <tr><th>State</th><th>Meaning</th></tr>
-        <tr><td><span class="tag red">Down</span></td><td>No Hellos received from neighbor</td></tr>
-        <tr><td><span class="tag red">Attempt</span></td><td>Sent Hello on NBMA; waiting for response</td></tr>
-        <tr><td><span class="tag amber">Init</span></td><td>Received Hello; haven't seen our own RID in their Hello yet</td></tr>
-        <tr><td><span class="tag amber">2-Way</span></td><td>Bidirectional confirmed; saw our RID in neighbor's Hello. DR/BDR election here.</td></tr>
-        <tr><td><span class="tag blue">ExStart</span></td><td>Master/slave negotiated (higher RID = master) for DBD exchange</td></tr>
-        <tr><td><span class="tag blue">Exchange</span></td><td>DBD (Database Descriptor) summaries exchanged</td></tr>
-        <tr><td><span class="tag blue">Loading</span></td><td>LSR/LSU: requesting and receiving actual LSA details</td></tr>
-        <tr><td><span class="tag">Full</span></td><td>LSDB fully synchronized — fully adjacent</td></tr>
+        <tr><th>Step</th><th>Attribute</th><th>Winner</th></tr>
+        <tr><td>1</td><td>Weight</td><td>Highest</td></tr>
+        <tr><td>2</td><td>Local Preference</td><td>Highest</td></tr>
+        <tr><td>3</td><td>Locally Originated</td><td>Locally originated wins</td></tr>
+        <tr><td>4</td><td>AS-Path Length</td><td>Shortest</td></tr>
+        <tr><td>5</td><td>Origin</td><td>IGP &gt; EGP &gt; Incomplete</td></tr>
+        <tr><td>6</td><td>MED</td><td>Lowest (same AS)</td></tr>
+        <tr><td>7</td><td>Peer Type</td><td>eBGP &gt; iBGP</td></tr>
+        <tr><td>8</td><td>IGP Metric to Next-Hop</td><td>Lowest</td></tr>
+        <tr><td>9</td><td>Route Age</td><td>Oldest eBGP</td></tr>
+        <tr><td>10</td><td>Router ID</td><td>Lowest</td></tr>
       </table>
     </div>
 
     <div class="notes-section">
-      <h3>Subnet quick reference</h3>
+      <h3>OSPF Neighbor States</h3>
       <table class="cheat">
-        <tr><th>Prefix</th><th>Total Addresses</th><th>Usable Hosts</th><th>Notes</th></tr>
-        <tr><td><code>/30</code></td><td>4</td><td>2</td><td>Point-to-point links</td></tr>
-        <tr><td><code>/29</code></td><td>8</td><td>6</td><td></td></tr>
-        <tr><td><code>/28</code></td><td>16</td><td>14</td><td></td></tr>
-        <tr><td><code>/27</code></td><td>32</td><td>30</td><td></td></tr>
-        <tr><td><code>/26</code></td><td>64</td><td>62</td><td></td></tr>
-        <tr><td><code>/25</code></td><td>128</td><td>126</td><td></td></tr>
-        <tr><td><code>/24</code></td><td>256</td><td>254</td><td>Standard "Class C"</td></tr>
-        <tr><td><code>/23</code></td><td>512</td><td>510</td><td></td></tr>
-        <tr><td><code>/22</code></td><td>1,024</td><td>1,022</td><td></td></tr>
-        <tr><td><code>/16</code></td><td>65,536</td><td>65,534</td><td>Standard "Class B"</td></tr>
-        <tr><td><code>/8</code></td><td>16,777,216</td><td>16,777,214</td><td>Standard "Class A"</td></tr>
-      </table>
-      <div style="margin-top:8px; font-size:12px; color:var(--color-text-tertiary);">Formula: 2^(32-prefix) total; subtract 2 for network + broadcast = usable hosts</div>
-    </div>
-
-    <div class="notes-section">
-      <h3>Common port numbers</h3>
-      <table class="cheat">
-        <tr><th>Port</th><th>Protocol</th><th>Use</th></tr>
-        <tr><td>22</td><td>TCP</td><td>SSH — secure remote shell</td></tr>
-        <tr><td>23</td><td>TCP</td><td>Telnet — unencrypted remote shell</td></tr>
-        <tr><td>25</td><td>TCP</td><td>SMTP — mail transfer</td></tr>
-        <tr><td>53</td><td>UDP/TCP</td><td>DNS — queries (UDP), zone transfers (TCP)</td></tr>
-        <tr><td>67 / 68</td><td>UDP</td><td>DHCP — server (67), client (68)</td></tr>
-        <tr><td>80</td><td>TCP</td><td>HTTP</td></tr>
-        <tr><td>161 / 162</td><td>UDP</td><td>SNMP (161) / SNMP Trap (162)</td></tr>
-        <tr><td>179</td><td>TCP</td><td>BGP — all BGP sessions run over TCP 179</td></tr>
-        <tr><td>443</td><td>TCP</td><td>HTTPS</td></tr>
-        <tr><td>520</td><td>UDP</td><td>RIPv1 / RIPv2</td></tr>
-        <tr><td>89</td><td>IP protocol</td><td>OSPF — uses IP protocol 89 (not a TCP/UDP port)</td></tr>
+        <tr><th>State</th><th>What it means</th></tr>
+        <tr><td><span class="tag red">Down</span></td><td>No Hellos received</td></tr>
+        <tr><td><span class="tag amber">Init</span></td><td>Hello received; our RID not yet in neighbor's Hello</td></tr>
+        <tr><td><span class="tag amber">2-Way</span></td><td>Bidirectional; our RID seen in neighbor's Hello. DR/BDR elected here.</td></tr>
+        <tr><td><span class="tag blue">ExStart</span></td><td>Master/Slave negotiation for DB exchange</td></tr>
+        <tr><td><span class="tag blue">Exchange</span></td><td>DBD (Database Description) packets exchanged</td></tr>
+        <tr><td><span class="tag blue">Loading</span></td><td>LSR/LSU exchange; actual LSAs transferred</td></tr>
+        <tr><td><span class="tag">Full</span></td><td>Databases fully synchronized</td></tr>
       </table>
     </div>
 
     <div class="notes-section">
-      <h3>Private IP ranges (RFC 1918)</h3>
+      <h3>Subnet Quick Reference</h3>
+      <table class="cheat">
+        <tr><th>Prefix</th><th>Addresses</th><th>Usable Hosts</th><th>Mask</th></tr>
+        <tr><td>/24</td><td>256</td><td>254</td><td>255.255.255.0</td></tr>
+        <tr><td>/25</td><td>128</td><td>126</td><td>255.255.255.128</td></tr>
+        <tr><td>/26</td><td>64</td><td>62</td><td>255.255.255.192</td></tr>
+        <tr><td>/27</td><td>32</td><td>30</td><td>255.255.255.224</td></tr>
+        <tr><td>/28</td><td>16</td><td>14</td><td>255.255.255.240</td></tr>
+        <tr><td>/29</td><td>8</td><td>6</td><td>255.255.255.248</td></tr>
+        <tr><td>/30</td><td>4</td><td>2</td><td>255.255.255.252</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Key Port Numbers</h3>
+      <table class="cheat">
+        <tr><th>Protocol</th><th>Port</th><th>Type</th></tr>
+        <tr><td>SSH</td><td>22</td><td>TCP</td></tr>
+        <tr><td>DNS</td><td>53</td><td>UDP/TCP</td></tr>
+        <tr><td>HTTP</td><td>80</td><td>TCP</td></tr>
+        <tr><td>HTTPS</td><td>443</td><td>TCP</td></tr>
+        <tr><td>BGP</td><td>179</td><td>TCP</td></tr>
+        <tr><td>SNMP</td><td>161</td><td>UDP</td></tr>
+        <tr><td>NTP</td><td>123</td><td>UDP</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Private IPv4 Ranges (RFC 1918)</h3>
       <div class="notes-grid">
-        <div class="note-card"><div class="label">Class A private</div><div class="val"><code>10.0.0.0/8</code><br>16.7M addresses</div></div>
-        <div class="note-card"><div class="label">Class B private</div><div class="val"><code>172.16.0.0/12</code><br>172.16–172.31.x.x</div></div>
-        <div class="note-card"><div class="label">Class C private</div><div class="val"><code>192.168.0.0/16</code><br>65K addresses</div></div>
-        <div class="note-card"><div class="label">Link-local</div><div class="val"><code>169.254.0.0/16</code><br>APIPA self-assigned</div></div>
-        <div class="note-card"><div class="label">Loopback</div><div class="val"><code>127.0.0.0/8</code><br>Local host only</div></div>
-        <div class="note-card"><div class="label">Default route</div><div class="val"><code>0.0.0.0/0</code><br>Gateway of last resort</div></div>
+        <div class="note-card"><div class="label">Class A</div><div class="val">10.0.0.0/8 &#8212; 16.7M addresses</div></div>
+        <div class="note-card"><div class="label">Class B range</div><div class="val">172.16.0.0/12 &#8212; 172.16&#8211;172.31</div></div>
+        <div class="note-card"><div class="label">Class C</div><div class="val">192.168.0.0/16 &#8212; 65K addresses</div></div>
+        <div class="note-card"><div class="label">Loopback</div><div class="val">127.0.0.0/8</div></div>
+        <div class="note-card"><div class="label">Link-local / APIPA</div><div class="val">169.254.0.0/16</div></div>
       </div>
     </div>
 
     <div class="notes-section">
-      <h3>BGP vs OSPF at a glance</h3>
+      <h3>OSPF LSA Types</h3>
       <table class="cheat">
-        <tr><th>Property</th><th>OSPF</th><th>BGP</th></tr>
-        <tr><td>Type</td><td>Link-state IGP</td><td>Path-vector EGP</td></tr>
-        <tr><td>Transport</td><td>IP protocol 89 (multicast)</td><td>TCP port 179</td></tr>
-        <tr><td>Metric</td><td>Cost (bandwidth-based)</td><td>Best-path attributes (multi-step)</td></tr>
-        <tr><td>Admin distance</td><td>110</td><td>eBGP: 20 / iBGP: 200</td></tr>
-        <tr><td>Scale</td><td>Within an AS (areas)</td><td>Between ASes (internet)</td></tr>
-        <tr><td>Loop prevention</td><td>LSDB + SPF</td><td>AS_PATH + iBGP split horizon</td></tr>
-        <tr><td>Convergence</td><td>Fast (seconds)</td><td>Slower (minutes possible)</td></tr>
+        <tr><th>Type</th><th>Name</th><th>Generated by</th><th>Scope</th></tr>
+        <tr><td>1</td><td>Router LSA</td><td>All routers</td><td>Within area</td></tr>
+        <tr><td>2</td><td>Network LSA</td><td>DR only</td><td>Within area</td></tr>
+        <tr><td>3</td><td>Summary LSA</td><td>ABR</td><td>Inter-area</td></tr>
+        <tr><td>4</td><td>ASBR Summary</td><td>ABR</td><td>Location of ASBR</td></tr>
+        <tr><td>5</td><td>External LSA</td><td>ASBR</td><td>All areas (except stub)</td></tr>
+        <tr><td>7</td><td>NSSA External</td><td>ASBR in NSSA</td><td>NSSA only &#8212; converted to Type 5 at ABR</td></tr>
       </table>
     </div>
 
@@ -243,213 +234,213 @@
 
 <script>
 const ALL = [
-  /* ── Category 1: IP & Subnetting ── */
+  // ── IP & Subnetting ──────────────────────────────────────────────────────────
   {
     cat: "IP & Subnetting",
-    q: "What is an IP address? Give a complete answer.",
-    a: "<ul><li>32-bit logical identifier for a network interface (IPv4)</li><li>Written in dotted-decimal: 4 octets, each 0–255 (e.g. <code>192.168.1.1</code>)</li><li>Two parts: <strong>network prefix</strong> (routing) + <strong>host bits</strong> (local addressing)</li><li>Prefix length written as <code>/N</code> (CIDR) or subnet mask (e.g. <code>255.255.255.0</code> = <code>/24</code>)</li><li>Globally unique (public) or reused behind NAT (private: 10/8, 172.16-31/12, 192.168/16)</li></ul>"
+    q: "What is an IPv4 address? Give a complete answer.",
+    a: "A 32-bit logical identifier assigned to a network interface, written in dotted-decimal notation (four octets, 0\u2013255 each). Divided into network portion (identified by subnet mask/prefix) and host portion. Used at Layer 3 for routing across networks. IPv4 allows ~4.3 billion addresses (2<sup>32</sup>)."
   },
   {
     cat: "IP & Subnetting",
-    q: "Subnet 192.168.1.0/24 into 4 equal subnets. What are they?",
-    a: "<ul><li>Need 4 subnets → borrow 2 bits → /26 each (64 addresses, 62 usable hosts)</li><li><code>192.168.1.0/26</code> — hosts .1–.62, broadcast .63</li><li><code>192.168.1.64/26</code> — hosts .65–.126, broadcast .127</li><li><code>192.168.1.128/26</code> — hosts .129–.190, broadcast .191</li><li><code>192.168.1.192/26</code> — hosts .193–.254, broadcast .255</li></ul>"
+    q: "What is CIDR (Classless Inter-Domain Routing)?",
+    a: "CIDR replaces classful addressing (Class A/B/C) with variable-length subnet masks. Written as IP/prefix-length (e.g., 10.0.0.0/22). The prefix specifies how many bits are the network part. Enables efficient address allocation and route aggregation (supernetting). Introduced 1993 to slow IPv4 exhaustion."
   },
   {
     cat: "IP & Subnetting",
-    q: "What is longest-prefix match? Why does it matter?",
-    a: "<ul><li>When multiple routing table entries match a destination IP, the router chooses the one with the <strong>longest (most specific) prefix</strong></li><li>Example: for 10.1.2.3, prefer 10.1.2.0/24 over 10.1.0.0/16 over 10.0.0.0/8 over 0.0.0.0/0</li><li>Why it matters: allows hierarchical routing — ISP advertises 10.0.0.0/8, but your DC advertises 10.1.2.0/24 more specifically for that subnet</li><li>Default route (0.0.0.0/0) always loses; it's the catch-all of last resort</li></ul>"
+    q: "What are the private IPv4 address ranges (RFC 1918)?",
+    a: "<ul><li><strong>10.0.0.0/8</strong> \u2014 Class A, 16.7M addresses</li><li><strong>172.16.0.0/12</strong> \u2014 Class B range, 1M addresses (172.16\u2013172.31)</li><li><strong>192.168.0.0/16</strong> \u2014 Class C, 65K addresses</li></ul>Not routable on the public internet. NAT translates private \u2194 public. Also: 127.0.0.0/8 (loopback), 169.254.0.0/16 (link-local/APIPA)."
   },
   {
     cat: "IP & Subnetting",
-    q: "What are the private IP address ranges? (RFC 1918)",
-    a: "<ul><li><code>10.0.0.0/8</code> — 16.7M addresses (class A)</li><li><code>172.16.0.0/12</code> — 1M addresses (172.16.x.x – 172.31.x.x)</li><li><code>192.168.0.0/16</code> — 65K addresses (home/SOHO)</li><li>Not routed on the public internet — require NAT to reach internet</li><li>Also: 169.254.0.0/16 (link-local / APIPA) and 127.0.0.0/8 (loopback)</li></ul>"
+    q: "Subnet a /24 into 4 equal subnets. Walk through it.",
+    a: "Starting /24 = 256 addresses. Need 4 subnets \u2192 borrow 2 bits (2<sup>2</sup>=4) \u2192 /26 (64 addresses each).<br><br><ul><li>192.168.1.0/26 (hosts: .1\u2013.62, broadcast: .63)</li><li>192.168.1.64/26 (hosts: .65\u2013.126, broadcast: .127)</li><li>192.168.1.128/26 (hosts: .129\u2013.190, broadcast: .191)</li><li>192.168.1.192/26 (hosts: .193\u2013.254, broadcast: .255)</li></ul>Each subnet: 62 usable hosts (64 \u2212 2 for network + broadcast)."
   },
   {
     cat: "IP & Subnetting",
-    q: "What's the difference between a subnet mask and a prefix length?",
-    a: "<ul><li>They're two representations of the same thing</li><li><strong>Subnet mask:</strong> 32-bit value, contiguous 1s then 0s — e.g. <code>255.255.255.0</code></li><li><strong>Prefix length (CIDR):</strong> count of leading 1-bits — e.g. <code>/24</code></li><li><code>/24 = 255.255.255.0</code>, <code>/16 = 255.255.0.0</code>, <code>/8 = 255.0.0.0</code></li><li>Masking: <code>IP AND mask = network address</code></li></ul>"
+    q: "What is longest-prefix match and why does it matter?",
+    a: "When a router has multiple routes that match a destination IP, it selects the one with the longest (most specific) prefix. Example: for IP 10.1.2.3, routes 10.0.0.0/8, 10.1.0.0/16, and 10.1.2.0/24 all match \u2014 router picks 10.1.2.0/24 (/24 is most specific). Matters because: allows default routes (0.0.0.0/0) while more-specific routes override them. Hardware FIBs use Patricia tries for O(prefix_len) lookup."
   },
   {
     cat: "IP & Subnetting",
-    q: "How many usable host addresses are in a /27 subnet?",
-    a: "<ul><li>/27 = 32 total addresses (2^(32-27) = 2^5 = 32)</li><li>Subtract 2: 1 network address + 1 broadcast = <strong>30 usable hosts</strong></li><li>General formula: 2^(32-prefix) - 2</li><li>Examples: /30 = 2 hosts (p2p link), /29 = 6, /28 = 14, /27 = 30, /26 = 62, /24 = 254</li></ul>"
+    q: "What is the difference between a subnet mask and a prefix length?",
+    a: "Two representations of the same thing:<br><ul><li>Prefix length: /24 \u2014 number of 1-bits in the mask</li><li>Subnet mask: 255.255.255.0 \u2014 dotted-decimal of the same 32-bit mask</li></ul>/24 = 11111111.11111111.11111111.00000000 = 255.255.255.0<br>/25 = 11111111.11111111.11111111.10000000 = 255.255.255.128<br>CIDR notation (/24) is preferred in modern usage. Subnet masks were used in classful networking."
   },
   {
     cat: "IP & Subnetting",
-    q: "What is a default route and when is it used?",
-    a: "<ul><li><code>0.0.0.0/0</code> — matches ALL destination IPs (prefix length = 0)</li><li>Used as a <strong>gateway of last resort</strong> — when no more-specific route matches</li><li>Typical use: edge router sends all unknown traffic to ISP</li><li>In routing table: lowest-priority match due to LPM — any /1 or longer beats it</li><li>Also called: default gateway, quad-zero route</li></ul>"
+    q: "What is a loopback address and why is it used on routers?",
+    a: "A loopback is a virtual interface (always up, not tied to physical link) assigned an IP address. On routers:<ul><li>Used as BGP router-id (stable, doesn\u2019t go down if physical link fails)</li><li>Used as OSPF router-id</li><li>Source address for management traffic (always reachable as long as routing works)</li><li>BGP update-source loopback (requires IGP to reach peer\u2019s loopback)</li></ul>Loopback 127.0.0.1 is the host\u2019s own loopback (not same as router loopback interface)."
   },
-  /* ── Category 2: TCP/IP & Protocols ── */
+  // ── TCP/IP & Protocols ───────────────────────────────────────────────────────
   {
     cat: "TCP/IP & Protocols",
-    q: "Describe the TCP 3-way handshake.",
-    a: "<ol><li><strong>SYN</strong> — client sends SYN with initial seq number (ISN)</li><li><strong>SYN-ACK</strong> — server replies with SYN (its own ISN) + ACK (client ISN+1)</li><li><strong>ACK</strong> — client sends ACK (server ISN+1). Connection established.</li></ol><ul><li>Purpose: establish bidirectional comm + synchronize sequence numbers</li><li>After handshake: both sides track seq/ack for reliability and ordering</li><li>FIN/FIN-ACK/ACK for teardown (4-way in full duplex)</li></ul>"
-  },
-  {
-    cat: "TCP/IP & Protocols",
-    q: "TCP vs UDP — key differences and when to use each.",
-    a: "<ul><li><strong>TCP:</strong> connection-oriented, reliable, ordered, flow control, congestion control — HTTP/HTTPS, SSH, BGP (TCP 179), DNS zone transfers</li><li><strong>UDP:</strong> connectionless, no guarantee, lower overhead — DNS queries, DHCP, SNMP, NTP, video streaming, OSPF/EIGRP hellos (uses IP multicast, not TCP)</li><li>Use TCP when: data integrity matters, you need retransmit</li><li>Use UDP when: latency matters more than reliability, or you handle retransmit at app layer</li></ul>"
+    q: "Explain the TCP 3-way handshake.",
+    a: "<ol><li>Client \u2192 Server: <strong>SYN</strong> (seq=x, requests connection)</li><li>Server \u2192 Client: <strong>SYN-ACK</strong> (seq=y, ack=x+1, confirms receipt + requests back)</li><li>Client \u2192 Server: <strong>ACK</strong> (ack=y+1, connection established)</li></ol>After this, both sides can send data. Establishes Initial Sequence Numbers (ISN) for reliable ordered delivery. Close: FIN-ACK, FIN-ACK (4-way teardown or simultaneous close)."
   },
   {
     cat: "TCP/IP & Protocols",
-    q: "What happens when you type a URL and press Enter? Walk through the full request.",
-    a: "<ol><li><strong>DNS lookup:</strong> browser checks cache → OS stub resolver → recursive resolver → root NS → TLD NS → authoritative NS → returns A record IP</li><li><strong>TCP connection:</strong> 3-way handshake to destination IP:80 (HTTP) or :443 (HTTPS)</li><li><strong>TLS handshake</strong> (HTTPS): negotiate cipher suite, exchange certificates, derive session keys</li><li><strong>HTTP request:</strong> GET / HTTP/1.1 or HTTP/2 request sent</li><li><strong>HTTP response:</strong> server sends HTML; browser parses, requests sub-resources</li><li><strong>TCP teardown:</strong> FIN exchange after response complete</li></ol>"
+    q: "TCP vs UDP \u2014 when do you use each?",
+    a: "<strong>TCP:</strong> reliable, ordered, connection-oriented (SYN handshake), flow control, congestion control. Use for: HTTP/S, SSH, BGP, SMTP \u2014 anything where data correctness matters.<br><br><strong>UDP:</strong> unreliable, connectionless, no ordering, lower overhead. Use for: DNS queries (fast, retried by app), NTP, SNMP traps, streaming/VoIP (latency &gt; reliability), OSPF/EIGRP.<br><br>Rule of thumb: if you need reliability and order, TCP. If you need speed and can tolerate loss, UDP."
   },
   {
     cat: "TCP/IP & Protocols",
-    q: "What is a PMTU blackhole? How do you detect and fix it?",
-    a: "<ul><li><strong>What:</strong> Path MTU (the minimum MTU along a path) is smaller than the source's MTU. Source sends large packets; intermediate router drops them and sends ICMP 'Fragmentation Needed' (type 3 code 4). If the ICMP is blocked by a firewall, the source never learns to fragment → <strong>blackhole</strong></li><li><strong>Symptoms:</strong> small packets work (ping), large packets hang (HTTP, SSH after handshake)</li><li><strong>Detect:</strong> <code>ping -s 1472 -M do &lt;dest&gt;</code> (Linux) — don't-fragment bit set; see if it drops</li><li><strong>Fix:</strong> allow ICMP type 3 code 4 through firewalls, or use TCP MSS clamping (<code>ip tcp adjust-mss 1452</code>)</li></ul>"
+    q: "Walk through what happens when you type https://example.com and press Enter.",
+    a: "<ol><li><strong>DNS:</strong> OS checks local cache \u2192 stub resolver \u2192 recursive resolver \u2192 root \u2192 .com TLD \u2192 authoritative NS \u2192 returns A record (IP)</li><li><strong>TCP:</strong> 3-way handshake to port 443</li><li><strong>TLS:</strong> ClientHello \u2192 ServerHello + certificate \u2192 key exchange (TLS 1.3: 1-RTT) \u2192 Application Data</li><li><strong>HTTP/2</strong> (or HTTP/1.1): GET request \u2192 server responds with HTML</li><li>Browser parses HTML, fires more DNS/TCP/TLS for subresources</li></ol>ARP is used for every hop to resolve next-hop MAC."
   },
   {
     cat: "TCP/IP & Protocols",
-    q: "TCP congestion control vs flow control — what's the difference?",
-    a: "<ul><li><strong>Flow control:</strong> prevents sender from overwhelming the <em>receiver</em> — receiver advertises its window size in ACK headers; sender limits in-flight data to receiver window</li><li><strong>Congestion control:</strong> prevents sender from overwhelming the <em>network</em> — TCP infers congestion from packet loss or delay; uses slow start, congestion avoidance, fast retransmit, fast recovery (AIMD)</li><li>Flow control = receiver-to-sender signal; congestion control = implicit network signal</li><li>Both limit send window, but for different reasons</li></ul>"
+    q: "What is PMTU Black Hole? How do you detect and fix it?",
+    a: "<strong>PMTU Black Hole:</strong> routers drop oversized packets but don\u2019t send ICMP \u2018Fragmentation Needed\u2019 (type 3, code 4) back, so the sender never discovers the actual path MTU. TCP connections hang after initial small packets succeed.<br><br><strong>Detect:</strong> traceroute with large packet size, <code>ping -M do -s 1400 target</code> (DF bit set), check netstat for stuck connections.<br><br><strong>Fix:</strong> Enable ICMP unreachables on firewalls (allow type 3 code 4), use TCP MSS clamping (<code>ip tcp adjust-mss 1452</code> on routers), or configure PMTUD on endpoints."
+  },
+  {
+    cat: "TCP/IP & Protocols",
+    q: "What is TCP congestion control vs flow control?",
+    a: "<strong>Flow control:</strong> prevents sender from overwhelming the <em>receiver</em>. TCP receiver advertises window size (rwnd) \u2014 max bytes it can buffer. Sender limits in-flight data to rwnd. Receiver-driven.<br><br><strong>Congestion control:</strong> prevents sender from overwhelming the <em>network</em>. Maintains congestion window (cwnd). Algorithms: Slow Start (exponential growth), Congestion Avoidance (linear growth), Fast Retransmit/Recovery. Network-driven (responds to packet loss / ECN).<br><br>Actual send rate = min(rwnd, cwnd)."
   },
   {
     cat: "TCP/IP & Protocols",
     q: "What is ARP? When does an ARP request go out?",
-    a: "<ul><li><strong>ARP (Address Resolution Protocol):</strong> maps IPv4 address → MAC address on the same L2 segment</li><li><strong>ARP request sent when:</strong> host wants to send to an IP and doesn't know its MAC (or ARP cache entry expired)</li><li><strong>Process:</strong> Broadcast 'Who has 10.0.0.1? Tell 10.0.0.2' → target replies unicast with its MAC → cached with TTL (typically ~20 min)</li><li><strong>For off-subnet traffic:</strong> ARP is for the default gateway's MAC, not the destination's MAC</li><li>ARP doesn't cross L3 boundaries (routers don't forward ARP)</li></ul>"
+    a: "ARP (Address Resolution Protocol) resolves IPv4 addresses to MAC addresses on the same L2 segment. Goes out when: a host has an IPv4 next-hop address but no corresponding ARP cache entry.<br><br>Process: broadcasts \u2018Who has 10.0.0.1? Tell 10.0.0.2\u2019 \u2192 target responds with its MAC unicast. ARP cache TTL typically 20 min.<br><br><strong>Gratuitous ARP:</strong> unsolicited ARP reply announcing own MAC (used on failover/HSRP/VRRP takeover). <strong>Proxy ARP:</strong> router responds on behalf of hosts in other subnets."
   },
   {
     cat: "TCP/IP & Protocols",
-    q: "TCP retransmissions — when do they happen? What causes duplicate ACKs?",
-    a: "<ul><li><strong>Retransmit triggers:</strong> (1) retransmit timeout (RTO) — no ACK received in time; (2) 3 duplicate ACKs → fast retransmit (RFC 5681)</li><li><strong>Duplicate ACKs:</strong> receiver sends repeated ACK for last in-order byte when out-of-order segment arrives — tells sender 'I got something but there's a gap'</li><li><strong>3 DupACKs = fast retransmit</strong> without waiting for RTO — much faster recovery</li><li><strong>Network context:</strong> high retransmits = packet loss or severe congestion; <code>ss -s</code> or <code>netstat</code> show retransmit counters</li></ul>"
+    q: "What port numbers do these use: SSH, DNS, HTTP, HTTPS, BGP, SNMP, NTP, SMTP?",
+    a: "<ul><li>SSH: TCP <strong>22</strong></li><li>DNS: UDP <strong>53</strong> (TCP 53 for zone transfers, large responses)</li><li>HTTP: TCP <strong>80</strong></li><li>HTTPS: TCP <strong>443</strong></li><li>BGP: TCP <strong>179</strong></li><li>SNMP: UDP <strong>161</strong> (agent), UDP 162 (traps)</li><li>NTP: UDP <strong>123</strong></li><li>SMTP: TCP <strong>25</strong> (server-to-server), 587 (submission), 465 (SMTPS)</li><li>Telnet: TCP 23 | FTP: TCP 21 (control), 20 (data)</li></ul>"
   },
   {
     cat: "TCP/IP & Protocols",
-    q: "What is the purpose of TCP sequence and acknowledgment numbers?",
-    a: "<ul><li><strong>Sequence number:</strong> byte offset of the first byte in this segment — enables in-order reassembly and loss detection</li><li><strong>Acknowledgment number:</strong> next byte the receiver expects — cumulative ACK (implies all prior bytes received)</li><li>Together they enable: reliable delivery, ordered reassembly, duplicate detection, loss detection</li><li>ISN (Initial Sequence Number) is random — prevents old segments from colliding with new connection</li></ul>"
+    q: "What is NAT and what problem does it solve?",
+    a: "NAT (Network Address Translation) maps private IP:port to a public IP:port, allowing many hosts to share one public IP. Solves IPv4 address exhaustion.<br><br><strong>Types:</strong><ul><li>Static NAT: 1-to-1 private\u2194public mapping</li><li>Dynamic NAT: pool of public IPs</li><li>PAT/Overload (most common): many-to-one using ports (NAPT)</li></ul><strong>Problems with NAT:</strong> breaks end-to-end connectivity, complicates protocols that embed IPs (FTP, SIP), requires stateful tracking, breaks IPsec/ESP (use NAT-T for this)."
   },
-  /* ── Category 3: OSPF ── */
+  // ── OSPF ────────────────────────────────────────────────────────────────────
   {
     cat: "OSPF",
-    q: "List all OSPF neighbor states in order and what each means.",
-    a: "<ol><li><strong>Down</strong> — no Hellos received</li><li><strong>Attempt</strong> — sent Hello on NBMA, waiting for response</li><li><strong>Init</strong> — received Hello from neighbor; haven't seen our own RID in their Hello yet</li><li><strong>2-Way</strong> — bidirectional: saw our own RID in neighbor's Hello. DR/BDR election happens here.</li><li><strong>ExStart</strong> — master/slave negotiated (higher RID = master) for DBD exchange</li><li><strong>Exchange</strong> — DBDs (Database Descriptors / summaries) exchanged</li><li><strong>Loading</strong> — LSR/LSU: requesting and receiving actual LSA details</li><li><strong>Full</strong> — LSDB synchronized. Fully adjacent.</li></ol>"
-  },
-  {
-    cat: "OSPF",
-    q: "What are the 3 most common causes of OSPF stuck in EXSTART/EXCHANGE?",
-    a: "<ol><li><strong>MTU mismatch:</strong> DBD packets exceed one side's MTU and are dropped. Fix: <code>ip ospf mtu-ignore</code> or match MTUs on both ends.</li><li><strong>Duplicate Router ID:</strong> two routers have the same RID. Master/slave negotiation fails. Fix: <code>show ip ospf</code>, set unique RIDs manually.</li><li><strong>Authentication mismatch:</strong> one side has OSPF MD5 auth, the other doesn't (or different keys). DBDs fail authentication. Fix: match auth type and keys on both ends.</li></ol><p>Diagnosis: <code>debug ip ospf adj</code>, <code>show ip ospf neighbor detail</code></p>"
+    q: "List the 7 OSPF neighbor states in order.",
+    a: "<ol><li><strong>Down</strong> \u2014 no Hellos received</li><li><strong>Attempt</strong> \u2014 (NBMA only) Hellos being sent to configured neighbor</li><li><strong>Init</strong> \u2014 Hello received, but our RID not in neighbor\u2019s Hello</li><li><strong>2-Way</strong> \u2014 Hello received with our RID in it; DR/BDR election if multi-access</li><li><strong>ExStart</strong> \u2014 Master/Slave negotiation, exchange DBD seq numbers</li><li><strong>Exchange</strong> \u2014 Exchanging DBD (database description) packets</li><li><strong>Loading</strong> \u2014 Sending LSR for missing LSAs</li><li><strong>Full</strong> \u2014 databases synchronized; normal operation</li></ol>Note: 2-Way is the goal on DROther \u2194 DROther adjacencies on broadcast networks."
   },
   {
     cat: "OSPF",
-    q: "Explain DR and BDR election in OSPF. Why are they needed?",
-    a: "<ul><li><strong>Why needed:</strong> on multi-access networks (Ethernet), N routers would form N*(N-1)/2 adjacencies and flood N*(N-1) LSA copies. DR/BDR reduces this to N adjacencies + 1 LSA copy.</li><li><strong>DR:</strong> Designated Router — receives LSAs from all DROthers, re-floods to all</li><li><strong>BDR:</strong> Backup DR — takes over if DR fails without re-election</li><li><strong>Election:</strong> highest OSPF interface priority wins (default 1); tie: highest Router ID. Priority 0 = never DR/BDR.</li><li>Non-DR/BDR routers = DROther; form Full adjacency only with DR and BDR (2-way with other DROthers)</li></ul>"
+    q: "What OSPF neighbor state issues indicate MTU mismatch?",
+    a: "Stuck in <strong>ExStart</strong> or <strong>Exchange</strong>. In ExStart, OSPF negotiates Master/Slave via DBD packets. If MTU differs, DBD packets from one side may be too large and get dropped, causing the state to cycle repeatedly.<br><br>Diagnose: <code>show ip ospf neighbor</code> \u2014 see state, then <code>show interface</code> for MTU values on both sides.<br>Fix: Match MTU (<code>ip mtu 1500</code>) or use <code>ip ospf mtu-ignore</code> on the interface (workaround, not best practice)."
   },
   {
     cat: "OSPF",
-    q: "What are OSPF LSA types 1–5 and 7?",
-    a: "<ul><li><strong>Type 1 — Router LSA:</strong> every router; describes its interfaces and costs; floods within area only</li><li><strong>Type 2 — Network LSA:</strong> DR only; describes multi-access network; within area only</li><li><strong>Type 3 — Summary LSA:</strong> ABR; carries inter-area routes (network summaries); between areas</li><li><strong>Type 4 — ASBR Summary:</strong> ABR; tells other areas how to reach the ASBR; between areas</li><li><strong>Type 5 — External LSA:</strong> ASBR; external routes redistributed into OSPF; all normal areas</li><li><strong>Type 7 — NSSA External:</strong> ASBR inside NSSA; converted to Type 5 by ABR at area boundary</li></ul>"
+    q: "What are the 3 most common causes of OSPF neighbors stuck in ExStart/Exchange?",
+    a: "<ol><li><strong>MTU mismatch</strong> \u2014 DBD packets sized for one MTU are dropped by the other. State cycles in ExStart.</li><li><strong>Duplicate Router ID</strong> \u2014 Two routers with identical RID fight for Master. Check: <code>show ip ospf</code> for RID conflicts.</li><li><strong>Authentication mismatch</strong> \u2014 One side requires MD5/SHA, other doesn\u2019t, or different keys. OSPF packets pass IP but fail auth check.</li></ol>Bonus: ACL blocking IP protocol 89 (OSPF), or half-duplex mismatch causing packet corruption."
+  },
+  {
+    cat: "OSPF",
+    q: "Why is a DR/BDR needed on multi-access networks? How is DR elected?",
+    a: "<strong>Problem:</strong> On a broadcast segment with N routers, without DR, each pair forms adjacency \u2192 O(N\u00b2) adjacencies and LSA floods. DR collects updates from all and re-floods as Type 2 LSA \u2014 reduces to O(N) adjacencies.<br><br><strong>Election (non-preemptive by default):</strong><ol><li>Highest OSPF interface priority (0 = ineligible, default 1)</li><li>Tie-break: highest Router ID</li></ol>BDR becomes DR if DR fails. DROther routers only reach Full with DR/BDR, stay 2-Way with other DROthers."
+  },
+  {
+    cat: "OSPF",
+    q: "What are the OSPF area types? What routes does each carry?",
+    a: "<ul><li><strong>Backbone (Area 0):</strong> must exist; all areas connect to it. Carries all LSA types.</li><li><strong>Standard:</strong> Type 1, 2 (intra-area), Type 3 (inter-area summaries), Type 5 (external).</li><li><strong>Stub:</strong> no Type 5 (external) LSAs. Uses default route for external destinations.</li><li><strong>Totally Stubby (Cisco):</strong> no Type 3, 4, or 5. Only default route. Smallest LSDB.</li><li><strong>NSSA:</strong> allows ASBR inside, generates Type 7 LSAs (converted to Type 5 at ABR). No external Type 5 from other areas.</li><li><strong>Totally NSSA:</strong> NSSA + no Type 3 inter-area summaries.</li></ul>"
+  },
+  {
+    cat: "OSPF",
+    q: "What are OSPF LSA Types 1\u20135? What does each advertise?",
+    a: "<ul><li><strong>Type 1 \u2014 Router LSA:</strong> each router describes its links/interfaces. Flooded within area only.</li><li><strong>Type 2 \u2014 Network LSA:</strong> DR generates for multi-access segment. Intra-area only.</li><li><strong>Type 3 \u2014 Summary LSA:</strong> ABR generates for inter-area routes.</li><li><strong>Type 4 \u2014 ASBR Summary:</strong> ABR advertises location of ASBR to other areas.</li><li><strong>Type 5 \u2014 External LSA:</strong> ASBR generates for redistributed external routes. Flooded throughout (except stub areas).</li><li><strong>Type 7 \u2014 NSSA External:</strong> used in NSSA areas, converted to Type 5 at ABR.</li></ul>"
   },
   {
     cat: "OSPF",
     q: "How is OSPF metric (cost) calculated?",
-    a: "<ul><li>Cost = reference bandwidth / interface bandwidth</li><li>Default reference bandwidth = 100 Mbps</li><li>FastEthernet (100 Mbps): cost = 100/100 = 1</li><li>Ethernet (10 Mbps): cost = 100/10 = 10</li><li>T1 (1.544 Mbps): cost = 100/1.544 ≈ 64</li><li>GigabitEthernet and higher: cost = 1 (same as FastEthernet unless reference-bw changed)</li><li>Fix: <code>auto-cost reference-bandwidth 10000</code> (10 Gbps) so Gig=10, 10Gig=1</li><li>Total path cost = sum of outgoing interface costs along the path</li></ul>"
+    a: "OSPF cost = <strong>Reference Bandwidth / Interface Bandwidth</strong>.<br>Default reference bandwidth: 100 Mbps.<br><ul><li>GigabitEthernet (1 Gbps): cost = 100M/1000M = <strong>1</strong></li><li>FastEthernet (100 Mbps): cost = 100M/100M = <strong>1</strong></li><li>Serial T1 (1.544 Mbps): cost \u2248 <strong>64</strong></li></ul><strong>Problem:</strong> GigE and 10GigE both cost 1 with default reference.<br><strong>Fix:</strong> <code>auto-cost reference-bandwidth 10000</code> (for 10G). Lower cost = preferred path. Costs are additive."
   },
   {
     cat: "OSPF",
-    q: "What are OSPF area types? Which LSA types does each accept?",
-    a: "<ul><li><strong>Standard:</strong> T1,2,3,4,5 — all LSAs</li><li><strong>Stub:</strong> T1,2,3 — no T4/T5 externals; ABR injects default route</li><li><strong>Totally Stubby (Cisco):</strong> T1,2 only — no T3 either; ABR injects default</li><li><strong>NSSA:</strong> T1,2,3,7 — no T4/T5; allows internal ASBR via T7</li><li><strong>Totally NSSA:</strong> T1,2,7 — no T3 either; ABR injects default</li><li>Rule of thumb: Stub = no external routes; Totally Stubby = no external OR inter-area routes (just default)</li></ul>"
+    q: "What OSPF troubleshooting commands do you run first?",
+    a: "<ol><li><code>show ip ospf neighbor</code> \u2014 state, dead time, DR/BDR, interface</li><li><code>show ip ospf interface &lt;intf&gt;</code> \u2014 hello/dead intervals, area, cost, auth type, MTU</li><li><code>show ip ospf database</code> \u2014 LSDB contents, LSA types</li><li><code>show ip route ospf</code> \u2014 O = intra, O IA = inter-area, O E2 = external</li><li><code>debug ip ospf adj</code> \u2014 adjacency events (use carefully, CPU impact)</li></ol>Common checks: hello/dead timer mismatch, area ID mismatch, network type mismatch, authentication, stub area flag mismatch."
   },
   {
     cat: "OSPF",
-    q: "What OSPF troubleshooting commands do you use and what do they show?",
-    a: "<ul><li><code>show ip ospf neighbor</code> — list of neighbors, state, up/down time, dead timer</li><li><code>show ip ospf neighbor detail</code> — MTU, auth type, interface details for each neighbor</li><li><code>show ip ospf interface &lt;intf&gt;</code> — area, cost, hello/dead timers, DR/BDR, network type</li><li><code>show ip ospf database</code> — LSDB contents (Router, Network, Summary, External LSAs)</li><li><code>show ip route ospf</code> — OSPF routes in the routing table (marked with O)</li><li><code>debug ip ospf adj</code> — real-time adjacency events (hello exchange, state transitions)</li></ul>"
+    q: "What is OSPF network type and when does it matter?",
+    a: "OSPF network type determines: whether DR/BDR election happens, whether Hellos are multicast or unicast, adjacency formation behavior.<br><br><ul><li><strong>Broadcast</strong> (default on Ethernet): DR/BDR elected, multicast Hellos (224.0.0.5/6)</li><li><strong>Point-to-Point</strong> (default on serial): no DR/BDR, always Full adjacency, multicast Hellos</li><li><strong>Non-Broadcast (NBMA):</strong> DR/BDR elected, unicast Hellos</li><li><strong>Point-to-Multipoint:</strong> no DR/BDR, each pair separate adjacency</li></ul>Mismatch (e.g., one side P2P, other Broadcast): may not form adjacency or causes split routing."
   },
-  {
-    cat: "OSPF",
-    q: "Why might two OSPF routers not become neighbors even though they're physically connected?",
-    a: "<ul><li>Hello/Dead timer mismatch (must match on same segment)</li><li>Area mismatch (different area number)</li><li>Subnet/mask mismatch (must be same network)</li><li>Authentication mismatch (type or key)</li><li>MTU mismatch → ExStart loop</li><li>Duplicate Router ID</li><li>Interface is passive (<code>passive-interface</code>) — sends no Hellos</li><li>OSPF not enabled on the interface (check <code>network</code> statement)</li><li>ACL blocking multicast 224.0.0.5</li></ul>"
-  },
-  {
-    cat: "OSPF",
-    q: "What happens when an OSPF router detects that a link has failed?",
-    a: "<ol><li>Dead timer expires (or interface goes down → immediate)</li><li>Router floods a new Type 1 (Router) LSA with updated link state</li><li>All routers in the area receive the LSA, update their LSDB</li><li>Each router runs Dijkstra SPF algorithm to recompute shortest paths</li><li>Routing table updated with new best paths</li><li>LSA age increments until MaxAge (3600s) causes flush</li></ol><ul><li>Convergence time: typically seconds; tunable with hello/dead timers and fast-hello (1 sec / 3 sec)</li></ul>"
-  },
-  /* ── Category 4: BGP ── */
+  // ── BGP ─────────────────────────────────────────────────────────────────────
   {
     cat: "BGP",
     q: "What is the difference between iBGP and eBGP?",
-    a: "<ul><li><strong>iBGP:</strong> BGP peers in the same AS. TTL=255 (can be multi-hop). Next-hop not changed by default. Requires full-mesh or Route Reflectors (RR) or Confederations.</li><li><strong>eBGP:</strong> BGP peers in different ASes. TTL=1 by default (must be directly connected unless multihop). Next-hop changed to peering interface IP.</li><li><strong>Full-mesh iBGP problem:</strong> N*(N-1)/2 peerings needed — Route Reflectors solve this</li><li><strong>AS_PATH loop prevention:</strong> iBGP doesn't add AS to AS_PATH; eBGP does. iBGP loop prevention = don't re-advertise iBGP-learned routes to other iBGP peers (split horizon)</li></ul>"
+    a: "<strong>iBGP:</strong> BGP session between routers in the <em>same</em> AS. TTL=255 (multihop by default). Next-hop NOT changed. Requires full mesh (or Route Reflectors/Confederations) \u2014 iBGP routes not re-advertised to other iBGP peers.<br><br><strong>eBGP:</strong> BGP session between <em>different</em> ASes. Default TTL=1 (adjacent peers only; use <code>ebgp-multihop</code> for non-adjacent). Next-hop changed to self. Routes are re-advertised.<br><br>Key iBGP rule: routes learned via iBGP are not forwarded to another iBGP peer \u2192 need full mesh of N(N-1)/2 sessions or route reflectors."
   },
   {
     cat: "BGP",
-    q: "Walk through the BGP best-path selection process in order.",
-    a: "<ol><li><strong>Weight</strong> (Cisco only, local to router) — highest wins</li><li><strong>Local Preference</strong> — highest wins (default 100); advertised within AS</li><li><strong>Locally originated</strong> — prefer routes originated by this router (network stmt &gt; redistribute)</li><li><strong>AS_PATH length</strong> — shortest wins</li><li><strong>Origin</strong> — IGP (i) &lt; EGP (e) &lt; Incomplete (?)</li><li><strong>MED</strong> — lowest wins; hint from neighboring AS</li><li><strong>eBGP over iBGP</strong> — prefer eBGP-learned routes</li><li><strong>IGP metric to NEXT_HOP</strong> — lowest wins (hot-potato routing)</li><li><strong>Oldest eBGP path</strong> — most stable</li><li><strong>Lowest Router ID</strong> — tiebreaker</li></ol><p>Mnemonic: <em>We Love Oranges As Oranges Mean Pure Refreshment</em></p>"
+    q: "Walk through BGP best-path selection in order (all 10 steps).",
+    a: "Mnemonic: <em>We Love Oranges As Oranges Mean Pure Refreshment</em><ol><li><strong>Weight</strong> (Cisco-only, highest, local to router)</li><li><strong>Local Preference</strong> (highest, propagated in AS)</li><li><strong>Locally Originated</strong> (locally originated &gt; received)</li><li><strong>AS-path length</strong> (shortest)</li><li><strong>Origin</strong> (IGP &gt; EGP &gt; Incomplete)</li><li><strong>MED</strong> (lowest, compared from same AS only)</li><li><strong>eBGP over iBGP</strong></li><li><strong>Lowest IGP metric</strong> to next hop</li><li><strong>Oldest eBGP path</strong> (for stability)</li><li><strong>Lowest BGP Router ID</strong></li></ol>Tie at step 10: lowest neighbor IP address."
   },
   {
     cat: "BGP",
-    q: "What are Route Reflectors in BGP and why are they needed?",
-    a: "<ul><li><strong>Problem:</strong> iBGP requires full-mesh (N*(N-1)/2 peerings) to prevent routing loops — doesn't scale</li><li><strong>Solution:</strong> Route Reflectors (RR) — designated iBGP speaker that re-reflects routes to all iBGP clients</li><li><strong>How it works:</strong> RR clients peer only with RR (not with each other). RR reflects routes between clients and non-clients.</li><li><strong>Loop prevention:</strong> ORIGINATOR_ID and CLUSTER_LIST attributes prevent routing loops</li><li><strong>Cluster:</strong> one RR + its clients. Large ASes have multiple clusters + redundant RRs per cluster.</li></ul>"
+    q: "What is a BGP Route Reflector and why is it needed?",
+    a: "<strong>Problem:</strong> iBGP requires full mesh (N\u00d7(N-1)/2 sessions). With 100 routers = 4,950 sessions. Doesn\u2019t scale.<br><br><strong>Solution:</strong> Route Reflector (RR). Clients peer only with RR. RR reflects routes:<ul><li>From client \u2192 re-advertise to all other clients AND non-clients</li><li>From non-client iBGP \u2192 re-advertise to clients only</li><li>From eBGP \u2192 re-advertise to all</li></ul>Loop prevention: ORIGINATOR_ID and CLUSTER_LIST attributes added. Multiple RRs for redundancy. Alternative: BGP Confederations."
   },
   {
     cat: "BGP",
-    q: "What is BGP MED? When does it matter?",
-    a: "<ul><li><strong>MED (Multi-Exit Discriminator):</strong> optional non-transitive attribute — hint from neighbor AS about preferred entry point</li><li>Only compared between routes from the <strong>same neighboring AS</strong> (by default)</li><li>Lower MED is preferred</li><li>Use case: if your ISP has two PoPs, they can set MED to tell you which to prefer for different prefixes</li><li>Cisco: <code>bgp always-compare-med</code> to compare across different ASes (non-standard)</li><li>Often comes last in tiebreak; Weight and Local-Pref are more commonly used for traffic engineering</li></ul>"
+    q: "BGP neighbor is not forming. What do you check?",
+    a: "<ol><li>IP reachability: can you ping the peer IP? (<code>ping source loopback0 &lt;peer&gt;</code>)</li><li>TCP 179: is BGP TCP session up? (<code>show ip bgp summary</code> \u2014 Idle/Active/Connect state)</li><li>ACL: is TCP 179 blocked? Check ACLs on the interface and firewalls</li><li>Remote AS mismatch: check <code>neighbor X.X.X.X remote-as Y</code> matches peer\u2019s AS</li><li>Update-source: if using loopback peering, is <code>neighbor X update-source Loopback0</code> configured?</li><li>eBGP multihop: if not directly connected, need <code>neighbor X ebgp-multihop 2</code></li><li>Authentication: MD5 password mismatch</li><li><code>debug ip bgp X.X.X.X</code> for detailed negotiation errors</li></ol>"
   },
   {
     cat: "BGP",
-    q: "How does BGP prevent routing loops?",
-    a: "<ul><li><strong>AS_PATH loop prevention:</strong> when a router receives a BGP update, if its own AS number appears in the AS_PATH, it discards the update (would create a loop)</li><li><strong>iBGP split horizon:</strong> routes learned via iBGP are not re-advertised to other iBGP peers — prevents iBGP loops (reason why full-mesh or RR is required)</li><li><strong>NEXT_HOP not modified on iBGP:</strong> iBGP keeps original next-hop; if IGP can't reach next-hop, route is inactive</li></ul>"
+    q: "BGP session is Established but routes are not being advertised. Why?",
+    a: "<ol><li>No <code>network</code> statement: Cisco IOS requires explicit <code>network X.X.X.X mask Y.Y.Y.Y</code> or <code>redistribute</code> to originate routes.</li><li>Network statement not in RIB: the network must exist in the routing table with exact prefix/mask.</li><li>Outbound route-map/filter: a <code>neighbor X route-map OUT deny</code> may be dropping routes.</li><li>Next-hop unreachable: if next-hop is unreachable from peer\u2019s perspective, route is not used.</li><li>Maximum-prefix hit: peer hit <code>maximum-prefix</code> limit and dropped session.</li><li><code>show ip bgp neighbors X advertised-routes</code> \u2014 check what IS being advertised.</li></ol>"
   },
   {
     cat: "BGP",
-    q: "BGP neighbor stuck — how do you troubleshoot?",
-    a: "<ul><li><code>show bgp summary</code> — check State/PfxRcd (numeric = established; text = not established)</li><li><code>show bgp neighbor &lt;ip&gt;</code> — detailed state, hold timer, last error, capabilities</li><li>Common causes:<br>• <strong>TCP port 179 blocked</strong> (ACL or firewall) — check with <code>telnet &lt;peer&gt; 179</code><br>• <strong>Wrong remote-as</strong> — peer's AS doesn't match configured <code>neighbor X remote-as Y</code><br>• <strong>Wrong peer IP</strong> — update-source interface mismatch<br>• <strong>TTL expired</strong> on multi-hop eBGP — need <code>neighbor X ebgp-multihop N</code><br>• <strong>Authentication mismatch</strong> — MD5 key mismatch</li></ul>"
+    q: "What is BGP dampening?",
+    a: "BGP dampening penalizes routes that flap frequently to prevent rapid route updates from propagating. Each flap adds a penalty (default 1000). Penalty decays exponentially (half-life, default 15 min).<br><br><strong>Thresholds:</strong><ul><li>Suppress limit (default 2000): route suppressed when penalty exceeds this</li><li>Reuse limit (default 750): route re-advertised when penalty drops below this</li><li>Max suppress time (default 60 min): maximum time a route stays suppressed</li></ul>Trade-off: reduces BGP churn but delays route restoration. Often disabled \u2014 RFC 7196 says it can cause more harm than good."
   },
   {
     cat: "BGP",
-    q: "What are BGP route dampening and when would you use it?",
-    a: "<ul><li><strong>Purpose:</strong> suppress unstable (flapping) BGP routes to prevent routing table churn propagating through the internet</li><li><strong>How it works:</strong> each flap increases a route's 'penalty'. When penalty exceeds suppress-limit, route is suppressed. Penalty decays over time (half-life). When penalty falls below reuse-limit, route is re-advertised.</li><li><strong>Default values:</strong> half-life=15 min, suppress=2000, reuse=750, max-suppress=60 min</li><li><strong>When to use:</strong> at eBGP edges facing unstable external peers. <em>Not</em> recommended for iBGP (RFC 7196 recommends against dampening for most cases in modern internet)</li></ul>"
+    q: "What is the BGP hold timer and keepalive? What happens when they expire?",
+    a: "<strong>Hold timer:</strong> max time BGP waits without receiving a message from peer before declaring it dead. Default 180 seconds.<br><strong>Keepalive:</strong> sent every 1/3 of hold timer. Default 60 seconds.<br><br><strong>Expiry:</strong> if hold timer expires (3 missed keepalives), BGP tears down the session, withdraws all routes from that peer, and marks neighbor as Idle with a notification.<br><br><strong>Tuning:</strong> <code>timers bgp 10 30</code> reduces to 10s keepalive / 30s hold \u2014 faster convergence but more CPU. Some operators use BFD for sub-second failure detection instead."
   },
   {
     cat: "BGP",
-    q: "What is the difference between Local Preference and Weight in BGP?",
-    a: "<ul><li><strong>Weight:</strong> Cisco proprietary. Local to the router (not advertised). Range 0–65535, default 0. Highest wins. Use to prefer one path on THIS router only.</li><li><strong>Local Preference:</strong> Standard BGP attribute (well-known discretionary). Shared with all iBGP peers in the AS. Default 100. Highest wins. Use to prefer paths across the entire AS for inbound traffic.</li><li><strong>Use case:</strong> Weight for per-router preference; Local Pref for AS-wide traffic engineering</li><li>Both evaluated before AS_PATH — they override AS_PATH length</li></ul>"
+    q: "What is the difference between BGP MED and Local Preference?",
+    a: "<strong>Local Preference:</strong> used INSIDE an AS to influence <em>outbound</em> path selection. Advertised over iBGP. Higher wins. \u2018Which exit point does my AS use to reach external destinations?\u2019<br><br><strong>MED (Multi-Exit Discriminator):</strong> used to influence <em>inbound</em> traffic \u2014 suggests to neighboring AS which entry point to use. Advertised over eBGP to one hop. Lower wins. \u2018Tell peer AS which link we prefer inbound traffic on.\u2019<br><br>Key difference: LocPref is internal (you control it), MED is an external hint (peer may ignore it)."
   },
-  /* ── Category 5: Switching & DNS ── */
+  // ── Switching & DNS ──────────────────────────────────────────────────────────
   {
     cat: "Switching & DNS",
-    q: "How does a switch learn MAC addresses and forward frames?",
-    a: "<ol><li><strong>Learning:</strong> when a frame arrives, switch records source MAC → ingress port in CAM table (MAC address table) with a timer</li><li><strong>Forwarding:</strong> look up destination MAC in CAM table → forward out that port only (unicast)</li><li><strong>Flooding:</strong> if destination MAC unknown (or broadcast/multicast) → flood out all ports except ingress</li><li><strong>Aging:</strong> CAM entries expire (default 300s) — keeps table current</li></ol><ul><li>MAC table = hardware-assisted O(1) lookup (TCAM)</li><li>If two ports learn same MAC → MAC move / flap → investigate loop or port mislabeling</li></ul>"
-  },
-  {
-    cat: "Switching & DNS",
-    q: "What is a VLAN? How does 802.1Q tagging work?",
-    a: "<ul><li><strong>VLAN:</strong> Virtual LAN — logical broadcast domain isolation on shared switch infrastructure. Each VLAN = separate L2 domain. Prevents hosts in different VLANs from talking without going through a router.</li><li><strong>802.1Q tag:</strong> 4-byte tag inserted after source MAC in Ethernet frame. Contains: TPID (0x8100), PCP (priority), DEI (drop eligible), VID (12-bit VLAN ID 1–4094)</li><li><strong>Access port:</strong> carries one VLAN; strips/adds tag transparently for end hosts</li><li><strong>Trunk port:</strong> carries multiple VLANs with 802.1Q tags; typically between switches or to a router-on-a-stick</li></ul>"
+    q: "How does a switch learn MAC addresses?",
+    a: "MAC address learning: when a frame arrives on a port, the switch reads the <strong>SOURCE MAC</strong> and records it in the MAC address table (CAM table) with the ingress port number and a TTL (default 300s).<br><br><strong>Forwarding:</strong><ul><li>Known unicast: forward only to the port with that MAC</li><li>Unknown unicast: flood to all ports in the VLAN except ingress port</li><li>Broadcast/Multicast: flood to all ports in VLAN</li></ul>Aging: entries expire after 300s of no traffic. <code>show mac address-table</code> shows current entries."
   },
   {
     cat: "Switching & DNS",
-    q: "What's the difference between a switch and a router? Give a real consequence.",
-    a: "<ul><li><strong>Switch:</strong> operates at L2; forwards based on MAC address; all ports in same broadcast domain (without VLANs); cannot route between subnets</li><li><strong>Router:</strong> operates at L3; forwards based on IP destination; separates broadcast domains; required for inter-subnet and inter-VLAN traffic</li><li><strong>Real consequence:</strong> hosts on 10.0.0.0/24 and 10.0.1.0/24 connected to the same switch CANNOT communicate without a router (or L3 switch with IP routing) — even though they're on the same physical switch, they're in different subnets</li><li><strong>L3 switch:</strong> performs both L2 switching and L3 routing in hardware (ASIC)</li></ul>"
+    q: "What is a VLAN and how does 802.1Q tagging work?",
+    a: "<strong>VLAN:</strong> logical broadcast domain isolation within a physical switch. Traffic does not cross VLAN boundaries without a router (or L3 switch SVI).<br><br><strong>802.1Q tagging:</strong> trunk ports carry multiple VLANs. A 4-byte 802.1Q tag is inserted into the Ethernet frame between source MAC and EtherType. Contains:<ul><li>3-bit PCP (priority)</li><li>1-bit DEI (drop eligible)</li><li>12-bit VLAN ID (1\u20134094)</li></ul><strong>Native VLAN:</strong> traffic sent untagged on a trunk (default VLAN 1). Must match on both ends or causes VLAN mismatch."
   },
   {
     cat: "Switching & DNS",
-    q: "Walk through the full DNS resolution process for 'www.example.com'.",
-    a: "<ol><li>Browser checks local DNS cache → not found</li><li>OS stub resolver queries configured recursive resolver (e.g. 8.8.8.8)</li><li>Recursive resolver checks its cache → not found</li><li>Queries a root nameserver (13 root NS clusters): 'Who handles .com?'</li><li>Root NS replies with .com TLD nameserver IPs</li><li>Recursive resolver queries .com TLD NS: 'Who handles example.com?'</li><li>TLD NS replies with example.com authoritative NS IPs</li><li>Recursive resolver queries authoritative NS: 'What's the A record for www.example.com?'</li><li>Authoritative NS replies with IP (e.g. 93.184.216.34)</li><li>Recursive resolver caches the answer (respecting TTL) and returns to client</li></ol>"
+    q: "When does traffic require routing (L3) vs stay at L2?",
+    a: "<strong>L2 (same subnet):</strong> source and destination are in the same IP subnet. Switch forwards based on MAC address. ARP is used to resolve destination MAC.<br><br><strong>L3 (different subnet):</strong> destination IP is in a different subnet. Host sends to default gateway MAC. Router receives, decrements TTL, looks up destination in routing table, forwards to next hop.<br><br><strong>Test:</strong> apply subnet mask to both source and destination IPs. If (srcIP &amp; mask) == (dstIP &amp; mask) \u2192 same subnet \u2192 L2. Otherwise \u2192 needs routing."
   },
   {
     cat: "Switching & DNS",
-    q: "What DNS record types should you know? When is each used?",
-    a: "<ul><li><strong>A:</strong> hostname → IPv4 address (most common)</li><li><strong>AAAA:</strong> hostname → IPv6 address</li><li><strong>CNAME:</strong> alias → canonical name (e.g. www → example.com)</li><li><strong>MX:</strong> mail exchange — domain → mail server hostname + priority</li><li><strong>PTR:</strong> reverse DNS — IP → hostname (in-addr.arpa zone)</li><li><strong>NS:</strong> nameserver — zone → authoritative NS hostnames</li><li><strong>SOA:</strong> Start of Authority — zone metadata (serial, refresh, retry, expire, minimum TTL)</li><li><strong>TXT:</strong> arbitrary text — used for SPF, DKIM, domain verification</li></ul>"
+    q: "Walk through full DNS resolution for 'www.example.com'.",
+    a: "<ol><li>Browser checks local DNS cache (and OS cache)</li><li>OS stub resolver checks /etc/hosts</li><li>Stub resolver queries configured recursive resolver (typically ISP or 8.8.8.8)</li><li>Recursive resolver checks its cache</li><li>If not cached: queries root nameservers (.) \u2192 returns .com TLD nameservers</li><li>Queries .com TLD nameservers \u2192 returns example.com authoritative nameservers</li><li>Queries example.com authoritative NS \u2192 returns A record for www.example.com</li><li>Recursive resolver returns A record to stub resolver, caches it for TTL duration</li><li>Browser caches record, opens TCP connection to returned IP</li></ol>"
   },
   {
     cat: "Switching & DNS",
-    q: "DNS is failing intermittently. What do you check first?",
-    a: "<ul><li><code>dig +short A hostname</code> — does it resolve? Check response and TTL</li><li><code>dig @8.8.8.8 hostname</code> — try public resolver; if this works, issue is with local/corporate resolver</li><li>Check if response is <strong>authoritative</strong> (aa flag in dig output) vs cached</li><li><strong>TTL too low?</strong> — stale cache entries expiring frequently, causing load on authoritative NS</li><li><strong>UDP packet loss?</strong> — DNS uses UDP/53 by default; retries over TCP if &gt;512 bytes or if UDP fails</li><li><strong>Recursive resolver health?</strong> — <code>dig @resolver-ip hostname</code>; check resolver logs</li><li><strong>Zone transfer issues?</strong> — secondary NS out of sync with primary; check serial numbers</li></ul>"
-  }
+    q: "What are the key DNS record types?",
+    a: "<ul><li><strong>A:</strong> hostname \u2192 IPv4 address</li><li><strong>AAAA:</strong> hostname \u2192 IPv6 address</li><li><strong>CNAME:</strong> alias \u2192 canonical hostname (cannot coexist with other records at same name)</li><li><strong>MX:</strong> mail exchange for domain, with priority value</li><li><strong>PTR:</strong> IP \u2192 hostname (reverse DNS, in-addr.arpa zone)</li><li><strong>NS:</strong> nameserver for a zone</li><li><strong>SOA:</strong> Start of Authority \u2014 serial, refresh, retry, expire, minimum TTL</li><li><strong>TXT:</strong> arbitrary text (SPF, DKIM, domain verification)</li><li><strong>SRV:</strong> service location (hostname + port) for protocols like SIP, XMPP</li></ul>"
+  },
+  {
+    cat: "Switching & DNS",
+    q: "Intermittent DNS failures \u2014 what do you check first?",
+    a: "<ol><li><code>dig @8.8.8.8 example.com</code> \u2014 test against a known-good public resolver. If this works but internal resolver fails \u2192 internal resolver issue.</li><li><code>dig +trace example.com</code> \u2014 traces full resolution path, shows where it breaks.</li><li>Check DNS TTL: if TTL is very short (e.g., 30s), aggressive caching issues or rapid cache expiry.</li><li>UDP packet loss: DNS uses UDP 53 by default. Packet loss on the path to resolver causes timeouts. Try <code>dig +tcp</code> to force TCP.</li><li>Recursive resolver health: check its upstream connectivity.</li><li>DNSSEC validation failures: <code>dig +dnssec</code> to check.</li><li>Rate limiting: resolver hitting authoritative NS rate limits.</li></ol>"
+  },
 ];
 
+let filtered = [...ALL];
 let current = 0;
 let activeCat = "All";
-let filtered = [...ALL];
 
-const catList = ["All", ...new Set(ALL.map(c => c.cat))];
+const cats = ["All", ...new Set(ALL.map(c => c.cat))];
 
 function renderCats() {
   const el = document.getElementById('cats');
-  el.innerHTML = catList.map(c =>
-    `<button class="cat-btn${c === activeCat ? ' active' : ''}" onclick="setCat('${c}')">${c}</button>`
+  el.innerHTML = cats.map(c =>
+    `<button class="cat-btn${c === activeCat ? ' active' : ''}" onclick="setCat('${c.replace(/'/g, "\\'")}')">${c}</button>`
   ).join('');
 }
 
@@ -502,10 +493,10 @@ function setMode(m) {
 }
 
 document.addEventListener('keydown', function(e) {
-  const flashVisible = document.getElementById('flash-mode').style.display !== 'none';
-  if (!flashVisible) return;
-  if (e.key === 'ArrowRight') nav(1);
-  else if (e.key === 'ArrowLeft') nav(-1);
+  const flashMode = document.getElementById('flash-mode');
+  if (flashMode.style.display === 'none') return;
+  if (e.key === 'ArrowRight') { nav(1); }
+  else if (e.key === 'ArrowLeft') { nav(-1); }
   else if (e.key === ' ') { e.preventDefault(); flipCard(); }
 });
 

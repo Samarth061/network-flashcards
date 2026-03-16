@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPv6 Flashcard Study App</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede8; --bgi: #e6f1fb;
+  --tx: #1a1a18; --tx2: #5f5e5a; --tx3: #888780; --txi: #185fa5;
+  --bd: rgba(0,0,0,0.12); --bd2: rgba(0,0,0,0.22); --bdi: #85b7eb;
+  --teal: #1D9E75; --teal-bg: #E1F5EE; --teal-tx: #0F6E56; --teal-bd: #5DCAA5;
+  --r: 8px; --rl: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #333330; --bgi: #0c2e4a;
+    --tx: #f0ede8; --tx2: #b4b2a9; --tx3: #888780; --txi: #85b7eb;
+    --bd: rgba(255,255,255,0.1); --bd2: rgba(255,255,255,0.2); --bdi: #378add;
+    --teal-bg: #073d28; --teal-tx: #5DCAA5; --teal-bd: #1D9E75;
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--tx); min-height: 100vh; padding: 2rem 1rem; }
+.app { max-width: 760px; margin: 0 auto; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 8px; }
+.title { font-size: 20px; font-weight: 500; }
+.mode-btns { display: flex; gap: 6px; }
+.mode-btn { font-size: 12px; padding: 5px 14px; border: 0.5px solid var(--bd2); border-radius: var(--r); cursor: pointer; background: transparent; color: var(--tx2); transition: all 0.15s; }
+.mode-btn.active { background: var(--bgi); color: var(--txi); border-color: var(--bdi); }
+.cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.cat-btn { font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--bd); border-radius: 20px; cursor: pointer; background: transparent; color: var(--tx2); transition: all 0.15s; white-space: nowrap; }
+.cat-btn.active { background: var(--teal-bg); color: var(--teal-tx); border-color: var(--teal-bd); }
+.progress-bar { height: 3px; background: var(--bd); border-radius: 2px; margin-bottom: 1.25rem; }
+.progress-fill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.3s; }
+.card-area { perspective: 1200px; margin-bottom: 1.25rem; }
+.card { width: 100%; min-height: 230px; position: relative; transform-style: preserve-3d; transition: transform 0.45s cubic-bezier(0.4,0,0.2,1); cursor: pointer; }
+.card.flipped { transform: rotateY(180deg); }
+.card-face { position: absolute; width: 100%; min-height: 230px; backface-visibility: hidden; -webkit-backface-visibility: hidden; border: 0.5px solid var(--bd); border-radius: var(--rl); padding: 1.5rem; display: flex; flex-direction: column; background: var(--bg); }
+.card-back { transform: rotateY(180deg); }
+.card-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; color: var(--tx3); text-transform: uppercase; margin-bottom: 0.75rem; }
+.card-content { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; }
+.card-q { font-size: 17px; font-weight: 500; line-height: 1.55; }
+.card-a { font-size: 14px; line-height: 1.7; color: var(--tx); width: 100%; }
+.card-a code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; background: var(--bg2); padding: 2px 5px; border-radius: 4px; border: 0.5px solid var(--bd); word-break: break-all; }
+.card-a pre { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11px; background: var(--bg2); padding: 8px 10px; border-radius: 6px; border: 0.5px solid var(--bd); text-align: left; overflow-x: auto; margin: 6px 0; white-space: pre-wrap; word-break: break-all; }
+.card-a ul, .card-a ol { text-align: left; padding-left: 1.2rem; }
+.card-a ul li, .card-a ol li { margin-bottom: 4px; }
+.card-a img { max-width: 100%; border-radius: 6px; margin: 8px auto; display: block; border: 0.5px solid var(--bd); }
+.card-hint { font-size: 12px; color: var(--tx3); margin-top: 1rem; align-self: center; }
+.card-cat-badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--teal-bg); color: var(--teal-tx); align-self: flex-start; margin-bottom: 0.5rem; }
+.controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.nav-btn { padding: 8px 22px; border: 0.5px solid var(--bd2); border-radius: var(--r); cursor: pointer; background: transparent; color: var(--tx); font-size: 14px; transition: all 0.15s; }
+.nav-btn:hover { background: var(--bg2); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.counter { font-size: 13px; color: var(--tx2); }
+.shuffle-btn { font-size: 12px; padding: 6px 12px; border: 0.5px solid var(--bd); border-radius: var(--r); cursor: pointer; background: transparent; color: var(--tx2); }
+.shuffle-btn:hover { background: var(--bg2); }
+#notes-mode { display: none; }
+.notes-section { margin-bottom: 1.75rem; }
+.notes-section h3 { font-size: 14px; font-weight: 500; color: var(--teal-tx); margin-bottom: 0.75rem; padding-bottom: 6px; border-bottom: 0.5px solid var(--bd); }
+.notes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+.note-card { background: var(--bg2); border-radius: var(--r); padding: 10px 12px; font-size: 13px; }
+.note-card .label { font-size: 11px; color: var(--tx3); margin-bottom: 4px; }
+.note-card .val { font-weight: 500; line-height: 1.5; }
+.note-card code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; }
+table.cheat { width: 100%; font-size: 13px; border-collapse: collapse; background: var(--bg); border-radius: var(--r); overflow: hidden; }
+table.cheat th { text-align: left; font-weight: 500; font-size: 11px; color: var(--tx3); padding: 8px 10px; border-bottom: 0.5px solid var(--bd); background: var(--bg2); }
+table.cheat td { padding: 8px 10px; border-bottom: 0.5px solid var(--bd); vertical-align: top; }
+table.cheat tr:last-child td { border-bottom: none; }
+table.cheat td code { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11px; background: var(--bg2); padding: 1px 4px; border-radius: 3px; }
+.tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 20px; background: var(--teal-bg); color: var(--teal-tx); margin-right: 4px; }
+.tag.red { background: #FCEBEB; color: #A32D2D; }
+.tag.blue { background: #E6F1FB; color: #185FA5; }
+.tag.amber { background: #FAEEDA; color: #854F0B; }
+.img-block { margin: 0.75rem 0; text-align: center; }
+.img-block img { max-width: 100%; border-radius: 6px; border: 0.5px solid var(--bd); }
+.img-block .caption { font-size: 11px; color: var(--tx3); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="title">IPv6 Fundamentals</div>
+    <div class="mode-btns">
+      <button class="mode-btn active" onclick="setMode('flash')">Flashcards</button>
+      <button class="mode-btn" onclick="setMode('notes')">Cheat Sheet</button>
+    </div>
+  </div>
+
+  <div id="flash-mode">
+    <div class="cats" id="cats"></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    <div class="card-area">
+      <div class="card" id="card" onclick="flipCard()">
+        <div class="card-face card-front">
+          <div class="card-cat-badge" id="cat-badge"></div>
+          <div class="card-label">Question — tap to reveal</div>
+          <div class="card-content"><div class="card-q" id="card-q"></div></div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-cat-badge" id="cat-badge2"></div>
+          <div class="card-label">Answer</div>
+          <div class="card-content"><div class="card-a" id="card-a"></div></div>
+          <div class="card-hint">tap to flip back</div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="nav-btn" id="prev-btn" onclick="nav(-1)">← Prev</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span class="counter" id="counter"></span>
+        <button class="shuffle-btn" onclick="shuffle()">↻ Shuffle</button>
+      </div>
+      <button class="nav-btn" id="next-btn" onclick="nav(1)">Next →</button>
+    </div>
+  </div>
+
+  <div id="notes-mode">
+
+    <div class="notes-section">
+      <h3>IPv4 vs IPv6 — quick facts</h3>
+      <div class="notes-grid">
+        <div class="note-card"><div class="label">Address length</div><div class="val">IPv4: 32-bit · IPv6: 128-bit</div></div>
+        <div class="note-card"><div class="label">Address space</div><div class="val">IPv4: ~4.29B · IPv6: 340 undecillion</div></div>
+        <div class="note-card"><div class="label">Header size</div><div class="val">IPv4: variable · IPv6: fixed 40 bytes</div></div>
+        <div class="note-card"><div class="label">Checksum</div><div class="val">IPv4: yes · IPv6: removed</div></div>
+        <div class="note-card"><div class="label">Fragmentation</div><div class="val">IPv4: routers fragment · IPv6: source only (Path MTU Discovery)</div></div>
+        <div class="note-card"><div class="label">ARP</div><div class="val">IPv4: ARP broadcast · IPv6: NDP (Neighbor Discovery, multicast)</div></div>
+        <div class="note-card"><div class="label">Broadcast</div><div class="val">IPv4: yes · IPv6: no (replaced by multicast)</div></div>
+        <div class="note-card"><div class="label">EtherType</div><div class="val">IPv4: 0x0800 · IPv6: 0x86DD</div></div>
+        <div class="note-card"><div class="label">TTL equivalent</div><div class="val">IPv6 uses "Hop Limit" (same function)</div></div>
+        <div class="note-card"><div class="label">Security</div><div class="val">IPv6 has built-in IPSec support</div></div>
+        <div class="note-card"><div class="label">Auto-config</div><div class="val">IPv6 supports SLAAC (no DHCP needed)</div></div>
+        <div class="note-card"><div class="label">First RFC</div><div class="val">IPv6 defined in RFC 1883, draft standard Dec 1998</div></div>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>IPv6 header fields comparison</h3>
+      <table class="cheat">
+        <tr><th>IPv4 Field</th><th>IPv6 Equivalent</th><th>Notes</th></tr>
+        <tr><td>Version</td><td>Version</td><td>4-bit; set to 6 in IPv6</td></tr>
+        <tr><td>Type of Service</td><td>Traffic Class</td><td>8-bit; first 6 = DSCP, last 2 = ECN</td></tr>
+        <tr><td>—</td><td>Flow Label</td><td>20-bit; NEW in IPv6. Identifies traffic flows between same src/dst</td></tr>
+        <tr><td>Total Length</td><td>Payload Length</td><td>IPv4 includes header; IPv6 excludes main header</td></tr>
+        <tr><td>Protocol</td><td>Next Header</td><td>Also indicates extension headers in IPv6</td></tr>
+        <tr><td>TTL</td><td>Hop Limit</td><td>Renamed for clarity; same function</td></tr>
+        <tr><td>IHL (header length)</td><td>—</td><td>Removed; IPv6 header is fixed 40 bytes</td></tr>
+        <tr><td>Identification, Flags, Fragment Offset</td><td>—</td><td>Removed; fragmentation handled by source only</td></tr>
+        <tr><td>Header Checksum</td><td>—</td><td>Removed; TCP/UDP/Ethernet already do this</td></tr>
+        <tr><td>Options + Padding</td><td>—</td><td>Replaced by extension headers</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Next Header common values</h3>
+      <table class="cheat">
+        <tr><th>Hex</th><th>Protocol</th></tr>
+        <tr><td>06</td><td>TCP</td></tr>
+        <tr><td>11</td><td>UDP</td></tr>
+        <tr><td>2F</td><td>GRE</td></tr>
+        <tr><td>32</td><td>ESP (IPSec)</td></tr>
+        <tr><td>3A</td><td>ICMPv6</td></tr>
+        <tr><td>3B</td><td>No next header</td></tr>
+        <tr><td>59</td><td>OSPF</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Address shortening rules</h3>
+      <div class="img-block">
+        <img src="https://www.networkacademy.io/sites/default/files/inline-images/shortening-ipv6-address-example-1.png" alt="Zero compression example">
+        <div class="caption">Rule 1 — Zero Compression: replace consecutive all-zero groups with ::</div>
+      </div>
+      <table class="cheat">
+        <tr><th>Rule</th><th>Description</th><th>Restriction</th></tr>
+        <tr><td>Rule 1 — Zero Compression</td><td>Replace one contiguous string of all-zero groups with <code>::</code></td><td><strong>Only once</strong> per address — ambiguous otherwise</td></tr>
+        <tr><td>Rule 2 — Leading Zeros</td><td>Omit leading zeros in each group of 4 hex digits</td><td>Only leading zeros, <strong>not trailing</strong></td></tr>
+      </table>
+      <div style="margin-top:10px;">
+        <table class="cheat">
+          <tr><th>Special address</th><th>Full</th><th>Shortened</th></tr>
+          <tr><td>Match-all (IPv4: 0.0.0.0)</td><td>0000:…:0000</td><td><code>::</code></td></tr>
+          <tr><td>Loopback (IPv4: 127.0.0.1)</td><td>0000:…:0001</td><td><code>::1</code></td></tr>
+          <tr><td>All-nodes multicast</td><td>ff02:0000:…:0001</td><td><code>ff02::1</code></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>IPv6 address types</h3>
+      <div class="img-block">
+        <img src="https://www.networkacademy.io/sites/default/files/inline-images/ipv6_address_types.png" alt="IPv6 Address Types">
+        <div class="caption">Three main IPv6 address types (no broadcast)</div>
+      </div>
+      <table class="cheat">
+        <tr><th>Type</th><th>Prefix / Range</th><th>Scope / Notes</th></tr>
+        <tr><td>Global Unicast (GUA)</td><td>2000::/3 (starts with 2 or 3)</td><td>Routable on Internet; 48-bit global prefix + 16-bit subnet ID + 64-bit interface ID</td></tr>
+        <tr><td>Link-Local</td><td>FE80::/10</td><td>Auto-configured on every interface; not routed; analogous to 169.254.0.0/16</td></tr>
+        <tr><td>Loopback</td><td>::1/128</td><td>Analogous to 127.0.0.1; tests TCP/IP stack</td></tr>
+        <tr><td>Unspecified</td><td>::/128</td><td>Analogous to 0.0.0.0; used by DHCP processes when no address assigned</td></tr>
+        <tr><td>Unique Local</td><td>FC00::/7 (typically FD00::/8)</td><td>ISP-independent; not routed on Internet; analogous to RFC1918 private addresses</td></tr>
+        <tr><td>Embedded IPv4-in-IPv6</td><td>::A.B.C.D</td><td>First 96 bits = 0; last 32 bits = IPv4 address; used in dual-stack tunnels</td></tr>
+        <tr><td>Multicast</td><td>FF00::/8</td><td>One-to-many; source is always unicast; no broadcast in IPv6</td></tr>
+        <tr><td>Anycast</td><td>From unicast space</td><td>One-to-closest; same address on multiple interfaces; must be explicitly configured</td></tr>
+        <tr><td>Solicited-Node Multicast</td><td>FF02::1:FF00:0/104</td><td>Auto-generated from unicast; last 24 bits from unicast address; used for NDP/DAD</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Well-known multicast addresses</h3>
+      <table class="cheat">
+        <tr><th>Address</th><th>Function</th></tr>
+        <tr><td><code>FF02::1</code></td><td>All IPv6 nodes</td></tr>
+        <tr><td><code>FF02::2</code></td><td>All IPv6 routers</td></tr>
+        <tr><td><code>FF02::5</code></td><td>All OSPFv3 routers</td></tr>
+        <tr><td><code>FF02::6</code></td><td>OSPFv3 Designated Routers</td></tr>
+        <tr><td><code>FF02::A</code></td><td>All EIGRP (IPv6) routers</td></tr>
+        <tr><td><code>FF02::1:2</code></td><td>All DHCPv6 servers</td></tr>
+        <tr><td><code>FF02::1:FF__:____</code></td><td>Solicited-node multicast (per address)</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>NDP message types</h3>
+      <table class="cheat">
+        <tr><th>Message</th><th>ICMPv6 Type</th><th>Destination</th><th>IPv4 analog</th></tr>
+        <tr><td>Router Solicitation (RS)</td><td>133</td><td>FF02::2 (all routers)</td><td>—</td></tr>
+        <tr><td>Router Advertisement (RA)</td><td>134</td><td>FF02::1 (all nodes)</td><td>—</td></tr>
+        <tr><td>Neighbor Solicitation (NS)</td><td>135</td><td>Solicited-node multicast of target</td><td>ARP Request</td></tr>
+        <tr><td>Neighbor Advertisement (NA)</td><td>136</td><td>Unicast back to requester</td><td>ARP Reply</td></tr>
+        <tr><td>Redirect</td><td>137</td><td>Unicast to host</td><td>ICMP Redirect</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>SLAAC process (5 steps)</h3>
+      <div class="img-block">
+        <img src="https://www.networkacademy.io/sites/default/files/inline-images/generating-link-local-address-example.png" alt="EUI-64 link-local generation">
+        <div class="caption">Step 1: Generating a link-local address from MAC using EUI-64</div>
+      </div>
+      <table class="cheat">
+        <tr><th>Step</th><th>What happens</th></tr>
+        <tr><td>1</td><td>Node generates link-local address: FE80::/64 + EUI-64 from MAC</td></tr>
+        <tr><td>2</td><td>DAD — sends NS to solicited-node multicast of own address; if no reply, address is unique</td></tr>
+        <tr><td>3</td><td>Node sends RS to FF02::2; router responds with RA containing prefix + prefix length</td></tr>
+        <tr><td>4</td><td>Node combines prefix (from RA) + EUI-64 → global unicast address; sets default GW to router's LLA</td></tr>
+        <tr><td>5</td><td>DAD again on the new GUA to confirm uniqueness</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>RA flags (M, O, A)</h3>
+      <table class="cheat">
+        <tr><th>Flag</th><th>Name</th><th>When set to 1</th></tr>
+        <tr><td>A</td><td>Address Autoconfiguration</td><td>Hosts can use SLAAC for GUA. Default = 1.</td></tr>
+        <tr><td>O</td><td>Other Configuration</td><td>Hosts use Stateless DHCPv6 for DNS/domain only; SLAAC handles addresses</td></tr>
+        <tr><td>M</td><td>Managed Address Configuration</td><td>Hosts use Stateful DHCPv6 for addresses + DNS. A-flag typically set to 0.</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>DHCPv6 — Stateless vs Stateful</h3>
+      <table class="cheat">
+        <tr><th></th><th>Stateless DHCPv6</th><th>Stateful DHCPv6</th></tr>
+        <tr><td>RA flag</td><td>O = 1, M = 0</td><td>M = 1, A = 0 (best practice)</td></tr>
+        <tr><td>Provides addresses?</td><td>No — SLAAC does that</td><td>Yes</td></tr>
+        <tr><td>Provides DNS?</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Tracks assignments?</td><td>No (stateless)</td><td>Yes (lease table)</td></tr>
+        <tr><td>Provides default GW?</td><td>Via RA (not DHCP)</td><td>Via RA (not DHCP) — key difference from DHCPv4</td></tr>
+        <tr><td>DHCPv6 solicit sent to</td><td>FF02::1:2</td><td>FF02::1:2</td></tr>
+        <tr><td>Messages (normal)</td><td>SOLICIT → ADVERTISE → INFO-REQUEST → REPLY</td><td>SOLICIT → ADVERTISE → REQUEST → REPLY</td></tr>
+        <tr><td>Messages (rapid-commit)</td><td>SOLICIT → REPLY</td><td>SOLICIT → REPLY</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>IPv6 static route types</h3>
+      <table class="cheat">
+        <tr><th>Type</th><th>Command example</th><th>Use case</th></tr>
+        <tr><td>Directly Attached</td><td><code>ipv6 route 2001:AB5::/32 Serial0/0</code></td><td>P2P links; no next-hop needed</td></tr>
+        <tr><td>Recursive</td><td><code>ipv6 route 2001:AB5::/32 2001:1234:B::1</code></td><td>GUA next-hop only; router does second lookup</td></tr>
+        <tr><td>Fully Specified (GUA)</td><td><code>ipv6 route 2001:AB5::/32 Fa0/0 2001:1234:B::1</code></td><td>Recommended; interface + GUA next-hop</td></tr>
+        <tr><td>Fully Specified (LLA)</td><td><code>ipv6 route 2001:AB5::/32 Fa0/0 FE80::1</code></td><td>Common when no GUA on link; <strong>interface required</strong> with LLA next-hop</td></tr>
+        <tr><td>Floating Static</td><td><code>ipv6 route 2001:AB5::/32 Fa0/0 FE80::1 250</code></td><td>Backup route; AD > primary route's AD</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Key Cisco config commands</h3>
+      <table class="cheat">
+        <tr><th>Command</th><th>Purpose</th></tr>
+        <tr><td><code>ipv6 unicast-routing</code></td><td>Enable IPv6 routing (disabled by default); also starts sending RAs</td></tr>
+        <tr><td><code>ipv6 enable</code></td><td>Enable IPv6 on interface (generates LLA)</td></tr>
+        <tr><td><code>ipv6 address [addr]/[prefix]</code></td><td>Configure GUA on interface</td></tr>
+        <tr><td><code>ipv6 address FE80::1 link-local</code></td><td>Configure manual link-local address</td></tr>
+        <tr><td><code>ipv6 nd other-config-flag</code></td><td>Set O-flag = 1 (Stateless DHCPv6 for DNS)</td></tr>
+        <tr><td><code>ipv6 nd managed-config-flag</code></td><td>Set M-flag = 1 (Stateful DHCPv6)</td></tr>
+        <tr><td><code>ipv6 nd prefix [prefix] no-autoconfig</code></td><td>Set A-flag = 0 (disable SLAAC)</td></tr>
+        <tr><td><code>ipv6 nd ra suppress all</code></td><td>Stop sending Router Advertisements</td></tr>
+        <tr><td><code>ipv6 dhcp pool [name]</code></td><td>Create DHCPv6 pool</td></tr>
+        <tr><td><code>ipv6 dhcp server [name]</code></td><td>Enable DHCPv6 pool on interface</td></tr>
+        <tr><td><code>ipv6 dhcp server [name] rapid-commit</code></td><td>Enable rapid-commit (4 msgs → 2 msgs)</td></tr>
+        <tr><td><code>ipv6 route [prefix] [int] [next-hop] [AD]</code></td><td>Configure static IPv6 route</td></tr>
+        <tr><td><code>show ipv6 interface [int]</code></td><td>Show IPv6 addresses, NDP info, RA settings</td></tr>
+        <tr><td><code>show ipv6 route</code></td><td>Show IPv6 routing table (C=Connected, L=Local, S=Static)</td></tr>
+        <tr><td><code>show ipv6 dhcp pool</code></td><td>Show DHCPv6 pool and active clients</td></tr>
+        <tr><td><code>show ipv6 dhcp binding</code></td><td>Show DHCPv6 client bindings (DUID, address, lease)</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Abbreviations</h3>
+      <table class="cheat">
+        <tr><th>Abbreviation</th><th>Full form</th><th>Brief meaning</th></tr>
+        <tr><td>IPv6</td><td>Internet Protocol Version 6</td><td>128-bit successor to IPv4</td></tr>
+        <tr><td>GUA</td><td>Global Unicast Address</td><td>Routable IPv6 address; starts with 2 or 3</td></tr>
+        <tr><td>LLA</td><td>Link-Local Address</td><td>Auto-configured; FE80::/10; not routed</td></tr>
+        <tr><td>NDP</td><td>Neighbor Discovery Protocol</td><td>IPv6 replacement for ARP; uses ICMPv6</td></tr>
+        <tr><td>SLAAC</td><td>Stateless Address Autoconfiguration</td><td>Hosts generate own IPv6 GUA from RA prefix + EUI-64</td></tr>
+        <tr><td>DAD</td><td>Duplicate Address Detection</td><td>Verifies an IPv6 address is unique before using it</td></tr>
+        <tr><td>RA</td><td>Router Advertisement</td><td>ICMPv6 type 134; sent by routers to advertise prefix/flags</td></tr>
+        <tr><td>RS</td><td>Router Solicitation</td><td>ICMPv6 type 133; sent by hosts to request RA immediately</td></tr>
+        <tr><td>NS</td><td>Neighbor Solicitation</td><td>ICMPv6 type 135; IPv6 analog of ARP Request</td></tr>
+        <tr><td>NA</td><td>Neighbor Advertisement</td><td>ICMPv6 type 136; IPv6 analog of ARP Reply</td></tr>
+        <tr><td>EUI-64</td><td>Extended Unique Identifier 64-bit</td><td>Method to generate 64-bit interface ID from 48-bit MAC</td></tr>
+        <tr><td>PMTU</td><td>Path MTU Discovery</td><td>Process where IPv6 source adjusts packet size based on ICMPv6 "Packet Too Big"</td></tr>
+        <tr><td>MTU</td><td>Maximum Transmission Unit</td><td>Largest packet size a link can carry (typically 1500 bytes)</td></tr>
+        <tr><td>DSCP</td><td>Differentiated Services Code Point</td><td>6-bit QoS marking in Traffic Class field</td></tr>
+        <tr><td>ECN</td><td>Explicit Congestion Notification</td><td>2-bit congestion signaling in Traffic Class field</td></tr>
+        <tr><td>IANA</td><td>Internet Assigned Numbers Authority</td><td>Global body managing IP address allocation</td></tr>
+        <tr><td>RIR</td><td>Regional Internet Registry</td><td>One of 5 regional bodies (ARIN, APNIC, RIPE NCC, LACNIC, AFRINIC) that allocate IPs</td></tr>
+        <tr><td>IETF</td><td>Internet Engineering Task Force</td><td>Standards body that developed IPv6</td></tr>
+        <tr><td>NAT</td><td>Network Address Translation</td><td>Short-term fix for IPv4 depletion; not needed in IPv6</td></tr>
+        <tr><td>DHCPv6</td><td>Dynamic Host Configuration Protocol v6</td><td>Protocol for dynamically assigning IPv6 addresses and config info</td></tr>
+        <tr><td>DUID</td><td>DHCP Unique Identifier</td><td>Unique ID used by DHCPv6 clients and servers</td></tr>
+        <tr><td>SLA</td><td>Site-Level Aggregator</td><td>The 16-bit subnet ID in a GUA (bits 49–64)</td></tr>
+        <tr><td>AD</td><td>Administrative Distance</td><td>Trustworthiness metric for routing sources; lower = preferred</td></tr>
+        <tr><td>MLD</td><td>Multicast Listener Discovery</td><td>IPv6 protocol for managing multicast group membership (analog of IGMP)</td></tr>
+        <tr><td>IPSec</td><td>Internet Protocol Security</td><td>Built-in to IPv6; provides encryption and authentication</td></tr>
+        <tr><td>DRP</td><td>Default Router Preference</td><td>Prf-flag in RA; Low/Medium/High; hosts pick gateway with highest preference</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BASE = "https://www.networkacademy.io/sites/default/files/inline-images/";
+const ALL = [
+  // What is IPv6
+  {cat:"IPv6 Basics", q:"Why was IPv6 developed?", a:"IPv4 has only ~4.29 billion addresses. With mobile devices and cloud growth, addresses were depleted. IANA ran out of public IPv4 in 2011. IPv6 was developed by IETF starting in the early 1990s to fix address exhaustion and add new features."},
+  {cat:"IPv6 Basics", q:"What are the 8 key improvements IPv6 makes over IPv4?", a:"<ul><li>New fixed-length 40-byte header format</li><li>Extensibility via extension headers</li><li>128-bit large address space</li><li>Built-in IPSec security</li><li>SLAAC — stateless host auto-addressing</li><li>NDP replaces broadcast ARP with multicast</li><li>Multiple IPv6 addresses per interface</li><li>New address types (link-local, etc.)</li></ul>"},
+  {cat:"IPv6 Basics", q:"Why did IPv6 come after IPv4 and not IPv5?", a:"IPv5 was created experimentally for video/voice transmissions (tested by Apple and Sun) but never standardized. Its work became the groundwork for modern VoIP protocols. IPv6 was the next production version."},
+  {cat:"IPv6 Basics", q:"What is IANA and what are the 5 RIRs?", a:"IANA (Internet Assigned Numbers Authority) allocates /8 blocks to 5 Regional Internet Registries: <ul><li>AFRINIC — Africa</li><li>APNIC — Asia/Pacific</li><li>ARIN — USA, Canada, Caribbean</li><li>LACNIC — Latin America</li><li>RIPE NCC — Europe, Middle East, Central Asia</li></ul>"},
+  {cat:"IPv6 Basics", q:"How many IPv6 addresses exist?", a:"2<sup>128</sup> = <strong>340 undecillion</strong><br>(340,282,366,920,938,463,463,374,607,431,768,211,456)<br>For comparison, IPv4 has ~4.29 billion (2<sup>32</sup>)."},
+  {cat:"IPv6 Basics", q:"What short-term solutions delayed IPv4 exhaustion?", a:"<ul><li><strong>NAT</strong> (Network Address Translation) — multiple devices share one public IP</li><li><strong>Private addressing</strong> — 10.x.x.x, 172.16.x.x, 192.168.x.x ranges</li></ul>These delayed but didn't solve depletion."},
+
+  // IPv4 vs IPv6 Header
+  {cat:"IPv6 Header", q:"What is the fixed size of the IPv6 main header?", a:"<strong>40 bytes</strong> (fixed). IPv4 header is variable length. The fixed size makes IPv6 faster to process by intermediate routers."},
+  {cat:"IPv6 Header", q:"What is the EtherType value for IPv6 in an Ethernet frame?", a:"<strong>0x86DD</strong> for IPv6. IPv4 uses <strong>0x0800</strong>. The EtherType field in the Ethernet frame identifies the upper-layer protocol."},
+  {cat:"IPv6 Header", q:"What is the Traffic Class field and how is it structured?", a:"8-bit field (same concept as IPv4's Type of Service):<ul><li>First 6 bits = <strong>DSCP</strong> (Differentiated Services Code Point)</li><li>Last 2 bits = <strong>ECN</strong> (Explicit Congestion Notification)</li></ul>"},
+  {cat:"IPv6 Header", q:"What is the Flow Label field in IPv6?", a:"A <strong>20-bit NEW field</strong> (not in IPv4). It identifies packets belonging to the same traffic flow between a source and destination (e.g., different TCP sessions). Value 0 = not associated with any flow."},
+  {cat:"IPv6 Header", q:"How does IPv6 Payload Length differ from IPv4 Total Length?", a:"<ul><li><strong>IPv4 Total Length</strong> — includes header + data</li><li><strong>IPv6 Payload Length</strong> — includes data + extension headers, <strong>excludes</strong> the main 40-byte IPv6 header</li></ul>Both are 16-bit, max 65,535 bytes normally. IPv6 also supports <em>jumbograms</em> (up to ~4GB) via Hop-by-Hop extension header."},
+  {cat:"IPv6 Header", q:"Why was the Header Checksum removed from IPv6?", a:"It is redundant — TCP and UDP already have checksums, and Ethernet has a CRC check. Removing it makes IPv6 more efficient. Note: UDP checksum is <strong>mandatory</strong> in IPv6 (optional in IPv4) since there is no L3 checksum."},
+  {cat:"IPv6 Header", q:"How does fragmentation work differently in IPv4 vs IPv6?", a:"<ul><li><strong>IPv4</strong>: Any router may fragment packets if DF-bit is not set</li><li><strong>IPv6</strong>: Routers <strong>never fragment</strong>. If packet is too big, router discards it and sends ICMPv6 <em>Packet Too Big</em> back to source with the MTU value. Source adjusts and retransmits. This is <strong>Path MTU Discovery (PMTU)</strong>.</li></ul>"},
+  {cat:"IPv6 Header", q:"What are the Identification, Flags, and Fragment Offset fields used for in IPv4, and why are they absent from IPv6?", a:"They handle fragmentation in IPv4 — identifying which fragments belong together and their order. In IPv6, only the <strong>source</strong> performs fragmentation (using a Fragmentation extension header), so these fields in the main header are unnecessary."},
+  {cat:"IPv6 Header", q:"What does the Next Header field indicate in IPv6?", a:"An 8-bit field that points to either:<ul><li>The <strong>first extension header</strong> (if any)</li><li>The <strong>upper-layer protocol</strong> (TCP=0x06, UDP=0x11, ICMPv6=0x3A, OSPF=0x59, etc.)</li></ul>"},
+
+  // Address Representation
+  {cat:"Address Representation", q:"How is an IPv6 address structured in full notation?", a:"<strong>128 bits</strong> written as <strong>8 groups of 4 hexadecimal digits</strong> separated by colons.<br>Example: <code>2001:0db8:85a3:0000:0000:8a2e:0370:7334</code><br>Case insensitive. RFC 5952 recommends lowercase."},
+  {cat:"Address Representation", q:"What is Rule 1 for shortening IPv6 addresses?", a:"<strong>Zero Compression</strong>: Replace one contiguous string of one or more all-zero groups with a double colon <code>::</code>.<br><strong>Critical:</strong> <code>::</code> can appear <strong>only once</strong> in an address — using it twice makes the address ambiguous and unresolvable."},
+  {cat:"Address Representation", q:"What is Rule 2 for shortening IPv6 addresses?", a:"<strong>Omit leading zeros</strong> in each group of 4 hex digits.<br><strong>Only leading zeros</strong> may be removed — trailing zeros must remain.<br>Example: <code>0abc</code> → <code>abc</code>, but <code>0000</code> → <code>0</code> (not empty)."},
+  {cat:"Address Representation", q:"What are the two common mistakes when shortening IPv6 addresses?", a:"<ul><li><strong>Mistake 1</strong>: Using <code>::</code> more than once (e.g., <code>2001:cb0::fc0::abc</code> — invalid)</li><li><strong>Mistake 2</strong>: Removing trailing zeros (e.g., removing the trailing 0 from <code>0cb0</code> to get <code>cb</code> — invalid; only the leading 0 may be removed → <code>cb0</code>)</li></ul>"},
+  {cat:"Address Representation", q:"How is an IPv6 prefix length written?", a:"Only in <strong>CIDR notation</strong>: <code>ipv6-address/prefix-length</code>.<br>Example: <code>2001:aaaa:bbbb:cccc::10/64</code><br>There is <strong>no dotted-decimal subnet mask</strong> (no equivalent of 255.255.255.0) in IPv6. Engineers prefer multiples of 4 for prefix lengths."},
+  {cat:"Address Representation", q:"What is the shortened form of the IPv6 loopback address?", a:"<code>::1</code> (full: 0000:0000:0000:0000:0000:0000:0000:0001)<br>Equivalent to 127.0.0.1 in IPv4."},
+  {cat:"Address Representation", q:"What is the shortened form of the IPv6 match-all address?", a:"<code>::</code> (full: all 128 bits = 0)<br>Equivalent to 0.0.0.0 in IPv4."},
+
+  // Address Types
+  {cat:"Address Types", q:"What are the 3 main IPv6 address types (and what is absent)?", a:"<ul><li><strong>Unicast</strong> — one-to-one</li><li><strong>Multicast</strong> — one-to-many</li><li><strong>Anycast</strong> — one-to-closest</li></ul><strong>Broadcast does not exist in IPv6</strong> — its function is handled by multicast."},
+  {cat:"Address Types", q:"Describe Global Unicast Addresses (GUA).", a:"<ul><li>Starts with binary <strong>001</strong> → all current GUAs begin with hex <strong>2</strong> or <strong>3</strong> (prefix 2000::/3)</li><li>Structure: <strong>48-bit global routing prefix</strong> + <strong>16-bit subnet ID (SLA)</strong> + <strong>64-bit interface ID</strong></li><li>Globally routable on the Internet</li><li>Aggregatable — hierarchical structure reduces routing table size</li></ul>"},
+  {cat:"Address Types", q:"What is a Link-Local address?", a:"<ul><li>Prefix: <strong>FE80::/10</strong> (first 10 bits = 1111 1110 10)</li><li>Auto-configured on <strong>every</strong> IPv6-enabled interface</li><li><strong>Not routed</strong> by routers — scope is the local link only</li><li>Analogous to <strong>169.254.0.0/16</strong> in IPv4</li><li>Used for NDP, SLAAC, and routing protocol neighbor relationships</li></ul>"},
+  {cat:"Address Types", q:"What is the IPv6 Unique Local address?", a:"<ul><li>Prefix: <strong>FC00::/7</strong> (typically FD00::/8)</li><li>Globally unique prefix (won't conflict if leaked)</li><li>Not routed on the Internet — ISP independent</li><li>Analogous to IPv4 RFC1918 private addresses (10.x.x.x, etc.)</li><li>Easy to filter at site boundaries</li></ul>"},
+  {cat:"Address Types", q:"How is an Anycast address different from a Unicast address?", a:"Anycast uses the <strong>same unicast address space</strong> — it looks identical to a GUA. The difference: the same address is assigned to <strong>multiple interfaces on different nodes</strong>. Packets go to the <strong>nearest</strong> (best metric) node. Devices must be explicitly told it is anycast: <code>ipv6 address 2001:4db8:a541::/128 anycast</code>"},
+  {cat:"Address Types", q:"What is a Solicited-Node Multicast address and how is it generated?", a:"Auto-generated for each unicast address. Structure: <code>FF02::1:FF</code> + <strong>last 24 bits (6 hex digits)</strong> of the corresponding unicast address.<br>Example: unicast <code>FE80::ABCD:1234</code> → solicited-node <code>FF02::1:FFCD:1234</code><br>Used for NDP neighbor resolution and DAD."},
+  {cat:"Address Types", q:"What is the Embedded IPv4-in-IPv6 address format?", a:"First 96 bits = all zeros; last 32 bits = IPv4 address in hex.<br>IPv4 A.B.C.D becomes <code>::A.B.C.D</code> in IPv6 notation.<br>Used in automatic tunnels supporting dual-stack (IPv4 + IPv6)."},
+  {cat:"Address Types", q:"What prefix identifies all IPv6 multicast addresses?", a:"<strong>FF00::/8</strong> — leftmost 8 bits = 11111111 (hex FF).<br>Equivalent to IPv4's 224.0.0.0/4 multicast range.<br>Well-known multicast addresses use prefix <strong>FF00::/12</strong>."},
+
+  // NDP
+  {cat:"NDP", q:"What is IPv6 Neighbor Discovery Protocol (NDP)?", a:"NDP replaces ARP in IPv6. It handles Layer 3 → Layer 2 address resolution, router discovery, prefix discovery, and neighbor reachability. It uses <strong>ICMPv6 messages</strong> and <strong>multicast</strong> instead of broadcast, making it more secure and efficient than ARP."},
+  {cat:"NDP", q:"What are the 5 NDP message types?", a:"<ol><li><strong>RS (133)</strong> — Router Solicitation: host asks routers to send RA now</li><li><strong>RA (134)</strong> — Router Advertisement: router advertises prefix, flags, MTU</li><li><strong>NS (135)</strong> — Neighbor Solicitation: resolve MAC of known IPv6 (like ARP Request)</li><li><strong>NA (136)</strong> — Neighbor Advertisement: reply to NS with MAC (like ARP Reply)</li><li><strong>Redirect (137)</strong> — Router informs host of a better first-hop router</li></ol>"},
+  {cat:"NDP", q:"How does Neighbor Solicitation (NS) improve on ARP?", a:"ARP broadcasts to <strong>all nodes</strong> on a segment. NS sends to the <strong>solicited-node multicast address</strong> (FF02::1:FFXX:XXXX) generated from the target's IPv6 address. Only the target listens to that multicast group. Result: only the targeted node processes it — all others discard. More efficient and more secure."},
+  {cat:"NDP", q:"How is the multicast MAC address derived from a solicited-node multicast IPv6 address?", a:"Formula: <code>33:33:XX:XX:XX:XX</code> where XX:XX:XX:XX are the last 8 hex digits of the multicast IPv6 address.<br>Example: FF02::1:FFCC:CCCC → destination MAC = <code>33:33:FF:CC:CC:CC</code>"},
+  {cat:"NDP", q:"What is a Router Advertisement (RA) and when is it sent?", a:"ICMPv6 type 134. Routers send RA messages:<ul><li><strong>Periodically</strong> — every 200 seconds by default on Cisco</li><li><strong>In response to RS</strong> — immediately when a Router Solicitation is received</li></ul>Destination: FF02::1 (all nodes). Contains: prefix, prefix length, MTU, and M/O/A flags."},
+  {cat:"NDP", q:"What is Duplicate Address Detection (DAD)?", a:"A process run <strong>before</strong> using any new IPv6 address. The node sends a Neighbor Solicitation to the solicited-node multicast of its own address with <strong>source = :: (unspecified)</strong>. If nobody replies, the address is unique. If a reply comes back, the address is a duplicate and cannot be used."},
+
+  // SLAAC
+  {cat:"SLAAC", q:"What is SLAAC and what problem does it solve?", a:"Stateless Address Autoconfiguration — allows hosts to generate a globally unique IPv6 GUA <strong>without a DHCP server</strong>. No server keeps track of assignments. Hosts use the RA prefix + their EUI-64 interface ID to self-configure. Problem: SLAAC does <strong>not provide DNS</strong> information."},
+  {cat:"SLAAC", q:"How is EUI-64 used to generate an interface ID from a MAC address?", a:"<ol><li>Split the 48-bit MAC in half: first 24 bits and last 24 bits</li><li>Insert <code>FF:FE</code> in the middle → 64-bit EUI-64</li><li>Flip the 7th bit (Universal/Local bit) of the first byte</li></ol>Example: MAC <code>7007.1234.5678</code> → EUI-64 <code>7207:12FF:FE34:5678</code>"},
+  {cat:"SLAAC", q:"What are the 3 methods a host can use to obtain an IPv6 GUA?", a:"<ul><li><strong>Manual assignment</strong> — admin configures; not scalable</li><li><strong>SLAAC</strong> — autonomous; no DHCP server; but no DNS info by default</li><li><strong>DHCPv6</strong> — stateless (DNS only) or stateful (address + DNS)</li></ul>"},
+  {cat:"SLAAC", q:"What does the RA M-flag = 1 tell a host?", a:"Use <strong>Stateful DHCPv6</strong> — get both IPv6 address AND DNS/domain name from the DHCPv6 server. The A-flag is typically set to 0 to disable SLAAC on that segment."},
+  {cat:"SLAAC", q:"What does the RA O-flag = 1 tell a host?", a:"Use <strong>Stateless DHCPv6</strong> — get DNS and domain name from the DHCP server, but generate your address yourself using SLAAC. A-flag remains 1."},
+  {cat:"SLAAC", q:"What does it mean when neither M nor O flags are set in an RA?", a:"No DHCPv6 server is available. Hosts use <strong>SLAAC only</strong> for addressing and will not receive DNS information dynamically."},
+  {cat:"SLAAC", q:"What is the Prf (Default Router Preference) flag in RA?", a:"A 2-bit field in the RA that can be set to Low (01), Medium (00), or High (11). When multiple routers send RAs, hosts use the <strong>highest preference router as their default gateway</strong>."},
+
+  // DHCPv6
+  {cat:"DHCPv6", q:"What is the key difference between Stateless and Stateful DHCPv6?", a:"<ul><li><strong>Stateless</strong>: Only provides DNS + domain name; SLAAC handles addressing; O-flag = 1</li><li><strong>Stateful</strong>: Provides IPv6 addresses AND DNS + domain name; tracks all assignments; M-flag = 1</li></ul><strong>Critical</strong>: In both cases, the <strong>default gateway comes from RA messages, not DHCPv6</strong>."},
+  {cat:"DHCPv6", q:"What multicast address do DHCPv6 clients use to discover servers?", a:"<code>FF02::1:2</code> — the all-DHCPv6-servers multicast group. DHCPv6 SOLICIT messages are sent here. DHCPv6 ADVERTISE and REPLY messages are sent back as <strong>unicast</strong> to the client's LLA."},
+  {cat:"DHCPv6", q:"What is the DHCPv6 4-message exchange?", a:"<ol><li><strong>SOLICIT</strong> — client → FF02::1:2: discover servers</li><li><strong>ADVERTISE</strong> — server → client (unicast): server available</li><li><strong>REQUEST / INFO-REQUEST</strong> — client → FF02::1:2: request info</li><li><strong>REPLY</strong> — server → client (unicast): provides address/DNS</li></ol>"},
+  {cat:"DHCPv6", q:"What is DHCPv6 Rapid-Commit?", a:"An option that reduces the 4-message exchange to 2 messages: <strong>SOLICIT → REPLY</strong>. The client sets the rapid-commit option in SOLICIT. If the server supports it, it replies directly with REPLY. If not, it uses the normal 4-message flow. Configured with <code>ipv6 dhcp server [name] rapid-commit</code>."},
+  {cat:"DHCPv6", q:"Why is configuring A-flag = 0 a best practice with Stateful DHCPv6?", a:"If A-flag is left at 1 (default), hosts will generate a SLAAC address AND receive one from DHCPv6 — resulting in multiple GUAs. Organizations that want to track IP assignments should disable SLAAC so only DHCPv6-assigned addresses are used."},
+  {cat:"DHCPv6", q:"What is a DUID in DHCPv6?", a:"<strong>DHCP Unique Identifier</strong> — a unique ID for each DHCPv6 client/server. Used to identify the client in DHCPv6 bindings. Visible in <code>show ipv6 dhcp binding</code> on the server and in <code>ipconfig /all</code> on Windows clients."},
+  {cat:"DHCPv6", q:"Which Cisco command enables IPv6 routing and why is it not on by default?", a:"<code>ipv6 unicast-routing</code>. It is off by default because enabling it starts sending <strong>Router Advertisement messages</strong>, which triggers SLAAC on connected hosts — auto-configuring their addresses. This has security and network impact, so it must be a deliberate decision."},
+
+  // Routing
+  {cat:"IPv6 Routing", q:"What does enabling ipv6 unicast-routing do on a Cisco router?", a:"<ul><li>Router joins <code>FF02::2</code> (all-IPv6-routers multicast)</li><li>Begins <strong>forwarding IPv6 packets</strong></li><li>Starts sending <strong>Router Advertisement</strong> messages on connected interfaces</li><li>Can participate in dynamic IPv6 routing protocols</li></ul>"},
+  {cat:"IPv6 Routing", q:"What two routing table entries are added when a GUA is configured on an interface?", a:"<ul><li><strong>C (Connected)</strong> — the subnet/prefix of the interface (e.g., <code>2001:1234:A:1::/64</code>)</li><li><strong>L (Local)</strong> — the specific /128 host route for the interface address itself (e.g., <code>2001:1234:A:1::1/128</code>)</li></ul>Link-local addresses do <strong>not</strong> create routing table entries."},
+  {cat:"IPv6 Routing", q:"What are the 3 advantages of using only Link-Local addresses on router infrastructure links?", a:"<ul><li><strong>Fewer routing table entries</strong> — LLAs are not advertised by routing protocols</li><li><strong>Better address management</strong> — only one GUA loopback per router needed</li><li><strong>More secure</strong> — infrastructure links are not reachable from outside the network</li></ul>Disadvantage: infrastructure interfaces cannot be pinged or traced from remote networks."},
+  {cat:"IPv6 Routing", q:"Why must an outgoing interface be specified when using a Link-Local next-hop in a static route?", a:"Link-local addresses exist on <strong>every</strong> IPv6 link. The same LLA (e.g., FE80::1) could be configured on multiple different routers on different links. Without specifying the interface, the router cannot determine which physical link to use. Cisco will reject the command: <em>'Interface has to be specified for a link-local nexthop'</em>."},
+  {cat:"IPv6 Routing", q:"What is a Floating Static Route?", a:"A static route with an <strong>Administrative Distance greater than 1</strong> (the default). Used as a <strong>backup route</strong>. It stays hidden in the routing table as long as the primary route (lower AD) is active. When the primary goes down (interface down), the floating static route appears and takes over. Example: <code>ipv6 route 2001::/64 Gi0/1 FE80::2 250</code>"},
+  {cat:"IPv6 Routing", q:"What is a Recursive IPv6 static route?", a:"A static route that specifies only a <strong>GUA next-hop</strong> without an outgoing interface. The router must perform a <strong>second routing lookup</strong> to find which interface leads to that next-hop. The routing table entry has no outgoing interface listed. Useful when route status should not depend on a single interface."},
+  {cat:"IPv6 Routing", q:"What is the default Administrative Distance for IPv6 static routes?", a:"<strong>1</strong>. Lower values mean more trusted. Connected routes = 0, Static = 1, EIGRP = 90, OSPF = 110, RIP = 120. Floating static routes use a value > 1 to act as backups behind dynamic routes."},
+
+  // Misc/Gotchas
+  {cat:"Gotchas", q:"In IPv6, which protocol provides the default gateway — DHCPv6 or NDP?", a:"<strong>NDP (Router Advertisements)</strong> always provides the default gateway in IPv6 — not DHCPv6. This is a critical difference from IPv4 where DHCP typically provides the gateway. Even in Stateful DHCPv6, the host sets its gateway from the RA source address."},
+  {cat:"Gotchas", q:"Why does IPv6 need PMTU Discovery and when does it break?", a:"IPv6 routers <strong>never fragment</strong>. If a packet is too large, the router discards it and sends ICMPv6 <em>Packet Too Big</em> back to the source. The source then reduces its packet size. PMTU breaks when <strong>ICMPv6 is filtered by firewalls</strong> — the source never learns the correct MTU."},
+  {cat:"Gotchas", q:"UDP checksum is optional in IPv4 — is it optional in IPv6?", a:"<strong>No — mandatory in IPv6.</strong> Because IPv6 has no header checksum, UDP running over IPv6 must have its checksum field set. This ensures data integrity at the transport layer."},
+  {cat:"Gotchas", q:"Can :: appear twice in one IPv6 address?", a:"<strong>No.</strong> The double colon can appear <strong>only once</strong>. Having two :: makes the address ambiguous because you cannot determine how many zero groups each :: replaces. Example: <code>2001:cb0::fc0::abc</code> is invalid."},
+  {cat:"Gotchas", q:"A router interface is configured with only a link-local address. Will a Connected route appear in the routing table?", a:"<strong>No.</strong> Connected and Local routes are only created for <strong>Global Unicast Addresses</strong>. Configuring only a LLA on an interface does not generate any routing table entries."},
+  {cat:"Gotchas", q:"What happens if two OSPF routers have the same network type mismatch — does the same issue exist in IPv6 static routing with LLA next-hops?", a:"Yes — if you specify a LLA next-hop without an interface, Cisco rejects it: <code>% Interface has to be specified for a link-local nexthop</code>. Always specify the outgoing interface when using a LLA next-hop."},
+];
+
+let current = 0;
+let activeCat = "All";
+let filtered = [...ALL];
+const cats = ["All", ...new Set(ALL.map(c => c.cat))];
+
+function renderCats() {
+  document.getElementById('cats').innerHTML = cats.map(c =>
+    `<button class="cat-btn${c===activeCat?' active':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+}
+function setCat(c) {
+  activeCat = c;
+  filtered = c==="All" ? [...ALL] : ALL.filter(x=>x.cat===c);
+  current = 0;
+  document.getElementById('card').classList.remove('flipped');
+  renderCats(); render();
+}
+function shuffle() {
+  filtered = filtered.sort(()=>Math.random()-0.5);
+  current = 0;
+  document.getElementById('card').classList.remove('flipped');
+  render();
+}
+function flipCard() { document.getElementById('card').classList.toggle('flipped'); }
+function nav(dir) {
+  document.getElementById('card').classList.remove('flipped');
+  setTimeout(()=>{ current=Math.max(0,Math.min(filtered.length-1,current+dir)); render(); },50);
+}
+function render() {
+  const c = filtered[current];
+  document.getElementById('card-q').textContent = c.q;
+  document.getElementById('card-a').innerHTML = c.a;
+  document.getElementById('cat-badge').textContent = c.cat;
+  document.getElementById('cat-badge2').textContent = c.cat;
+  document.getElementById('counter').textContent = `${current+1} / ${filtered.length}`;
+  document.getElementById('prog').style.width = ((current+1)/filtered.length*100)+'%';
+  document.getElementById('prev-btn').disabled = current===0;
+  document.getElementById('next-btn').disabled = current===filtered.length-1;
+}
+function setMode(m) {
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().startsWith(m)));
+  document.getElementById('flash-mode').style.display = m==='flash'?'block':'none';
+  document.getElementById('notes-mode').style.display = m==='notes'?'block':'none';
+}
+renderCats(); render();
+</script>
+</body>
+</html>

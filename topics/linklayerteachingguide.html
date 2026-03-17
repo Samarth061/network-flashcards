@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Layer — Teaching Guide</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f1929;--navy2:#1a2840;--navy3:#243350;
+  --teal:#00c9a7;--teal2:#00a88c;
+  --amber:#f5a623;--coral:#e05c5c;--blue:#4a9eff;--purple:#a78bfa;
+  --bg:#f8f9fb;--white:#ffffff;
+  --tx:#1e293b;--tx2:#475569;--tx3:#94a3b8;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --mono:'SFMono-Regular',Consolas,monospace;
+  --sidebar:260px;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;font-size:16px;display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--navy);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;flex-shrink:0;z-index:100}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-track{background:var(--navy)}.sidebar::-webkit-scrollbar-thumb{background:var(--navy3);border-radius:2px}
+.sidebar-header{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--navy3)}
+.sidebar-header h1{font-size:14px;font-weight:600;color:var(--white);letter-spacing:.04em;line-height:1.4}
+.sidebar-header p{font-size:11px;color:var(--tx3);margin-top:4px}
+.sidebar-nav{padding:.75rem 0 2rem}
+.nav-section{margin-bottom:.25rem}
+.nav-section-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);padding:.5rem 1.25rem .25rem;display:block}
+.nav-link{display:flex;align-items:center;gap:8px;padding:.4rem 1.25rem;font-size:12.5px;color:rgba(255,255,255,.6);text-decoration:none;transition:all .15s;border-left:2px solid transparent}
+.nav-link:hover{color:var(--white);background:var(--navy2);border-left-color:var(--navy3)}
+.nav-link.active{color:var(--teal);border-left-color:var(--teal);background:rgba(0,201,167,.08)}
+.nav-link .num{font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums;min-width:18px}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;max-width:860px;padding:3rem 3rem 6rem}
+
+/* SECTIONS */
+.section{margin-bottom:5rem;scroll-margin-top:2rem}
+.section-header{margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--border)}
+.section-num{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--teal2);margin-bottom:.25rem}
+.section-title{font-size:1.9rem;font-weight:700;color:var(--tx);line-height:1.2}
+.section-subtitle{font-size:1rem;color:var(--tx2);margin-top:.5rem;line-height:1.6}
+
+/* TYPOGRAPHY */
+h3{font-size:1.2rem;font-weight:600;color:var(--tx);margin:2rem 0 .75rem}
+h4{font-size:1rem;font-weight:600;color:var(--tx);margin:1.5rem 0 .5rem}
+p{margin-bottom:1rem;color:var(--tx2);line-height:1.8}
+ul,ol{padding-left:1.4rem;margin-bottom:1rem;color:var(--tx2)}
+li{margin-bottom:.35rem;line-height:1.7}
+strong{color:var(--tx);font-weight:600}
+code{font-family:var(--mono);font-size:.8em;background:#eef2f7;padding:2px 5px;border-radius:4px;color:#c92a2a;border:1px solid #dde4ee}
+
+/* CALLOUT BOXES */
+.callout{border-radius:10px;padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-key{background:#f0fdf8;border-color:var(--teal);}.callout-key strong{color:var(--teal2)}
+.callout-warn{background:#fffbeb;border-color:var(--amber);}.callout-warn strong{color:#b45309}
+.callout-note{background:#f0f4ff;border-color:var(--blue);}.callout-note strong{color:#1d4ed8}
+.callout-alert{background:#fff5f5;border-color:var(--coral);}.callout-alert strong{color:#b91c1c}
+.callout p{margin:0;font-size:.93rem;line-height:1.7;color:var(--tx)}
+.callout p+p{margin-top:.5rem}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.9rem}
+.compare-table th{background:var(--navy);color:var(--white);padding:.65rem .9rem;text-align:left;font-weight:500;font-size:.82rem;letter-spacing:.03em}
+.compare-table td{padding:.6rem .9rem;border-bottom:1px solid var(--border);color:var(--tx2);vertical-align:top}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:nth-child(even) td{background:#f8fafc}
+.compare-table td:first-child{font-weight:500;color:var(--tx)}
+
+/* DIAGRAM CONTAINERS */
+.diagram{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0;overflow-x:auto}
+.diagram-title{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+.diagram-title::before{content:'';display:block;width:3px;height:12px;background:var(--teal);border-radius:2px}
+.diagram svg{display:block;max-width:100%;height:auto}
+
+/* STEP BOXES */
+.steps{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.step{display:flex;gap:1rem;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--teal);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.15rem}
+.step-content{flex:1}.step-content strong{display:block;color:var(--tx);margin-bottom:.2rem;font-size:.95rem}
+.step-content p{margin:0;color:var(--tx2);font-size:.9rem;line-height:1.65}
+
+/* TWO-COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+.col-box{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.25rem}
+.col-box h4{margin-top:0;font-size:.95rem;color:var(--tx)}
+.col-box p,.col-box ul{font-size:.88rem;color:var(--tx2);margin-bottom:.5rem}
+.col-box ul{padding-left:1.1rem}
+
+/* TAGS */
+.tag{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:20px;margin:0 3px}
+.tag-teal{background:#d0faf2;color:#065f46}
+.tag-amber{background:#fef3c7;color:#92400e}
+.tag-blue{background:#dbeafe;color:#1e40af}
+.tag-red{background:#fee2e2;color:#991b1b}
+.tag-purple{background:#ede9fe;color:#6d28d9}
+
+/* PACKET FIELD */
+.packet-fields{display:flex;flex-direction:column;gap:2px;margin:1rem 0}
+.pf-row{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;font-size:.82rem}
+.pf-name{background:var(--navy);color:rgba(255,255,255,.85);padding:.35rem .75rem;font-weight:500;min-width:180px;flex-shrink:0}
+.pf-bits{background:#f8fafc;color:var(--tx3);padding:.35rem .5rem;min-width:55px;flex-shrink:0;border-right:1px solid var(--border);text-align:center;font-family:var(--mono)}
+.pf-desc{padding:.35rem .75rem;color:var(--tx2);flex:1}
+
+/* ALGO BOX */
+.algo-box{background:var(--navy);border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0;color:rgba(255,255,255,.85);font-family:var(--mono);font-size:.82rem;line-height:1.8;overflow-x:auto}
+.algo-box .comment{color:rgba(0,201,167,.7)}
+.algo-box .kw{color:var(--blue)}
+.algo-box .num{color:var(--amber)}
+
+/* PROGRESS BAR STYLE */
+.progress-note{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:var(--white);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:3rem;display:flex;align-items:center;gap:1rem}
+.progress-note .icon{font-size:1.5rem;flex-shrink:0}
+.progress-note p{margin:0;font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5}
+.progress-note strong{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h1>The Link Layer</h1>
+    <p>Kurose &amp; Ross — Chapter 5</p>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Introduction</span>
+      <a class="nav-link active" href="#s1"><span class="num">1</span>What is the Link Layer?</a>
+      <a class="nav-link" href="#s2"><span class="num">2</span>Services</a>
+      <a class="nav-link" href="#s3"><span class="num">3</span>Where Is It Implemented?</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Error Detection</span>
+      <a class="nav-link" href="#s4"><span class="num">4</span>Parity Checks</a>
+      <a class="nav-link" href="#s5"><span class="num">5</span>2D Parity &amp; FEC</a>
+      <a class="nav-link" href="#s6"><span class="num">6</span>Checksumming</a>
+      <a class="nav-link" href="#s7"><span class="num">7</span>CRC</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Multiple Access</span>
+      <a class="nav-link" href="#s8"><span class="num">8</span>The Multiple Access Problem</a>
+      <a class="nav-link" href="#s9"><span class="num">9</span>TDM &amp; FDM</a>
+      <a class="nav-link" href="#s10"><span class="num">10</span>CDMA</a>
+      <a class="nav-link" href="#s11"><span class="num">11</span>Slotted ALOHA</a>
+      <a class="nav-link" href="#s12"><span class="num">12</span>Pure ALOHA</a>
+      <a class="nav-link" href="#s13"><span class="num">13</span>CSMA &amp; CSMA/CD</a>
+      <a class="nav-link" href="#s14"><span class="num">14</span>Binary Exponential Backoff</a>
+      <a class="nav-link" href="#s15"><span class="num">15</span>Taking-Turns Protocols</a>
+      <a class="nav-link" href="#s16"><span class="num">16</span>DOCSIS Case Study</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Switched LANs</span>
+      <a class="nav-link" href="#s17"><span class="num">17</span>MAC Addresses</a>
+      <a class="nav-link" href="#s18"><span class="num">18</span>ARP Protocol</a>
+      <a class="nav-link" href="#s19"><span class="num">19</span>Ethernet Frame</a>
+      <a class="nav-link" href="#s20"><span class="num">20</span>Ethernet Technologies</a>
+      <a class="nav-link" href="#s21"><span class="num">21</span>Link-Layer Switches</a>
+      <a class="nav-link" href="#s22"><span class="num">22</span>VLANs</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Advanced Topics</span>
+      <a class="nav-link" href="#s23"><span class="num">23</span>MPLS</a>
+      <a class="nav-link" href="#s24"><span class="num">24</span>Data Center Networking</a>
+      <a class="nav-link" href="#s25"><span class="num">25</span>A Day in the Life</a>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="progress-note">
+  <div class="icon">📡</div>
+  <p>This guide teaches every concept in <strong>Chapter 5 of Kurose &amp; Ross</strong> from the ground up — error detection, multiple access protocols, Ethernet, switches, VLANs, and how it all fits together when you load a web page.</p>
+</div>
+
+<!-- ═══ S1 ═══ -->
+<section class="section" id="s1">
+  <div class="section-header">
+    <div class="section-num">Section 1</div>
+    <h2 class="section-title">What Is the Link Layer?</h2>
+    <p class="section-subtitle">Nodes, links, frames, and the transportation analogy</p>
+  </div>
+
+  <p>Imagine sending a letter from New York to Tokyo. It travels by taxi to the airport, then by plane across the ocean, then by local courier to its destination. Each leg uses a different transport system, but together they form one end-to-end journey. Networks work exactly the same way.</p>
+
+  <p>A packet traveling across the Internet hops across many <strong>links</strong> — a WiFi link, then an Ethernet link, then a fiber link between routers. The <strong>link layer</strong> handles each individual hop. It doesn't care about the whole journey; it just moves data safely from one device to the immediately adjacent device.</p>
+
+  <div class="callout callout-key">
+    <p><strong>Node:</strong> Any device running a link-layer protocol — hosts, routers, switches, WiFi access points.<br>
+    <strong>Link:</strong> The communication channel connecting two adjacent nodes.<br>
+    <strong>Frame:</strong> A link-layer packet — a network-layer datagram wrapped in a link-layer envelope.</p>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">Six link-layer hops from wireless host to server</div>
+    <svg viewBox="0 0 760 160" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="9">
+      <defs><marker id="a1" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#00c9a7"/></marker></defs>
+      <rect x="10" y="55" width="90" height="50" rx="7" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+      <text x="55" y="78" text-anchor="middle" fill="#e2e8f0">Wireless</text><text x="55" y="92" text-anchor="middle" fill="#e2e8f0">Host</text>
+      <rect x="130" y="55" width="90" height="50" rx="7" fill="#1a2840" stroke="#4a9eff" stroke-width="1.5"/>
+      <text x="175" y="78" text-anchor="middle" fill="#e2e8f0">WiFi</text><text x="175" y="92" text-anchor="middle" fill="#e2e8f0">Access Pt</text>
+      <rect x="250" y="55" width="90" height="50" rx="7" fill="#1a2840" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="295" y="78" text-anchor="middle" fill="#e2e8f0">Link-Layer</text><text x="295" y="92" text-anchor="middle" fill="#e2e8f0">Switch</text>
+      <rect x="370" y="55" width="90" height="50" rx="7" fill="#1a2840" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="415" y="78" text-anchor="middle" fill="#e2e8f0">Router</text>
+      <rect x="490" y="55" width="90" height="50" rx="7" fill="#1a2840" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="535" y="78" text-anchor="middle" fill="#e2e8f0">Link-Layer</text><text x="535" y="92" text-anchor="middle" fill="#e2e8f0">Switch</text>
+      <rect x="610" y="55" width="90" height="50" rx="7" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+      <text x="655" y="85" text-anchor="middle" fill="#e2e8f0">Server</text>
+      <line x1="100" y1="80" x2="128" y2="80" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="114" y="73" text-anchor="middle" fill="#94a3b8">WiFi</text>
+      <line x1="220" y1="80" x2="248" y2="80" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="234" y="73" text-anchor="middle" fill="#94a3b8">Eth</text>
+      <line x1="340" y1="80" x2="368" y2="80" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="354" y="73" text-anchor="middle" fill="#94a3b8">Eth</text>
+      <line x1="460" y1="80" x2="488" y2="80" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="474" y="73" text-anchor="middle" fill="#94a3b8">link</text>
+      <line x1="580" y1="80" x2="608" y2="80" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="594" y="73" text-anchor="middle" fill="#94a3b8">Eth</text>
+      <text x="380" y="135" text-anchor="middle" font-size="10" fill="#475569">6 hops, 6 frames — each frame is stripped and rebuilt at every node</text>
+    </svg>
+  </div>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>Transportation Analogy</h4>
+      <ul>
+        <li>Tourist = Datagram</li>
+        <li>Transportation segment = Link</li>
+        <li>Transport mode (plane, train) = Link-layer protocol</li>
+        <li>Travel agent = Routing protocol</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>Two Link Types</h4>
+      <ul>
+        <li><strong>Broadcast links:</strong> Many nodes share one channel (WiFi, satellite, cable). Requires coordination.</li>
+        <li><strong>Point-to-point links:</strong> One sender, one receiver (long-distance fiber). Much simpler.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-note">
+    <p><strong>Datagram vs. Frame:</strong> A datagram is a network-layer (IP) packet. When it travels over a link it's wrapped inside a <strong>frame</strong>. The datagram rides as the payload of the frame. At each hop, the old frame is stripped and a new one wraps the same datagram — possibly a completely different format.</p>
+  </div>
+</section>
+
+<!-- ═══ S2 ═══ -->
+<section class="section" id="s2">
+  <div class="section-header">
+    <div class="section-num">Section 2</div>
+    <h2 class="section-title">Link Layer Services</h2>
+    <p class="section-subtitle">What the link layer can do for you — and what it can't guarantee</p>
+  </div>
+
+  <p>Not all link-layer protocols provide the same services. The baseline is always the same: move a datagram from one node to the immediately adjacent node. Beyond that, services vary widely.</p>
+
+  <table class="compare-table">
+    <tr><th>Service</th><th>What It Does</th><th>Always Provided?</th><th>Example</th></tr>
+    <tr><td>Framing</td><td>Encapsulates network-layer datagram into a frame with header fields</td><td>Yes — by all</td><td>Ethernet, 802.11</td></tr>
+    <tr><td>Link Access (MAC)</td><td>Rules for which node can transmit on a shared broadcast link</td><td>Yes</td><td>CSMA/CD in Ethernet</td></tr>
+    <tr><td>Reliable Delivery</td><td>Guarantees delivery over each link via ACKs &amp; retransmissions</td><td>No — optional</td><td>802.11 WiFi yes; Ethernet no</td></tr>
+    <tr><td>Error Detection</td><td>Receiving node detects bit errors from signal noise</td><td>Usually</td><td>CRC in Ethernet</td></tr>
+    <tr><td>Error Correction</td><td>Receiving node identifies AND fixes which bits were flipped</td><td>Rarely</td><td>FEC in some wireless</td></tr>
+  </table>
+
+  <div class="callout callout-warn">
+    <p><strong>Why not always reliable delivery?</strong> Wired links have very low bit-error rates — adding ACK/retransmission overhead for a near-perfect wire is wasteful. TCP handles end-to-end reliability anyway. Reliable link-layer delivery matters most on <strong>high-error wireless links</strong>, where catching errors locally is faster than waiting for TCP's end-to-end timeout.</p>
+  </div>
+</section>
+
+<!-- ═══ S3 ═══ -->
+<section class="section" id="s3">
+  <div class="section-header">
+    <div class="section-num">Section 3</div>
+    <h2 class="section-title">Where Is the Link Layer Implemented?</h2>
+    <p class="section-subtitle">Hardware, software, and the Network Interface Card (NIC)</p>
+  </div>
+
+  <p>The link layer is not software you write in Python. Most of it lives in dedicated hardware: the <strong>Network Interface Card (NIC)</strong>, also called a network adapter. At the heart of a NIC is a special-purpose controller chip that handles framing, error detection, and link access in hardware — very fast.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">NIC and host architecture — hardware/software split</div>
+    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="10">
+      <rect x="20" y="20" width="440" height="160" rx="10" fill="#0f1929" stroke="#243350" stroke-width="2"/>
+      <text x="240" y="40" text-anchor="middle" font-size="11" fill="#94a3b8" letter-spacing="1">HOST</text>
+      <rect x="40" y="52" width="100" height="55" rx="6" fill="#1a2840" stroke="#4a9eff" stroke-width="1.5"/>
+      <text x="90" y="76" text-anchor="middle" fill="#e2e8f0">CPU</text>
+      <text x="90" y="92" text-anchor="middle" fill="#94a3b8" font-size="8">App/Transport/Net</text>
+      <rect x="160" y="52" width="100" height="55" rx="6" fill="#1a2840" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="210" y="76" text-anchor="middle" fill="#e2e8f0">Memory</text>
+      <text x="210" y="92" text-anchor="middle" fill="#94a3b8" font-size="8">datagrams</text>
+      <rect x="40" y="125" width="380" height="14" rx="4" fill="#243350"/>
+      <text x="230" y="136" text-anchor="middle" font-size="9" fill="#94a3b8">Host Bus (PCI/PCIe)</text>
+      <rect x="290" y="52" width="130" height="55" rx="6" fill="#1a2840" stroke="#00c9a7" stroke-width="2"/>
+      <text x="355" y="74" text-anchor="middle" fill="#00c9a7" font-weight="600">NIC / Adapter</text>
+      <text x="355" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">Link-layer controller</text>
+      <text x="355" y="100" text-anchor="middle" fill="#94a3b8" font-size="8">framing · CRC · MAC</text>
+      <line x1="140" y1="79" x2="158" y2="79" stroke="#4a9eff" stroke-width="1.5"/>
+      <line x1="260" y1="79" x2="288" y2="79" stroke="#4a9eff" stroke-width="1.5"/>
+      <line x1="90" y1="107" x2="90" y2="123" stroke="#4a9eff" stroke-width="1.5"/>
+      <line x1="355" y1="107" x2="355" y2="123" stroke="#00c9a7" stroke-width="1.5"/>
+      <line x1="422" y1="79" x2="500" y2="79" stroke="#00c9a7" stroke-width="2" stroke-dasharray="5,3"/>
+      <text x="540" y="68" text-anchor="middle" fill="#00c9a7">Physical</text>
+      <text x="540" y="82" text-anchor="middle" fill="#00c9a7">Link</text>
+      <text x="180" y="175" text-anchor="middle" fill="#475569" font-size="9">Software (upper link layer)</text>
+      <text x="355" y="175" text-anchor="middle" fill="#475569" font-size="9">Hardware (lower link layer)</text>
+    </svg>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Sending side</strong><p>CPU creates a datagram and puts it in memory. NIC picks it up, wraps it in a frame, and transmits onto the physical link.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Receiving side</strong><p>NIC receives the frame, performs CRC check, extracts the datagram, and interrupts the CPU to pass it up the stack.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Software component</strong><p>Higher-level tasks — assembling address info, handling errors, interfacing with the network layer — run in software on the host CPU.</p></div></div>
+  </div>
+
+  <div class="callout callout-key">
+    <p><strong>The link layer straddles the hardware-software boundary.</strong> Error detection runs in silicon at wire speed; address lookup and error handling run in CPU software. This split lets the link layer be simultaneously fast and flexible.</p>
+  </div>
+</section>
+
+<!-- ═══ S4 ═══ -->
+<section class="section" id="s4">
+  <div class="section-header">
+    <div class="section-num">Section 4</div>
+    <h2 class="section-title">Parity Checks</h2>
+    <p class="section-subtitle">The simplest form of error detection — counting ones</p>
+  </div>
+
+  <p>Signals degrade as they travel across wires. Electromagnetic noise can flip a 0 to a 1 or vice versa. The simplest way to detect these <strong>bit errors</strong>: add an extra bit (the <strong>parity bit</strong>) so the total number of 1s is always even (even parity) or always odd (odd parity). If the receiver counts and the parity is wrong, an error occurred.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">1-bit even parity — 9 ones in data → parity bit = 1 → total = 10 (even)</div>
+    <svg viewBox="0 0 680 70" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <text x="10" y="38" font-size="11" fill="#94a3b8">Data (16 bits):</text>
+      <g transform="translate(130,10)">
+        <!-- bits: 0111000110101011 — 9 ones -->
+        <rect x="0" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="12" y="19" font-size="12" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+        <rect x="25" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="37" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="50" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="62" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="75" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="87" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="100" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="112" y="19" font-size="12" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+        <rect x="125" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="137" y="19" font-size="12" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+        <rect x="150" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="162" y="19" font-size="12" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+        <rect x="175" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="187" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="200" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="212" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="225" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="237" y="19" font-size="12" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+        <rect x="250" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="262" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="275" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="287" y="19" font-size="12" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+        <rect x="300" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="312" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="325" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="337" y="19" font-size="12" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+        <rect x="350" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="362" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <rect x="375" y="0" width="24" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="387" y="19" font-size="12" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+        <line x1="407" y1="0" x2="407" y2="28" stroke="#475569" stroke-width="1" stroke-dasharray="3,2"/>
+        <rect x="411" y="-3" width="30" height="34" rx="3" fill="#243350" stroke="#f5a623" stroke-width="2"/>
+        <text x="426" y="19" font-size="13" fill="#f5a623" text-anchor="middle" font-family="monospace" font-weight="bold">1</text>
+        <text x="426" y="52" font-size="9" fill="#f5a623" text-anchor="middle">parity</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Sender counts 1s in the d data bits</strong><p>Even parity: if count is odd → parity bit = 1 (to make total even). If count is even → parity bit = 0.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Receiver counts 1s in all d+1 bits</strong><p>If total is odd (for even parity scheme) → error detected. If even → accepted.</p></div></div>
+  </div>
+
+  <div class="callout callout-alert">
+    <p><strong>Fatal flaw: burst errors.</strong> Single-bit parity fails to detect an <em>even number</em> of bit errors — two flipped bits cancel out in the count. In practice errors come in bursts (a power spike flips several adjacent bits). Single-bit parity misses about 50% of burst errors. This is why CRC is used in real link-layer implementations.</p>
+  </div>
+</section>
+
+<!-- ═══ S5 ═══ -->
+<section class="section" id="s5">
+  <div class="section-header">
+    <div class="section-num">Section 5</div>
+    <h2 class="section-title">Two-Dimensional Parity &amp; Forward Error Correction</h2>
+    <p class="section-subtitle">Not just detect — correct single-bit errors without retransmission</p>
+  </div>
+
+  <p>What if we could not only <em>detect</em> an error but also pinpoint <em>exactly which bit</em> was flipped and fix it — without asking the sender to retransmit? That's <strong>forward error correction (FEC)</strong>.</p>
+
+  <p>Two-dimensional parity arranges the d data bits in a grid of i rows × j columns, then computes a parity bit for each row AND each column. When a bit flips, exactly one row parity and one column parity will fail. Their intersection is the corrupted bit.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">2D parity — row 2 and col 2 both fail → bit (2,2) was corrupted</div>
+    <svg viewBox="0 0 560 240" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="11">
+      <!-- col headers -->
+      <text x="100" y="38" text-anchor="middle" fill="#94a3b8">C1</text>
+      <text x="132" y="38" text-anchor="middle" fill="#94a3b8">C2</text>
+      <text x="164" y="38" text-anchor="middle" fill="#94a3b8">C3</text>
+      <text x="196" y="38" text-anchor="middle" fill="#94a3b8">C4</text>
+      <text x="228" y="38" text-anchor="middle" fill="#94a3b8">C5</text>
+      <text x="260" y="38" text-anchor="middle" fill="#94a3b8">C6</text>
+      <text x="298" y="38" text-anchor="middle" fill="#f5a623">P_row</text>
+      <!-- Row 1: 1 0 1 0 1 1 parity=0 -->
+      <text x="40" y="70" fill="#94a3b8" text-anchor="end">Row 1</text>
+      <rect x="84" y="50" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="98" y="69" fill="#e2e8f0" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="116" y="50" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="130" y="69" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="148" y="50" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="162" y="69" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="180" y="50" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="194" y="69" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="212" y="50" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="226" y="69" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="244" y="50" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="258" y="69" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="280" y="50" width="28" height="28" rx="3" fill="#243350" stroke="#f5a623"/><text x="294" y="69" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <text x="350" y="70" fill="#94a3b8">← OK</text>
+      <!-- Row 2: 1 [0→corrupted from 1] 1 1 0 0 parity should be 0 but fails -->
+      <text x="40" y="102" fill="#94a3b8" text-anchor="end">Row 2</text>
+      <rect x="84" y="82" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="98" y="101" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="116" y="82" width="28" height="28" rx="3" fill="#2a1515" stroke="#e05c5c" stroke-width="2.5"/><text x="130" y="101" fill="#e05c5c" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="148" y="82" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="162" y="101" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="180" y="82" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="194" y="101" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="212" y="82" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="226" y="101" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="244" y="82" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="258" y="101" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="280" y="82" width="28" height="28" rx="3" fill="#2a1515" stroke="#e05c5c" stroke-width="2"/><text x="294" y="101" fill="#e05c5c" text-anchor="middle" font-family="monospace">!</text>
+      <text x="350" y="102" fill="#e05c5c">← FAIL ⚡</text>
+      <!-- Row 3 -->
+      <text x="40" y="134" fill="#94a3b8" text-anchor="end">Row 3</text>
+      <rect x="84" y="114" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="98" y="133" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="116" y="114" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="130" y="133" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="148" y="114" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="162" y="133" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="180" y="114" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="194" y="133" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="212" y="114" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="226" y="133" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="244" y="114" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="258" y="133" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="280" y="114" width="28" height="28" rx="3" fill="#243350" stroke="#f5a623"/><text x="294" y="133" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <text x="350" y="134" fill="#94a3b8">← OK</text>
+      <!-- Row 4 -->
+      <text x="40" y="166" fill="#94a3b8" text-anchor="end">Row 4</text>
+      <rect x="84" y="146" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="98" y="165" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="116" y="146" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="130" y="165" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="148" y="146" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="162" y="165" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="180" y="146" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="194" y="165" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="212" y="146" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="226" y="165" fill="#00c9a7" text-anchor="middle" font-family="monospace">1</text>
+      <rect x="244" y="146" width="28" height="28" rx="3" fill="#1a2840" stroke="#243350"/><text x="258" y="165" fill="#e2e8f0" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="280" y="146" width="28" height="28" rx="3" fill="#243350" stroke="#f5a623"/><text x="294" y="165" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <text x="350" y="166" fill="#94a3b8">← OK</text>
+      <!-- Col parity row -->
+      <text x="40" y="204" fill="#f5a623" text-anchor="end">P_col</text>
+      <rect x="84" y="182" width="28" height="22" rx="3" fill="#243350" stroke="#f5a623"/><text x="98" y="197" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="116" y="182" width="28" height="22" rx="3" fill="#2a1515" stroke="#e05c5c" stroke-width="2"/><text x="130" y="197" fill="#e05c5c" text-anchor="middle" font-family="monospace">!</text>
+      <rect x="148" y="182" width="28" height="22" rx="3" fill="#243350" stroke="#f5a623"/><text x="162" y="197" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="180" y="182" width="28" height="22" rx="3" fill="#243350" stroke="#f5a623"/><text x="194" y="197" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="212" y="182" width="28" height="22" rx="3" fill="#243350" stroke="#f5a623"/><text x="226" y="197" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <rect x="244" y="182" width="28" height="22" rx="3" fill="#243350" stroke="#f5a623"/><text x="258" y="197" fill="#f5a623" text-anchor="middle" font-family="monospace">0</text>
+      <text x="350" y="197" fill="#e05c5c">↑ FAIL ⚡</text>
+      <text x="98" y="225" text-anchor="middle" fill="#e05c5c" font-size="10">Col 2 ↑</text>
+      <text x="84" y="235" text-anchor="left" fill="#00c9a7" font-size="10">Row 2 ∩ Col 2 → bit (2,2) corrupted — flip it to fix ✓</text>
+    </svg>
+  </div>
+
+  <div class="callout callout-note">
+    <p><strong>2D parity capabilities:</strong> Single-bit errors are detected AND corrected (row+column intersection reveals the bad bit). Two-bit errors are detected but NOT corrected (ambiguous intersection). FEC eliminates retransmission — critical for deep-space links or real-time applications where round-trip delay is enormous.</p>
+  </div>
+</section>
+
+<!-- ═══ S6 ═══ -->
+<section class="section" id="s6">
+  <div class="section-header">
+    <div class="section-num">Section 6</div>
+    <h2 class="section-title">Checksumming</h2>
+    <p class="section-subtitle">Summing data bytes to catch corruption — the Internet checksum</p>
+  </div>
+
+  <p>Checksumming treats data as a sequence of numbers and sums them. The sum (or its complement) is sent alongside the data. If the receiver recomputes the sum and finds a mismatch, an error has occurred.</p>
+
+  <h3>The Internet Checksum (TCP, UDP, IP)</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Treat data as 16-bit integers</strong><p>Break data into 16-bit chunks.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Sum all 16-bit integers with wraparound</strong><p>Use 1's complement addition — overflow bit wraps back to the least significant bit.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Take the 1's complement of the sum</strong><p>Flip all bits. This is the checksum placed in the header.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><strong>Receiver sums data + checksum</strong><p>If no errors, result should be all 1s (0xFFFF). Any 0-bit indicates an error.</p></div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>Why Checksums at Transport Layer?</h4>
+      <ul>
+        <li>Transport layer is software → needs simple, fast computation</li>
+        <li>Very cheap to compute in software</li>
+        <li>TCP/UDP use only 16-bit checksum</li>
+        <li>Relatively weak but fast enough</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>Why CRC at Link Layer?</h4>
+      <ul>
+        <li>Link layer runs in dedicated NIC hardware</li>
+        <li>Hardware does polynomial division at wire speed</li>
+        <li>CRC is far more powerful at detecting burst errors</li>
+        <li>Appropriate overhead for hardware implementation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S7 ═══ -->
+<section class="section" id="s7">
+  <div class="section-header">
+    <div class="section-num">Section 7</div>
+    <h2 class="section-title">Cyclic Redundancy Check (CRC)</h2>
+    <p class="section-subtitle">Polynomial division — the gold standard of link-layer error detection</p>
+  </div>
+
+  <p>CRC is the most powerful and widely used error detection scheme in link layers. Treat data as a giant binary polynomial and divide it by an agreed-upon <strong>generator polynomial</strong> G. The <strong>remainder R</strong> is appended to the data. If the receiver divides the received data+R by G and gets a non-zero remainder, there's an error.</p>
+
+  <p>All arithmetic is done in <strong>modulo-2</strong> (no carries, no borrows). Addition = subtraction = XOR.</p>
+
+  <div class="algo-box">
+R = remainder of (D × 2<sup>r</sup>) ÷ G  <span class="comment">// mod-2 arithmetic</span>
+
+D = data bits (d bits)
+G = generator polynomial (r+1 bits)  <span class="comment">// agreed in advance</span>
+R = CRC remainder (r bits)
+Transmitted bits = D followed by R  <span class="comment">// d + r bits total</span>
+
+<span class="comment">// Receiver check: divide received (D,R) by G</span>
+<span class="kw">if</span> remainder == 0: <span class="comment">// no error</span>
+<span class="kw">else</span>: <span class="comment">// error detected — discard frame</span>
+  </div>
+
+  <h3>Worked Example</h3>
+  <p><strong>D = 101110</strong> (6 bits), <strong>G = 1001</strong> (r = 3). Goal: find R = 3-bit CRC.</p>
+  <p>D × 2³ = 101110000. Divide by 1001 in mod-2 arithmetic. Remainder = <strong>011</strong>. Transmitted = 101110<strong>011</strong>.</p>
+  <p>Receiver divides 101110011 by 1001 → remainder 000 → no error ✓</p>
+
+  <table class="compare-table">
+    <tr><th>Standard</th><th>Generator bits</th><th>Used In</th><th>Detects all burst errors ≤</th></tr>
+    <tr><td>CRC-8</td><td>9</td><td>ATM headers</td><td>8 bits</td></tr>
+    <tr><td>CRC-16</td><td>17</td><td>HDLC, USB</td><td>16 bits</td></tr>
+    <tr><td>CRC-32</td><td>33</td><td>Ethernet, IEEE 802.3</td><td>32 bits</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <p><strong>Why XOR (mod-2) arithmetic?</strong> XOR has no carries, making it extremely simple to implement in hardware gates. The entire CRC computation is done by a chain of XOR gates and shift registers at wire speed — which is why CRC lives in hardware, not software.</p>
+  </div>
+</section>
+
+<!-- ═══ S8 ═══ -->
+<section class="section" id="s8">
+  <div class="section-header">
+    <div class="section-num">Section 8</div>
+    <h2 class="section-title">The Multiple Access Problem</h2>
+    <p class="section-subtitle">When many nodes share one channel — who talks when?</p>
+  </div>
+
+  <p>Imagine a WiFi network with 30 laptops all transmitting at once. The radio waves collide in the air and nobody receives anything useful. This is the <strong>multiple access problem</strong>. A <strong>multiple access protocol</strong> coordinates who transmits when on a shared broadcast channel.</p>
+
+  <div class="callout callout-key">
+    <p><strong>The ideal protocol</strong> for a broadcast channel of rate R with M active nodes: (1) if only 1 node is active → throughput = R bps, (2) if M active → each gets R/M bps, (3) fully decentralized — no single point of failure, (4) simple and cheap.</p>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">Three categories of multiple access protocols</div>
+    <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="10">
+      <rect x="20" y="15" width="200" height="100" rx="10" fill="#1a2840" stroke="#00c9a7" stroke-width="2"/>
+      <text x="120" y="40" text-anchor="middle" fill="#00c9a7" font-weight="700" font-size="11">Channel Partitioning</text>
+      <text x="120" y="58" text-anchor="middle" fill="#94a3b8">Divide channel into fixed pieces</text>
+      <text x="120" y="73" text-anchor="middle" fill="#475569">TDM, FDM, CDMA</text>
+      <rect x="250" y="15" width="200" height="100" rx="10" fill="#1a2840" stroke="#4a9eff" stroke-width="2"/>
+      <text x="350" y="40" text-anchor="middle" fill="#4a9eff" font-weight="700" font-size="11">Random Access</text>
+      <text x="350" y="58" text-anchor="middle" fill="#94a3b8">Transmit freely, recover from</text>
+      <text x="350" y="73" text-anchor="middle" fill="#94a3b8">collisions</text>
+      <text x="350" y="90" text-anchor="middle" fill="#475569">ALOHA, CSMA, CSMA/CD</text>
+      <rect x="480" y="15" width="200" height="100" rx="10" fill="#1a2840" stroke="#f5a623" stroke-width="2"/>
+      <text x="580" y="40" text-anchor="middle" fill="#f5a623" font-weight="700" font-size="11">Taking Turns</text>
+      <text x="580" y="58" text-anchor="middle" fill="#94a3b8">Nodes take orderly turns</text>
+      <text x="580" y="73" text-anchor="middle" fill="#475569">Polling, Token Passing</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ═══ S9 ═══ -->
+<section class="section" id="s9">
+  <div class="section-header">
+    <div class="section-num">Section 9</div>
+    <h2 class="section-title">Channel Partitioning: TDM &amp; FDM</h2>
+    <p class="section-subtitle">Divide the channel into time slots or frequency bands — give each node its own lane</p>
+  </div>
+
+  <h3>Time-Division Multiplexing (TDM)</h3>
+  <p>Time is divided into frames, each frame divided into N time slots. Node i always transmits in slot i. No collisions — but if only 1 of N nodes is active, it still only gets R/N bps. The other N−1 slots sit idle.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">TDM — 4 nodes, repeating time slots</div>
+    <svg viewBox="0 0 680 80" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <text x="10" y="35" font-size="10" fill="#94a3b8">Frame 1</text>
+      <text x="175" y="35" font-size="10" fill="#94a3b8">Frame 2</text>
+      <text x="340" y="35" font-size="10" fill="#94a3b8">Frame 3</text>
+      <text x="505" y="35" font-size="10" fill="#94a3b8">Frame 4</text>
+      <g transform="translate(10,42)">
+        <!-- 4 frames × 4 slots each -->
+        <rect x="0" y="0" width="38" height="30" rx="2" fill="#00c9a7" opacity=".85"/><text x="19" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">1</text>
+        <rect x="39" y="0" width="38" height="30" rx="2" fill="#4a9eff" opacity=".85"/><text x="58" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">2</text>
+        <rect x="78" y="0" width="38" height="30" rx="2" fill="#f5a623" opacity=".85"/><text x="97" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">3</text>
+        <rect x="117" y="0" width="38" height="30" rx="2" fill="#a78bfa" opacity=".85"/><text x="136" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">4</text>
+        <rect x="165" y="0" width="38" height="30" rx="2" fill="#00c9a7" opacity=".85"/><text x="184" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">1</text>
+        <rect x="204" y="0" width="38" height="30" rx="2" fill="#4a9eff" opacity=".85"/><text x="223" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">2</text>
+        <rect x="243" y="0" width="38" height="30" rx="2" fill="#f5a623" opacity=".85"/><text x="262" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">3</text>
+        <rect x="282" y="0" width="38" height="30" rx="2" fill="#a78bfa" opacity=".85"/><text x="301" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">4</text>
+        <rect x="330" y="0" width="38" height="30" rx="2" fill="#00c9a7" opacity=".85"/><text x="349" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">1</text>
+        <rect x="369" y="0" width="38" height="30" rx="2" fill="#4a9eff" opacity=".85"/><text x="388" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">2</text>
+        <rect x="408" y="0" width="38" height="30" rx="2" fill="#f5a623" opacity=".85"/><text x="427" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">3</text>
+        <rect x="447" y="0" width="38" height="30" rx="2" fill="#a78bfa" opacity=".85"/><text x="466" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">4</text>
+        <rect x="495" y="0" width="38" height="30" rx="2" fill="#00c9a7" opacity=".85"/><text x="514" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">1</text>
+        <rect x="534" y="0" width="38" height="30" rx="2" fill="#4a9eff" opacity=".85"/><text x="553" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">2</text>
+        <rect x="573" y="0" width="38" height="30" rx="2" fill="#f5a623" opacity=".85"/><text x="592" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">3</text>
+        <rect x="612" y="0" width="38" height="30" rx="2" fill="#a78bfa" opacity=".85"/><text x="631" y="20" text-anchor="middle" font-size="12" fill="#0f1929" font-family="monospace" font-weight="bold">4</text>
+      </g>
+    </svg>
+  </div>
+
+  <h3>Frequency-Division Multiplexing (FDM)</h3>
+  <p>The channel is divided into N frequency bands. Each node gets its own band of R/N bps and transmits continuously on that frequency. Multiple nodes transmit simultaneously on different frequencies — no collisions. Same waste problem: 1 active node still only gets R/N bps.</p>
+
+  <div class="callout callout-warn">
+    <p><strong>The fundamental drawback of channel partitioning:</strong> If only 1 of N nodes has data, it still only gets R/N bps. The other N−1 slots/bands sit idle. This is extremely wasteful for bursty traffic.</p>
+  </div>
+</section>
+
+<!-- ═══ S10 ═══ -->
+<section class="section" id="s10">
+  <div class="section-header">
+    <div class="section-num">Section 10</div>
+    <h2 class="section-title">Code Division Multiple Access (CDMA)</h2>
+    <p class="section-subtitle">Everyone talks at once — unique codes keep signals separate</p>
+  </div>
+
+  <p>CDMA assigns each node a unique <strong>code</strong>. All nodes transmit simultaneously on the same frequency, each encoding bits using its code. A receiver that knows the sender's code can decode the intended signal even with other signals present — like tuning in to a specific conversation in a noisy room because you know the "language."</p>
+
+  <div class="callout callout-note">
+    <p><strong>Codes:</strong> Orthogonal chipping sequences — chosen so that different codes don't interfere with each other.<br>
+    <strong>Anti-jamming:</strong> Spread spectrum nature makes CDMA resistant to deliberate interference — originally developed for military use.<br>
+    <strong>Use today:</strong> 3G cellular networks, GPS signal separation. Detailed study in Chapter 6 (wireless).</p>
+  </div>
+</section>
+
+<!-- ═══ S11 ═══ -->
+<section class="section" id="s11">
+  <div class="section-header">
+    <div class="section-num">Section 11</div>
+    <h2 class="section-title">Slotted ALOHA</h2>
+    <p class="section-subtitle">Each node rolls the dice — and waits for a clear slot</p>
+  </div>
+
+  <p>What if instead of pre-assigning slots we let any node transmit whenever it has data — but give it a random backoff after a collision? That's the ALOHA philosophy. <strong>Slotted ALOHA</strong> adds one constraint: time is divided into fixed slots, and nodes only start transmitting at slot boundaries.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>New frame → wait for next slot start → transmit the entire frame</strong><p>All nodes are synchronized to slot boundaries.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>No collision → done!</strong><p>Transmission succeeded — move on.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Collision detected → retransmit with probability p in each subsequent slot</strong><p>Toss a coin each slot: retransmit with prob p, skip with prob (1−p). Keep trying until success.</p></div></div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">Slotted ALOHA — collision (C), empty (E), and successful (S) slots</div>
+    <svg viewBox="0 0 680 150" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="10">
+      <text x="10" y="20" fill="#94a3b8">N1</text><text x="10" y="50" fill="#4a9eff">N2</text><text x="10" y="80" fill="#f5a623">N3</text>
+      <!-- Slot 1: all 3 → collision -->
+      <rect x="30" y="5" width="46" height="24" rx="2" fill="#e05c5c" opacity=".6"/>
+      <rect x="30" y="35" width="46" height="24" rx="2" fill="#e05c5c" opacity=".6"/>
+      <rect x="30" y="65" width="46" height="24" rx="2" fill="#e05c5c" opacity=".6"/>
+      <text x="53" y="105" text-anchor="middle" fill="#e05c5c" font-weight="700">C</text>
+      <!-- Slot 2: empty -->
+      <text x="103" y="105" text-anchor="middle" fill="#475569">E</text>
+      <!-- Slot 3: N2 succeeds -->
+      <rect x="150" y="35" width="46" height="24" rx="2" fill="#4a9eff" opacity=".85"/>
+      <text x="173" y="105" text-anchor="middle" fill="#4a9eff" font-weight="700">S</text>
+      <!-- Slot 4: N1,N3 collision -->
+      <rect x="200" y="5" width="46" height="24" rx="2" fill="#e05c5c" opacity=".6"/>
+      <rect x="200" y="65" width="46" height="24" rx="2" fill="#e05c5c" opacity=".6"/>
+      <text x="223" y="105" text-anchor="middle" fill="#e05c5c" font-weight="700">C</text>
+      <!-- Slot 5,6: empty -->
+      <text x="273" y="105" text-anchor="middle" fill="#475569">E</text>
+      <text x="323" y="105" text-anchor="middle" fill="#475569">E</text>
+      <!-- Slot 7: N3 succeeds -->
+      <rect x="350" y="65" width="46" height="24" rx="2" fill="#f5a623" opacity=".85"/>
+      <text x="373" y="105" text-anchor="middle" fill="#f5a623" font-weight="700">S</text>
+      <!-- Slot 8: N1 succeeds -->
+      <rect x="400" y="5" width="46" height="24" rx="2" fill="#00c9a7" opacity=".85"/>
+      <text x="423" y="105" text-anchor="middle" fill="#00c9a7" font-weight="700">S</text>
+      <!-- Slot labels -->
+      <text x="53" y="120" text-anchor="middle" fill="#94a3b8">1</text>
+      <text x="103" y="120" text-anchor="middle" fill="#94a3b8">2</text>
+      <text x="173" y="120" text-anchor="middle" fill="#94a3b8">3</text>
+      <text x="223" y="120" text-anchor="middle" fill="#94a3b8">4</text>
+      <text x="273" y="120" text-anchor="middle" fill="#94a3b8">5</text>
+      <text x="323" y="120" text-anchor="middle" fill="#94a3b8">6</text>
+      <text x="373" y="120" text-anchor="middle" fill="#94a3b8">7</text>
+      <text x="423" y="120" text-anchor="middle" fill="#94a3b8">8</text>
+      <!-- Legend -->
+      <rect x="30" y="135" width="12" height="10" rx="2" fill="#e05c5c" opacity=".7"/><text x="48" y="144" fill="#94a3b8">Collision</text>
+      <rect x="130" y="135" width="12" height="10" rx="2" fill="#243350"/><text x="148" y="144" fill="#94a3b8">Empty</text>
+      <rect x="220" y="135" width="12" height="10" rx="2" fill="#00c9a7" opacity=".85"/><text x="238" y="144" fill="#94a3b8">Successful</text>
+    </svg>
+  </div>
+
+  <h3>Efficiency Analysis</h3>
+  <p>Probability a given node succeeds in a slot: <code>p(1−p)^(N−1)</code>. Probability any node succeeds: <code>Np(1−p)^(N−1)</code>. Setting derivative to zero: optimal p* = 1/N. As N → ∞:</p>
+
+  <div class="algo-box">max efficiency = lim<sub>N→∞</sub> N · (1/N) · (1 − 1/N)^(N−1) = <span class="num">1/e ≈ 0.37</span></div>
+
+  <p>Only 37% of slots do useful work. 37% are empty. 26% are wasted on collisions.</p>
+
+  <div class="callout callout-alert">
+    <p><strong>Reality check:</strong> A 100 Mbps slotted ALOHA network delivers only ~37 Mbps aggregate throughput. The other 63% is lost to collisions and idle slots.</p>
+  </div>
+</section>
+
+<!-- ═══ S12 ═══ -->
+<section class="section" id="s12">
+  <div class="section-header">
+    <div class="section-num">Section 12</div>
+    <h2 class="section-title">Pure (Unslotted) ALOHA</h2>
+    <p class="section-subtitle">Fully decentralized — transmit immediately, no synchronization needed</p>
+  </div>
+
+  <p>In <strong>pure ALOHA</strong>, when a frame arrives a node immediately transmits — no waiting for a slot boundary. No synchronization needed. But a frame is now vulnerable to collision with transmissions that started <em>before</em> it or <em>during</em> it, creating a vulnerability window of 2 frame times (vs 1 for slotted).</p>
+
+  <p><strong>Maximum efficiency:</strong> 1/(2e) ≈ 0.18 — exactly half of slotted ALOHA. The price of removing synchronization.</p>
+
+  <table class="compare-table">
+    <tr><th>Protocol</th><th>Max Efficiency</th><th>Synchronization?</th><th>Vulnerability Window</th></tr>
+    <tr><td>Slotted ALOHA</td><td>1/e ≈ 37%</td><td>Yes (slot sync required)</td><td>1 slot time</td></tr>
+    <tr><td>Pure ALOHA</td><td>1/(2e) ≈ 18%</td><td>No</td><td>2 frame times</td></tr>
+  </table>
+</section>
+
+<!-- ═══ S13 ═══ -->
+<section class="section" id="s13">
+  <div class="section-header">
+    <div class="section-num">Section 13</div>
+    <h2 class="section-title">CSMA and CSMA/CD</h2>
+    <p class="section-subtitle">Listen before speaking, stop if someone interrupts — the Ethernet way</p>
+  </div>
+
+  <p>ALOHA nodes are like rude partygoers — they talk without listening. CSMA encodes two polite human rules as network protocols:</p>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>Carrier Sense (CS)</h4>
+      <ul>
+        <li>"Listen before speaking"</li>
+        <li>Sense channel before transmitting</li>
+        <li>If another node is transmitting → wait</li>
+        <li>If idle → begin transmission</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>Collision Detection (CD)</h4>
+      <ul>
+        <li>"Stop if someone talks over you"</li>
+        <li>While transmitting, monitor channel</li>
+        <li>If foreign signal detected → abort immediately</li>
+        <li>Wait random time → retry</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <p><strong>Why do collisions still happen with carrier sensing?</strong> Because of <strong>propagation delay</strong>. When node B starts transmitting, its signal takes time to reach node D. In that window D senses the channel as idle and starts transmitting — causing a collision even though both sensed first.</p>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">CSMA/CD space-time diagram — propagation delay causes collision</div>
+    <svg viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="10">
+      <defs>
+        <marker id="ab" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#00c9a7"/></marker>
+        <marker id="ac" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#4a9eff"/></marker>
+      </defs>
+      <text x="80" y="22" text-anchor="middle" fill="#00c9a7" font-size="12" font-weight="700">B</text>
+      <text x="320" y="22" text-anchor="middle" fill="#f5a623" font-size="12" font-weight="700">C</text>
+      <text x="540" y="22" text-anchor="middle" fill="#4a9eff" font-size="12" font-weight="700">D</text>
+      <line x1="80" y1="28" x2="80" y2="215" stroke="#243350" stroke-width="1" stroke-dasharray="5,3"/>
+      <line x1="320" y1="28" x2="320" y2="215" stroke="#243350" stroke-width="1" stroke-dasharray="5,3"/>
+      <line x1="540" y1="28" x2="540" y2="215" stroke="#243350" stroke-width="1" stroke-dasharray="5,3"/>
+      <!-- B starts transmitting at t0 -->
+      <line x1="80" y1="55" x2="540" y2="160" stroke="#00c9a7" stroke-width="2" marker-end="url(#ab)"/>
+      <text x="280" y="88" text-anchor="middle" fill="#00c9a7">B's signal →</text>
+      <!-- D senses idle at t1, transmits -->
+      <line x1="540" y1="110" x2="80" y2="215" stroke="#4a9eff" stroke-width="2" marker-end="url(#ac)"/>
+      <text x="340" y="195" text-anchor="middle" fill="#4a9eff">← D's signal</text>
+      <!-- Collision circle -->
+      <circle cx="310" cy="133" r="20" fill="#e05c5c" opacity=".35" stroke="#e05c5c" stroke-width="2"/>
+      <text x="360" y="130" fill="#e05c5c" font-size="9">Collision!</text>
+      <!-- time labels -->
+      <text x="20" y="58" fill="#94a3b8">t₀</text>
+      <text x="20" y="113" fill="#94a3b8">t₁</text>
+      <!-- abort labels -->
+      <text x="80" y="198" text-anchor="middle" fill="#e05c5c" font-size="9">B detects,</text>
+      <text x="80" y="210" text-anchor="middle" fill="#e05c5c" font-size="9">aborts</text>
+      <text x="540" y="163" text-anchor="middle" fill="#e05c5c" font-size="9">D detects,</text>
+      <text x="540" y="175" text-anchor="middle" fill="#e05c5c" font-size="9">aborts</text>
+    </svg>
+  </div>
+
+  <h3>CSMA/CD Algorithm</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Sense channel — if idle, start transmitting</strong><p>If busy, wait until idle then transmit.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Monitor channel while transmitting</strong><p>Watch for foreign signal energy.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>If no collision → done!</strong><p>Full frame transmitted successfully.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><strong>If collision detected → abort immediately</strong><p>Stop transmitting. Don't waste channel finishing a damaged frame.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><strong>Wait random time (binary exponential backoff) → go to step 1</strong><p>Random wait prevents the colliding nodes from colliding again immediately.</p></div></div>
+  </div>
+
+  <div class="algo-box">Efficiency = 1 / (1 + 5·d_prop / d_trans)
+
+d_prop = max propagation delay between any two adapters
+d_trans = time to transmit a max-size frame
+
+<span class="comment">// As d_prop → 0: efficiency → 1  (instant collision detection)</span>
+<span class="comment">// As d_trans → ∞: efficiency → 1  (once you grab channel, hold it long)</span></div>
+</section>
+
+<!-- ═══ S14 ═══ -->
+<section class="section" id="s14">
+  <div class="section-header">
+    <div class="section-num">Section 14</div>
+    <h2 class="section-title">Binary Exponential Backoff</h2>
+    <p class="section-subtitle">Wait range doubles with each collision — adapts to congestion</p>
+  </div>
+
+  <p>After the <strong>n-th collision</strong>, a node chooses K randomly from {0, 1, 2, …, 2ⁿ − 1} and waits K × 512 bit-times before sensing again. The range doubles with each successive collision — adapting to the number of competing nodes.</p>
+
+  <table class="compare-table">
+    <tr><th>Collision #</th><th>K chosen from</th><th>Max wait (10 Mbps)</th></tr>
+    <tr><td>1st</td><td>{0, 1}</td><td>51.2 μs</td></tr>
+    <tr><td>2nd</td><td>{0, 1, 2, 3}</td><td>153.6 μs</td></tr>
+    <tr><td>3rd</td><td>{0 … 7}</td><td>358.4 μs</td></tr>
+    <tr><td>4th</td><td>{0 … 15}</td><td>~768 μs</td></tr>
+    <tr><td>10th+ (capped)</td><td>{0 … 1023}</td><td>~52 ms</td></tr>
+  </table>
+
+  <div class="callout callout-key">
+    <p><strong>Why exponential growth makes sense:</strong> Repeated collisions mean many nodes are competing. By exponentially increasing the backoff range, the algorithm adapts: few competitors → short backoff (low latency). Many competitors → long backoff (reduces collision probability). Range is capped at n=10 to prevent infinite delays.</p>
+  </div>
+</section>
+
+<!-- ═══ S15 ═══ -->
+<section class="section" id="s15">
+  <div class="section-header">
+    <div class="section-num">Section 15</div>
+    <h2 class="section-title">Taking-Turns Protocols</h2>
+    <p class="section-subtitle">Polling and token-passing — orderly coordination without wasted slots</p>
+  </div>
+
+  <h3>Polling Protocol</h3>
+  <p>A <strong>master node</strong> cycles through all nodes in round-robin, inviting each to transmit up to N frames. No collisions. But: <strong>polling delay</strong> (time to ask inactive nodes) and a <strong>single point of failure</strong> — if the master crashes, the whole network stops. Used in Bluetooth (802.15).</p>
+
+  <h3>Token-Passing Protocol</h3>
+  <p>A small special <strong>token</strong> frame circulates among nodes in a fixed order. When you receive the token, you may transmit up to a maximum number of frames, then pass it on. No token = can't transmit. Fully decentralized — no master node.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Token passing ring — token circulates, authorizing transmission</div>
+    <svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+      <defs><marker id="tok" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#f5a623"/></marker></defs>
+      <circle cx="250" cy="40" r="25" fill="#1a2840" stroke="#00c9a7" stroke-width="2"/>
+      <text x="250" y="45" text-anchor="middle" font-size="12" fill="white" font-weight="700">A</text>
+      <circle cx="400" cy="110" r="25" fill="#1a2840" stroke="#4a9eff" stroke-width="2"/>
+      <text x="400" y="115" text-anchor="middle" font-size="12" fill="white" font-weight="700">B</text>
+      <circle cx="330" cy="165" r="25" fill="#1a2840" stroke="#f5a623" stroke-width="2"/>
+      <text x="330" y="170" text-anchor="middle" font-size="12" fill="white" font-weight="700">C</text>
+      <circle cx="170" cy="165" r="25" fill="#1a2840" stroke="#a78bfa" stroke-width="2"/>
+      <text x="170" y="170" text-anchor="middle" font-size="12" fill="white" font-weight="700">D</text>
+      <circle cx="100" cy="110" r="25" fill="#1a2840" stroke="#e05c5c" stroke-width="2"/>
+      <text x="100" y="115" text-anchor="middle" font-size="12" fill="white" font-weight="700">E</text>
+      <path d="M272 52 Q390 52 385 90" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#tok)"/>
+      <path d="M388 135 Q370 165 355 167" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#tok)"/>
+      <path d="M305 167 Q240 170 195 165" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#tok)"/>
+      <path d="M148 158 Q110 148 112 135" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#tok)"/>
+      <path d="M108 85 Q175 38 225 38" stroke="#f5a623" stroke-width="2" fill="none" marker-end="url(#tok)"/>
+      <circle cx="250" cy="40" r="10" fill="#f5a623" opacity=".9"/>
+      <text x="250" y="44" font-size="7" fill="#0f1929" text-anchor="middle" font-weight="bold">T</text>
+      <text x="250" y="20" text-anchor="middle" fill="#f5a623" font-size="9">holds token</text>
+    </svg>
+  </div>
+
+  <table class="compare-table">
+    <tr><th></th><th>Polling</th><th>Token Passing</th></tr>
+    <tr><td>Collisions?</td><td>None</td><td>None</td></tr>
+    <tr><td>Centralized?</td><td>Yes — master node</td><td>No — fully decentralized</td></tr>
+    <tr><td>Failure mode</td><td>Master crash kills network</td><td>Token loss kills network</td></tr>
+    <tr><td>Used in</td><td>Bluetooth 802.15</td><td>FDDI, IEEE 802.5 Token Ring</td></tr>
+  </table>
+</section>
+
+<!-- ═══ S16 ═══ -->
+<section class="section" id="s16">
+  <div class="section-header">
+    <div class="section-num">Section 16</div>
+    <h2 class="section-title">DOCSIS: A Multiple Access Case Study</h2>
+    <p class="section-subtitle">Cable internet combines FDM, TDM, random access, and centralized allocation in one network</p>
+  </div>
+
+  <p>Cable internet (DOCSIS standard) is a real-world example combining all three multiple access approaches. Many cable modems share the cable back to a central <strong>Cable Modem Termination System (CMTS)</strong>.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>FDM: downstream and upstream on separate frequency channels</strong><p>Some frequencies carry traffic from CMTS to homes (downstream); others carry traffic from homes to CMTS (upstream).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Downstream (CMTS → modems): no multiple access problem</strong><p>Only the CMTS transmits downstream. Modems just receive (~40 Mbps per 6 MHz channel).</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Upstream: TDM mini-slots assigned by CMTS via MAP messages</strong><p>The CMTS sends MAP messages specifying which modems can transmit in which mini-slots — like a centralized TDM schedule.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><strong>Requesting a slot: random access</strong><p>To request a mini-slot, a modem transmits during designated "request slots" using random access (with binary exponential backoff on collision).</p></div></div>
+  </div>
+
+  <div class="callout callout-key">
+    <p><strong>DOCSIS hybrid:</strong> FDM (separate frequency channels) + TDM (upstream mini-slots) + Random Access (slot requests) + Centralized Allocation (CMTS grants specific slots). Collision-free data transmission, random access only for lightweight control messages.</p>
+  </div>
+</section>
+
+<!-- ═══ S17 ═══ -->
+<section class="section" id="s17">
+  <div class="section-header">
+    <div class="section-num">Section 17</div>
+    <h2 class="section-title">MAC Addresses</h2>
+    <p class="section-subtitle">The permanent hardware identity of your network adapter</p>
+  </div>
+
+  <p>At the network layer, devices are identified by IP addresses. But at the link layer we need a different kind of address — one that stays fixed regardless of where you move and doesn't depend on any particular network-layer protocol. Enter the <strong>MAC address</strong>.</p>
+
+  <p>A MAC address is a <strong>6-byte (48-bit)</strong> address assigned to a NIC. Written in hex: <code>5C-66-AB-90-75-B1</code>. IEEE manages allocations — each manufacturer buys a 24-bit prefix and assigns the remaining 24 bits.</p>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>MAC Address</h4>
+      <ul>
+        <li>48 bits → 2⁴⁸ ≈ 281 trillion addresses</li>
+        <li><strong>Flat structure</strong> — no hierarchy</li>
+        <li>Burned into NIC hardware permanently</li>
+        <li>Never changes, regardless of location</li>
+        <li>Analogy: Social Security Number</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>IP Address</h4>
+      <ul>
+        <li>32 bits (IPv4) or 128 bits (IPv6)</li>
+        <li><strong>Hierarchical</strong>: network part + host part</li>
+        <li>Assigned by DHCP or administrator</li>
+        <li>Changes when you move to a new network</li>
+        <li>Analogy: Postal address</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-key">
+    <p><strong>Why do we need both?</strong> LANs are designed to support <em>any</em> network-layer protocol (not just IP). If adapters used IP addresses, they'd be tied to IP and couldn't support other protocols. MAC addresses are "protocol-neutral," letting layers evolve independently.</p>
+  </div>
+
+  <p>The <strong>broadcast MAC address</strong> is <code>FF-FF-FF-FF-FF-FF</code> (all 48 bits = 1). Every adapter on the LAN accepts frames with this destination.</p>
+
+  <div class="callout callout-warn">
+    <p><strong>Switches vs. NICs:</strong> Link-layer switches do NOT have MAC addresses on their interfaces — they are transparent relay devices. Routers DO have MAC addresses on each interface (a router is an endpoint of each link, not a transparent relay).</p>
+  </div>
+</section>
+
+<!-- ═══ S18 ═══ -->
+<section class="section" id="s18">
+  <div class="section-header">
+    <div class="section-num">Section 18</div>
+    <h2 class="section-title">Address Resolution Protocol (ARP)</h2>
+    <p class="section-subtitle">Translating IP addresses to MAC addresses — DNS for the link layer</p>
+  </div>
+
+  <p>You know the destination's IP (from DNS). But to build a link-layer frame you need its MAC address. That's ARP's job. ARP resolves IPs to MACs — but only <em>within the same subnet</em>.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">ARP query (broadcast) → ARP reply (unicast)</div>
+    <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="10">
+      <defs>
+        <marker id="ad" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#f5a623"/></marker>
+        <marker id="ae" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,7 3,0 6" fill="#00c9a7"/></marker>
+      </defs>
+      <rect x="40" y="15" width="120" height="40" rx="6" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+      <text x="100" y="32" text-anchor="middle" fill="#e2e8f0">Host A</text>
+      <text x="100" y="47" text-anchor="middle" fill="#94a3b8" font-size="9">222.222.222.220</text>
+      <rect x="280" y="15" width="120" height="40" rx="6" fill="#1a2840" stroke="#4a9eff" stroke-width="1.5"/>
+      <text x="340" y="32" text-anchor="middle" fill="#e2e8f0">Host B</text>
+      <text x="340" y="47" text-anchor="middle" fill="#94a3b8" font-size="9">222.222.222.221</text>
+      <rect x="510" y="15" width="120" height="40" rx="6" fill="#1a2840" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="570" y="32" text-anchor="middle" fill="#e2e8f0">Host C (target)</text>
+      <text x="570" y="47" text-anchor="middle" fill="#94a3b8" font-size="9">222.222.222.222</text>
+      <line x1="100" y1="55" x2="100" y2="220" stroke="#243350" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="340" y1="55" x2="340" y2="220" stroke="#243350" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="570" y1="55" x2="570" y2="220" stroke="#243350" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- ARP query broadcast -->
+      <line x1="100" y1="90" x2="570" y2="115" stroke="#f5a623" stroke-width="2" marker-end="url(#ad)"/>
+      <line x1="100" y1="90" x2="340" y2="102" stroke="#f5a623" stroke-width="1.5"/>
+      <rect x="150" y="70" width="230" height="30" rx="4" fill="#1a2840" stroke="#f5a623"/>
+      <text x="265" y="83" text-anchor="middle" fill="#f5a623" font-weight="700">ARP QUERY (BROADCAST)</text>
+      <text x="265" y="96" text-anchor="middle" fill="#94a3b8" font-size="8">dst FF:FF:FF:FF:FF:FF  "Who has 222.222.222.222?"</text>
+      <!-- B ignores, C responds -->
+      <text x="340" y="130" text-anchor="middle" fill="#475569">ignores</text>
+      <text x="570" y="130" text-anchor="middle" fill="#475569">matches!</text>
+      <!-- ARP reply unicast -->
+      <line x1="570" y1="160" x2="100" y2="188" stroke="#00c9a7" stroke-width="2" marker-end="url(#ae)"/>
+      <rect x="260" y="143" width="220" height="30" rx="4" fill="#1a2840" stroke="#00c9a7"/>
+      <text x="370" y="156" text-anchor="middle" fill="#00c9a7" font-weight="700">ARP REPLY (UNICAST)</text>
+      <text x="370" y="169" text-anchor="middle" fill="#94a3b8" font-size="8">"I have .222, my MAC is 49:BD:..."</text>
+      <text x="100" y="210" text-anchor="middle" fill="#94a3b8" font-size="9">A caches in ARP table,</text>
+      <text x="100" y="222" text-anchor="middle" fill="#94a3b8" font-size="9">now can send to C</text>
+    </svg>
+  </div>
+
+  <p>Each node maintains an <strong>ARP table</strong> mapping IP → MAC with a TTL (typically ~20 minutes). Stale entries expire automatically.</p>
+
+  <h3>Sending Across Subnets</h3>
+  <p>When the destination is on a <em>different</em> subnet, you cannot ARP for it directly. Instead: ARP for the <strong>first-hop router's MAC</strong>, send the frame to the router (using router's MAC), with the IP datagram's destination still set to the final host. The router strips the frame, ARPs on the next subnet, and builds a new frame.</p>
+
+  <div class="callout callout-note">
+    <p><strong>Is ARP link-layer or network-layer?</strong> Architecturally ambiguous — encapsulated in link-layer frames but contains IP addresses. The textbook calls it "a protocol that straddles the boundary." In practice ARP is integral to IP networking on Ethernet.</p>
+  </div>
+</section>
+
+<!-- ═══ S19 ═══ -->
+<section class="section" id="s19">
+  <div class="section-header">
+    <div class="section-num">Section 19</div>
+    <h2 class="section-title">Ethernet Frame Structure</h2>
+    <p class="section-subtitle">The anatomy of the most ubiquitous frame format in networking history</p>
+  </div>
+
+  <p>Every Ethernet transmission uses the same frame format — essentially unchanged for 30+ years despite 1000x speed increases.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Ethernet frame — field-by-field breakdown</div>
+    <svg viewBox="0 0 720 100" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="9">
+      <rect x="10" y="18" width="80" height="50" fill="#1a2840" stroke="#a78bfa" stroke-width="2"/>
+      <text x="50" y="40" text-anchor="middle" fill="#a78bfa" font-family="monospace">Preamble</text>
+      <text x="50" y="55" text-anchor="middle" fill="#94a3b8">8 bytes</text>
+      <text x="50" y="80" text-anchor="middle" fill="#475569">10101010 × 7 + 10101011</text>
+      <rect x="91" y="18" width="90" height="50" fill="#1a2840" stroke="#e05c5c" stroke-width="2"/>
+      <text x="136" y="40" text-anchor="middle" fill="#e05c5c" font-family="monospace">Dest Addr</text>
+      <text x="136" y="55" text-anchor="middle" fill="#94a3b8">6 bytes</text>
+      <text x="136" y="80" text-anchor="middle" fill="#475569">MAC address</text>
+      <rect x="182" y="18" width="90" height="50" fill="#1a2840" stroke="#4a9eff" stroke-width="2"/>
+      <text x="227" y="40" text-anchor="middle" fill="#4a9eff" font-family="monospace">Src Addr</text>
+      <text x="227" y="55" text-anchor="middle" fill="#94a3b8">6 bytes</text>
+      <text x="227" y="80" text-anchor="middle" fill="#475569">MAC address</text>
+      <rect x="273" y="18" width="65" height="50" fill="#1a2840" stroke="#f5a623" stroke-width="2"/>
+      <text x="305" y="40" text-anchor="middle" fill="#f5a623" font-family="monospace">Type</text>
+      <text x="305" y="55" text-anchor="middle" fill="#94a3b8">2 bytes</text>
+      <text x="305" y="80" text-anchor="middle" fill="#475569">0x0800=IP</text>
+      <rect x="339" y="18" width="290" height="50" fill="#0f1929" stroke="#00c9a7" stroke-width="2"/>
+      <text x="484" y="40" text-anchor="middle" fill="#00c9a7" font-family="monospace">Data (payload)</text>
+      <text x="484" y="55" text-anchor="middle" fill="#94a3b8">46–1500 bytes</text>
+      <text x="484" y="80" text-anchor="middle" fill="#475569">IP datagram — padded if &lt; 46 bytes</text>
+      <rect x="630" y="18" width="75" height="50" fill="#1a2840" stroke="#e05c5c" stroke-width="2"/>
+      <text x="667" y="40" text-anchor="middle" fill="#e05c5c" font-family="monospace">CRC</text>
+      <text x="667" y="55" text-anchor="middle" fill="#94a3b8">4 bytes</text>
+      <text x="667" y="80" text-anchor="middle" fill="#475569">CRC-32</text>
+      <line x1="10" y1="12" x2="705" y2="12" stroke="#243350" stroke-width="1"/>
+      <text x="357" y="10" text-anchor="middle" fill="#475569" font-size="8">Transmission direction →</text>
+    </svg>
+  </div>
+
+  <div class="packet-fields">
+    <div class="pf-row"><span class="pf-name">Preamble</span><span class="pf-bits">8 B</span><span class="pf-desc">First 7 bytes = 10101010 (wake up adapters, synchronize clock). Last byte = 10101011 (the two consecutive 1s signal "data coming now").</span></div>
+    <div class="pf-row"><span class="pf-name">Destination Address</span><span class="pf-bits">6 B</span><span class="pf-desc">MAC of intended receiver. If matches adapter's MAC or FF:FF:FF:FF:FF:FF, adapter accepts the frame. Otherwise discards.</span></div>
+    <div class="pf-row"><span class="pf-name">Source Address</span><span class="pf-bits">6 B</span><span class="pf-desc">MAC of sending adapter. Used by switches to learn where senders are located.</span></div>
+    <div class="pf-row"><span class="pf-name">Type</span><span class="pf-bits">2 B</span><span class="pf-desc">Demultiplexes to upper-layer protocol: 0x0800 = IPv4, 0x86DD = IPv6, 0x0806 = ARP. Tells the adapter which protocol to pass the data to.</span></div>
+    <div class="pf-row"><span class="pf-name">Data</span><span class="pf-bits">46–1500 B</span><span class="pf-desc">Payload (usually IP datagram). MTU = 1500 bytes. Minimum 46 bytes — if datagram &lt; 46 bytes, padding is added.</span></div>
+    <div class="pf-row"><span class="pf-name">CRC</span><span class="pf-bits">4 B</span><span class="pf-desc">CRC-32 error detection. If check fails, frame is silently dropped. No ACK — Ethernet is connectionless and unreliable.</span></div>
+  </div>
+
+  <div class="callout callout-warn">
+    <p><strong>Ethernet is connectionless and unreliable.</strong> Frames are sent without handshaking and dropped silently on CRC failure. TCP above notices missing segments and retransmits. Ethernet's deliberate simplicity is a key reason for its low cost and dominance.</p>
+  </div>
+</section>
+
+<!-- ═══ S20 ═══ -->
+<section class="section" id="s20">
+  <div class="section-header">
+    <div class="section-num">Section 20</div>
+    <h2 class="section-title">Ethernet Technologies &amp; Evolution</h2>
+    <p class="section-subtitle">From coaxial bus to 10 Gbps switched star — 30 years of dominance</p>
+  </div>
+
+  <p>Ethernet was invented by Bob Metcalfe and David Boggs at Xerox PARC in the mid-1970s. Speeds have increased 1000x, the physical medium has changed, and topology has shifted — but the frame format has barely changed.</p>
+
+  <h3>Decoding Ethernet Names: Speed + BASE + Medium</h3>
+
+  <table class="compare-table">
+    <tr><th>Standard</th><th>Speed</th><th>Medium</th><th>Max Distance</th><th>Notes</th></tr>
+    <tr><td>10BASE-T</td><td>10 Mbps</td><td>Twisted-pair copper</td><td>100m</td><td>Hub-based star topology</td></tr>
+    <tr><td>100BASE-T</td><td>100 Mbps</td><td>Twisted-pair copper</td><td>100m</td><td>Fast Ethernet</td></tr>
+    <tr><td>1000BASE-T</td><td>1 Gbps</td><td>Cat 5 twisted-pair</td><td>100m</td><td>Gigabit Ethernet</td></tr>
+    <tr><td>10GBASE-T</td><td>10 Gbps</td><td>Cat 6a twisted-pair</td><td>100m</td><td>10 Gigabit (2007)</td></tr>
+  </table>
+
+  <h3>Topological Evolution</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>1970s–early 1990s: Bus (coaxial cable)</strong><p>All nodes share one coaxial cable. True broadcast — CSMA/CD required. Cable break kills the whole network.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Late 1990s: Hub-based star</strong><p>Hosts connect to a central hub with twisted-pair. Hub is a physical-layer repeater — broadcasts every bit to all ports. Still a broadcast medium, CSMA/CD still needed.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>2000s–present: Switch-based star</strong><p>Hubs replaced by switches. Smart store-and-forward at Layer 2. No collisions. Full-duplex. CSMA/CD no longer needed. This is modern Ethernet.</p></div></div>
+  </div>
+</section>
+
+<!-- ═══ S21 ═══ -->
+<section class="section" id="s21">
+  <div class="section-header">
+    <div class="section-num">Section 21</div>
+    <h2 class="section-title">Link-Layer Switches</h2>
+    <p class="section-subtitle">Self-learning, collision-free, plug-and-play — the workhorse of modern LANs</p>
+  </div>
+
+  <p>A switch receives frames, buffers them, and forwards them out only the specific interface leading toward the destination. It is <strong>transparent</strong>: hosts address frames to each other, unaware a switch is in between.</p>
+
+  <h3>Filtering and Forwarding</h3>
+  <table class="compare-table">
+    <tr><th>Scenario</th><th>Switch Action</th><th>Why</th></tr>
+    <tr><td>Destination MAC not in table</td><td><strong>Flood</strong> — send out all interfaces except incoming</td><td>Switch doesn't know where destination is</td></tr>
+    <tr><td>Destination on same interface as arrival</td><td><strong>Filter</strong> — discard the frame</td><td>Destination is already on that LAN segment</td></tr>
+    <tr><td>Destination on different interface Y</td><td><strong>Forward</strong> — send out interface Y only</td><td>Switch knows exactly which interface leads there</td></tr>
+  </table>
+
+  <h3>Self-Learning</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Start empty</strong><p>Switch table is empty at boot. All frames are flooded.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Learn from incoming frames</strong><p>Every frame teaches: "source MAC X came from interface Y." Record (MAC, interface, timestamp).</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Age out stale entries</strong><p>If no frame from MAC X for the aging time (e.g., 60 min), delete entry. Handles devices that leave the network.</p></div></div>
+  </div>
+
+  <h3>Switches vs. Routers</h3>
+  <table class="compare-table">
+    <tr><th>Property</th><th>Switch (Layer 2)</th><th>Router (Layer 3)</th></tr>
+    <tr><td>Plug-and-play?</td><td>✅ Yes — self-configuring</td><td>❌ No — needs IP config</td></tr>
+    <tr><td>Processing speed</td><td>Faster — only through Layer 2</td><td>Slower — through Layer 3</td></tr>
+    <tr><td>Broadcast storms</td><td>❌ Vulnerable</td><td>✅ Blocked at router</td></tr>
+    <tr><td>Topology required</td><td>Spanning tree (no loops)</td><td>Any topology</td></tr>
+    <tr><td>Best for</td><td>Small/medium LANs</td><td>Large networks, Internet</td></tr>
+  </table>
+
+  <div class="callout callout-alert">
+    <p><strong>Switch poisoning attack:</strong> An attacker floods the switch with frames having many fake source MACs. When the table fills, the switch reverts to flooding all frames — effectively becoming a hub that a sniffer can capture. Mitigated by port security features that limit MAC addresses per port.</p>
+  </div>
+</section>
+
+<!-- ═══ S22 ═══ -->
+<section class="section" id="s22">
+  <div class="section-header">
+    <div class="section-num">Section 22</div>
+    <h2 class="section-title">Virtual LANs (VLANs)</h2>
+    <p class="section-subtitle">Multiple logical networks on one physical switch — isolation without rewiring</p>
+  </div>
+
+  <p>Two departments (EE and CS) share the same physical switches but don't want to see each other's broadcast traffic. VLANs solve this: the administrator assigns groups of ports to separate logical networks. Traffic from EE ports can never reach CS ports.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Single switch with two VLANs — logical traffic isolation</div>
+    <svg viewBox="0 0 680 185" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif" font-size="10">
+      <rect x="200" y="60" width="140" height="70" rx="7" fill="#0a2318" stroke="#00c9a7" stroke-width="2"/>
+      <text x="270" y="88" text-anchor="middle" fill="#00c9a7" font-weight="700" font-size="11">EE VLAN</text>
+      <text x="270" y="104" text-anchor="middle" fill="#94a3b8">Ports 2–8</text>
+      <rect x="350" y="60" width="140" height="70" rx="7" fill="#0a1525" stroke="#4a9eff" stroke-width="2"/>
+      <text x="420" y="88" text-anchor="middle" fill="#4a9eff" font-weight="700" font-size="11">CS VLAN</text>
+      <text x="420" y="104" text-anchor="middle" fill="#94a3b8">Ports 9–15</text>
+      <rect x="30" y="70" width="100" height="45" rx="6" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+      <text x="80" y="98" text-anchor="middle" fill="#e2e8f0">EE Host A</text>
+      <line x1="130" y1="93" x2="200" y2="93" stroke="#00c9a7" stroke-width="1.5"/>
+      <rect x="30" y="130" width="100" height="40" rx="6" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+      <text x="80" y="155" text-anchor="middle" fill="#e2e8f0">EE Host B</text>
+      <line x1="130" y1="150" x2="200" y2="118" stroke="#00c9a7" stroke-width="1.5"/>
+      <rect x="560" y="70" width="100" height="45" rx="6" fill="#1a2840" stroke="#4a9eff" stroke-width="1.5"/>
+      <text x="610" y="98" text-anchor="middle" fill="#e2e8f0">CS Host A</text>
+      <line x1="490" y1="93" x2="560" y2="93" stroke="#4a9eff" stroke-width="1.5"/>
+      <rect x="560" y="130" width="100" height="40" rx="6" fill="#1a2840" stroke="#4a9eff" stroke-width="1.5"/>
+      <text x="610" y="155" text-anchor="middle" fill="#e2e8f0">CS Host B</text>
+      <line x1="490" y1="118" x2="560" y2="150" stroke="#4a9eff" stroke-width="1.5"/>
+      <line x1="345" y1="55" x2="345" y2="140" stroke="#e05c5c" stroke-width="2" stroke-dasharray="5,3"/>
+      <text x="345" y="162" text-anchor="middle" fill="#e05c5c" font-size="9">⛔ Isolated</text>
+    </svg>
+  </div>
+
+  <h3>VLAN Trunking and 802.1Q</h3>
+  <p>When multiple VLAN-enabled switches connect, a <strong>trunk port</strong> carries frames from all VLANs across a single inter-switch link. The <strong>802.1Q</strong> standard inserts a 4-byte VLAN tag into the Ethernet frame to identify which VLAN the frame belongs to.</p>
+
+  <p>The VLAN tag contains: TPID (2 bytes, value 0x81-00) + Priority (3 bits) + <strong>VLAN Identifier (12 bits</strong>, supporting up to 4,096 VLANs).</p>
+
+  <div class="callout callout-key">
+    <p><strong>VLANs solve three problems:</strong> (1) Traffic isolation — broadcasts stay within VLAN. (2) Efficient switch use — one 96-port switch can serve 10 VLANs. (3) User mobility — moving a user from EE to CS requires only a software reconfiguration, no physical rewiring.</p>
+  </div>
+</section>
+
+<!-- ═══ S23 ═══ -->
+<section class="section" id="s23">
+  <div class="section-header">
+    <div class="section-num">Section 23</div>
+    <h2 class="section-title">MPLS — Multiprotocol Label Switching</h2>
+    <p class="section-subtitle">Fixed-length labels for faster forwarding and traffic engineering</p>
+  </div>
+
+  <p>MPLS blurs the line between link and network layers. Instead of performing a longest-prefix-match lookup on a 32-bit IP address at every hop, MPLS assigns a short <strong>label</strong> to each flow and forwards based on the label — much faster. Label-switched routers add a small MPLS header <em>between</em> the Layer-2 and Layer-3 headers.</p>
+
+  <div class="packet-fields">
+    <div class="pf-row"><span class="pf-name">Label</span><span class="pf-bits">20 bits</span><span class="pf-desc">Virtual-circuit-like identifier — replaces IP longest-prefix-match lookup. Up to ~1M labels.</span></div>
+    <div class="pf-row"><span class="pf-name">Exp (traffic class)</span><span class="pf-bits">3 bits</span><span class="pf-desc">QoS/priority marking.</span></div>
+    <div class="pf-row"><span class="pf-name">S (Stack bit)</span><span class="pf-bits">1 bit</span><span class="pf-desc">End of label stack indicator — MPLS supports stacked labels for advanced features.</span></div>
+    <div class="pf-row"><span class="pf-name">TTL</span><span class="pf-bits">8 bits</span><span class="pf-desc">Time-to-live — prevents loops.</span></div>
+  </div>
+
+  <p>Label-switched routers don't look at the IP destination address. They look at the incoming label, consult a simple table (label → outgoing interface + new label), swap the label, and forward. Dramatically faster than IP lookup.</p>
+
+  <div class="callout callout-key">
+    <p><strong>MPLS traffic engineering:</strong> MPLS allows paths that IP routing alone could not create. Operators can split traffic across multiple paths (load balancing), send premium traffic on faster paths, or quickly reroute around failures using precomputed backup paths. IP always picks just one "least-cost" path. Additional uses: VPNs (isolating customer traffic within an ISP), QoS differentiation, fast failover.</p>
+  </div>
+</section>
+
+<!-- ═══ S24 ═══ -->
+<section class="section" id="s24">
+  <div class="section-header">
+    <div class="section-num">Section 24</div>
+    <h2 class="section-title">Data Center Networking</h2>
+    <p class="section-subtitle">Tens of thousands of servers, hierarchical switches, and the bandwidth bottleneck</p>
+  </div>
+
+  <p>Modern cloud services (Google, Amazon, Facebook) are powered by massive data centers. Networking these servers efficiently — while controlling cost — is one of the most important networking challenges today.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Servers ("blades") stacked in racks</strong><p>Each rack holds 20–40 servers. A Top-of-Rack (TOR) switch sits at the top. Each server connects to its TOR at 1 Gbps.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>TOR switches connect to tier-2, then tier-1 switches</strong><p>Traffic flows up the hierarchy to access routers and border routers connecting to the Internet.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Load balancer at the entry</strong><p>External traffic enters via a border router, hits a load balancer, which distributes requests across servers and provides NAT.</p></div></div>
+  </div>
+
+  <div class="callout callout-warn">
+    <p><strong>The bandwidth bottleneck:</strong> The traditional hierarchical topology limits inter-rack bandwidth. Many data center applications (MapReduce, distributed training) need high bandwidth between arbitrary server pairs — they can't be confined to one rack. The solution: fully-interconnected topologies where each tier-1 switch connects to ALL tier-2 switches, providing multiple disjoint paths and multiplying aggregate bandwidth.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="col-box">
+      <h4>Traditional Hierarchical</h4>
+      <ul>
+        <li>Scalable to 100K+ servers</li>
+        <li>Simple and well-understood</li>
+        <li>Bottleneck at core links</li>
+        <li>Expensive top-tier switches</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h4>Fully-Connected</h4>
+      <ul>
+        <li>High aggregate bandwidth (multiple paths)</li>
+        <li>Any server can talk to any other at full rate</li>
+        <li>Uses cheaper commodity switches</li>
+        <li>More complex routing</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ S25 ═══ -->
+<section class="section" id="s25">
+  <div class="section-header">
+    <div class="section-num">Section 25</div>
+    <h2 class="section-title">A Day in the Life of a Web Page Request</h2>
+    <p class="section-subtitle">Every protocol from DHCP to HTTP — an integrated end-to-end journey</p>
+  </div>
+
+  <p>Let's watch every protocol fire as a student (Bob) boots his laptop and loads www.google.com. This integrates everything from Chapters 1 through 5.</p>
+
+  <h3>Phase 1: Getting an IP Address (DHCP)</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Bob's laptop sends DHCP Discover (broadcast)</strong><p>UDP (port 67) → IP (src 0.0.0.0, dst 255.255.255.255) → Ethernet (dst MAC FF:FF:FF:FF:FF:FF). Nobody knows the DHCP server's MAC yet.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Switch floods to all ports (including router/DHCP server)</strong><p>Switch has no entry for Bob yet → broadcasts. This is also how it learns Bob's MAC.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Router (DHCP server) responds: DHCP ACK</strong><p>Assigns: Bob's IP (68.85.2.101), DNS server (68.87.71.226), default gateway (68.85.2.1), subnet mask.</p></div></div>
+  </div>
+
+  <h3>Phase 2: Translating the URL (DNS + ARP)</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">4</div><div class="step-content"><strong>ARP query for the gateway router's MAC</strong><p>Bob only has the gateway's IP. Broadcasts ARP query → router replies with its MAC. Bob caches it.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><strong>DNS query for www.google.com</strong><p>DNS query → UDP → IP (dst: DNS server) → Ethernet (dst MAC: gateway router's MAC) → router forwards via BGP/OSPF routing.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-content"><strong>DNS responds with Google's IP: 64.233.169.105</strong><p>Response travels back through the network to Bob.</p></div></div>
+  </div>
+
+  <h3>Phase 3: TCP and HTTP</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">7</div><div class="step-content"><strong>TCP three-way handshake with Google</strong><p>SYN → SYN-ACK → ACK. Connection established on port 80.</p></div></div>
+    <div class="step"><div class="step-num">8</div><div class="step-content"><strong>HTTP GET → Google's web server</strong><p>Browser sends HTTP GET → TCP segment → IP datagram → Ethernet frame → all the way to Google.</p></div></div>
+    <div class="step"><div class="step-num">9</div><div class="step-content"><strong>HTTP response → page displayed</strong><p>Google sends HTML → TCP → IP → Ethernet → back to Bob. Browser renders the page. Done!</p></div></div>
+  </div>
+
+  <div class="callout callout-key">
+    <p><strong>The big picture:</strong> Loading one web page used: DHCP (get IP) → ARP (get gateway MAC) → DNS (translate hostname) → TCP (reliable connection) → HTTP (actual page). Every layer participated. Every frame traversed 6+ links, each with its own link-layer protocol, while carrying the same IP datagram throughout. This is the layered architecture in action.</p>
+  </div>
+
+  <h3>Chapter Summary</h3>
+  <table class="compare-table">
+    <tr><th>Topic</th><th>Key Concepts</th></tr>
+    <tr><td>Link Layer Basics</td><td>Nodes, links, frames; services: framing, MAC, reliable delivery, error detection; NIC as hardware-software split</td></tr>
+    <tr><td>Error Detection</td><td>Parity (1D detect; 2D detect+correct); Internet checksum; CRC-32 (polynomial division, Ethernet)</td></tr>
+    <tr><td>Multiple Access</td><td>Channel partitioning (TDM/FDM/CDMA); Random access (slotted ALOHA 37%, pure ALOHA 18%, CSMA/CD); Taking-turns (polling, token ring); DOCSIS hybrid</td></tr>
+    <tr><td>Addressing</td><td>MAC: 48-bit flat, permanent, IEEE-managed; ARP: IP→MAC, broadcast query, unicast reply, TTL-aged table</td></tr>
+    <tr><td>Ethernet</td><td>Frame: preamble/dst/src/type/data/CRC; connectionless+unreliable; bus→hub→switch evolution</td></tr>
+    <tr><td>Switches</td><td>Self-learning switch table; filter/forward/flood; plug-and-play; vs. routers tradeoffs</td></tr>
+    <tr><td>VLANs</td><td>Port-based isolation; trunk ports; 802.1Q 4-byte tag (12-bit VLAN ID, 4,096 VLANs)</td></tr>
+    <tr><td>MPLS</td><td>Label-switched forwarding; traffic engineering; VPNs; fast failover</td></tr>
+    <tr><td>Data Centers</td><td>TOR switches, hierarchical tiers, load balancers; bandwidth bottleneck; fully-connected topology trend</td></tr>
+  </table>
+</section>
+
+</main>
+
+<script>
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      links.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+sections.forEach(s => observer.observe(s));
+
+links.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

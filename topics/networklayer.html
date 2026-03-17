@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Layer — Kurose & Ross Ch. 4</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--bg2:#f5f5f3;--bg3:#eeede8;--bgi:#e6f1fb;
+  --tx:#1a1a18;--tx2:#5f5e5a;--tx3:#888780;--txi:#185fa5;
+  --bd:rgba(0,0,0,0.12);--bd2:rgba(0,0,0,0.22);--bdi:#85b7eb;
+  --teal:#1D9E75;--teal-bg:#E1F5EE;--teal-tx:#0F6E56;--teal-bd:#5DCAA5;
+  --r:8px;--rl:12px;--mono:'SFMono-Regular',Consolas,monospace;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#1e1e1c;--bg2:#2a2a28;--bg3:#333330;--bgi:#0c2e4a;
+    --tx:#f0ede8;--tx2:#b4b2a9;--tx3:#888780;--txi:#85b7eb;
+    --bd:rgba(255,255,255,0.1);--bd2:rgba(255,255,255,0.2);--bdi:#378add;
+    --teal-bg:#073d28;--teal-tx:#5DCAA5;--teal-bd:#1D9E75}
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--tx);min-height:100vh;padding:2rem 1rem}
+.app{max-width:760px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px}
+.title{font-size:18px;font-weight:500}.sub{font-size:12px;color:var(--tx3);margin-top:2px}
+.mode-btns{display:flex;gap:6px}
+.mode-btn{font-size:12px;padding:5px 14px;border:0.5px solid var(--bd2);border-radius:var(--r);cursor:pointer;background:transparent;color:var(--tx2);transition:all .15s}
+.mode-btn.active{background:var(--bgi);color:var(--txi);border-color:var(--bdi)}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.cat-btn{font-size:11px;padding:4px 10px;border:0.5px solid var(--bd);border-radius:20px;cursor:pointer;background:transparent;color:var(--tx2);transition:all .15s;white-space:nowrap}
+.cat-btn.active{background:var(--teal-bg);color:var(--teal-tx);border-color:var(--teal-bd)}
+.progress-bar{height:3px;background:var(--bd);border-radius:2px;margin-bottom:1.25rem}
+.progress-fill{height:100%;background:var(--teal);border-radius:2px;transition:width .3s}
+.card-area{perspective:1200px;margin-bottom:1.25rem}
+.card{width:100%;min-height:220px;position:relative;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.4,0,.2,1);cursor:pointer}
+.card.flipped{transform:rotateY(180deg)}
+.card-face{position:absolute;width:100%;min-height:220px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:0.5px solid var(--bd);border-radius:var(--rl);padding:1.5rem;display:flex;flex-direction:column;background:var(--bg)}
+.card-back{transform:rotateY(180deg)}
+.card-label{font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase;margin-bottom:.75rem}
+.card-content{flex:1;display:flex;align-items:center;justify-content:center;text-align:center}
+.card-q{font-size:17px;font-weight:500;line-height:1.55}
+.card-a{font-size:14px;line-height:1.75;color:var(--tx);width:100%}
+.card-a code{font-family:var(--mono);font-size:12px;background:var(--bg2);padding:2px 5px;border-radius:4px;border:0.5px solid var(--bd)}
+.card-a pre{font-family:var(--mono);font-size:11px;background:var(--bg2);padding:8px 10px;border-radius:6px;border:0.5px solid var(--bd);text-align:left;overflow-x:auto;margin:6px 0;white-space:pre-wrap;word-break:break-all}
+.card-a ul,.card-a ol{text-align:left;padding-left:1.2rem}
+.card-a ul li,.card-a ol li{margin-bottom:4px}
+.card-a table{width:100%;font-size:12px;border-collapse:collapse;margin:6px 0}
+.card-a table th{background:var(--bg2);padding:5px 8px;text-align:left;font-weight:500;border:0.5px solid var(--bd)}
+.card-a table td{padding:5px 8px;border:0.5px solid var(--bd)}
+.card-hint{font-size:12px;color:var(--tx3);margin-top:1rem;align-self:center}
+.card-cat-badge{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--teal-bg);color:var(--teal-tx);align-self:flex-start;margin-bottom:.5rem}
+.card-cat-badge.interview{background:#FAEEDA;color:#854F0B}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav-btn{padding:8px 22px;border:0.5px solid var(--bd2);border-radius:var(--r);cursor:pointer;background:transparent;color:var(--tx);font-size:14px;transition:all .15s}
+.nav-btn:hover{background:var(--bg2)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.counter{font-size:13px;color:var(--tx2)}
+.shuffle-btn{font-size:12px;padding:6px 12px;border:0.5px solid var(--bd);border-radius:var(--r);cursor:pointer;background:transparent;color:var(--tx2)}
+.shuffle-btn:hover{background:var(--bg2)}
+#notes-mode{display:none}
+.notes-section{margin-bottom:1.75rem}
+.notes-section h3{font-size:14px;font-weight:500;color:var(--teal-tx);margin-bottom:.75rem;padding-bottom:6px;border-bottom:0.5px solid var(--bd)}
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.note-card{background:var(--bg2);border-radius:var(--r);padding:10px 12px;font-size:13px}
+.note-card .label{font-size:11px;color:var(--tx3);margin-bottom:4px}
+.note-card .val{font-weight:500;line-height:1.5}
+table.cheat{width:100%;font-size:13px;border-collapse:collapse;background:var(--bg);border-radius:var(--r);overflow:hidden}
+table.cheat th{text-align:left;font-weight:500;font-size:11px;color:var(--tx3);padding:8px 10px;border-bottom:0.5px solid var(--bd);background:var(--bg2)}
+table.cheat td{padding:8px 10px;border-bottom:0.5px solid var(--bd);vertical-align:top;font-size:13px}
+table.cheat tr:last-child td{border-bottom:none}
+table.cheat td code{font-family:var(--mono);font-size:11px;background:var(--bg2);padding:1px 4px;border-radius:3px}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:20px;background:var(--teal-bg);color:var(--teal-tx);margin-right:4px}
+.tag.amber{background:#FAEEDA;color:#854F0B}
+.tag.red{background:#FCEBEB;color:#A32D2D}
+.tag.blue{background:#E6F1FB;color:#185FA5}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="title">Network Layer</div>
+      <div class="sub">Kurose &amp; Ross — Chapter 4 (6th Ed.)</div>
+    </div>
+    <div class="mode-btns">
+      <button class="mode-btn active" onclick="setMode('flash')">Flashcards</button>
+      <button class="mode-btn" onclick="setMode('notes')">Cheat Sheet</button>
+    </div>
+  </div>
+
+  <div id="flash-mode">
+    <div class="cats" id="cats"></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    <div class="card-area">
+      <div class="card" id="card" onclick="flipCard()">
+        <div class="card-face card-front">
+          <div class="card-cat-badge" id="cat-badge"></div>
+          <div class="card-label">Question — tap to reveal</div>
+          <div class="card-content"><div class="card-q" id="card-q"></div></div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-cat-badge" id="cat-badge2"></div>
+          <div class="card-label">Answer</div>
+          <div class="card-content"><div class="card-a" id="card-a"></div></div>
+          <div class="card-hint">tap to flip back</div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="nav-btn" id="prev-btn" onclick="nav(-1)">← Prev</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span class="counter" id="counter"></span>
+        <button class="shuffle-btn" onclick="shuffle()">↻ Shuffle</button>
+      </div>
+      <button class="nav-btn" id="next-btn" onclick="nav(1)">Next →</button>
+    </div>
+  </div>
+
+  <div id="notes-mode">
+
+    <div class="notes-section">
+      <h3>Core concepts at a glance</h3>
+      <div class="notes-grid">
+        <div class="note-card"><div class="label">Forwarding</div><div class="val">Router-local: move packet from input link to correct output link</div></div>
+        <div class="note-card"><div class="label">Routing</div><div class="val">Network-wide: determine end-to-end paths (via routing algorithms)</div></div>
+        <div class="note-card"><div class="label">Internet service model</div><div class="val">Best-effort: no guarantees on delivery, order, timing, or bandwidth</div></div>
+        <div class="note-card"><div class="label">VC network</div><div class="val">Connection-oriented at network layer; routers maintain VC state</div></div>
+        <div class="note-card"><div class="label">Datagram network</div><div class="val">Connectionless; each packet routed independently; Internet uses this</div></div>
+        <div class="note-card"><div class="label">Longest prefix match</div><div class="val">When multiple forwarding table entries match, use the most specific (longest) prefix</div></div>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>IPv4 datagram header fields</h3>
+      <table class="cheat">
+        <tr><th>Field</th><th>Size</th><th>Purpose / Notes</th></tr>
+        <tr><td>Version</td><td>4 bits</td><td>IPv4 = 4</td></tr>
+        <tr><td>Header Length (IHL)</td><td>4 bits</td><td>Header length in 32-bit words; typical = 5 (20 bytes)</td></tr>
+        <tr><td>Type of Service (TOS)</td><td>8 bits</td><td>QoS marking (DSCP 6 bits + ECN 2 bits)</td></tr>
+        <tr><td>Datagram Length</td><td>16 bits</td><td>Total bytes (header + data); max = 65,535 bytes</td></tr>
+        <tr><td>Identifier</td><td>16 bits</td><td>Identifies fragments of same original datagram</td></tr>
+        <tr><td>Flags</td><td>3 bits</td><td>DF (don't fragment), MF (more fragments)</td></tr>
+        <tr><td>Fragment Offset</td><td>13 bits</td><td>Position of fragment in original datagram (in units of 8 bytes)</td></tr>
+        <tr><td>TTL</td><td>8 bits</td><td>Decremented at each hop; dropped when = 0; default 255</td></tr>
+        <tr><td>Protocol</td><td>8 bits</td><td>Upper-layer protocol: 6=TCP, 17=UDP, 1=ICMP, 89=OSPF</td></tr>
+        <tr><td>Header Checksum</td><td>16 bits</td><td>Error detection on header only; recomputed at each router (TTL changes)</td></tr>
+        <tr><td>Source IP</td><td>32 bits</td><td>Sender's IP address</td></tr>
+        <tr><td>Destination IP</td><td>32 bits</td><td>Receiver's IP address</td></tr>
+        <tr><td>Options</td><td>Variable</td><td>Rarely used; makes header variable-length</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>IPv4 vs IPv6 header comparison</h3>
+      <table class="cheat">
+        <tr><th>IPv4 field</th><th>IPv6 equivalent</th><th>Change</th></tr>
+        <tr><td>Version</td><td>Version</td><td>Same (value = 6)</td></tr>
+        <tr><td>Type of Service</td><td>Traffic Class</td><td>Renamed; same DSCP/ECN structure</td></tr>
+        <tr><td>—</td><td>Flow Label (20 bits)</td><td>NEW — identifies packets of same flow</td></tr>
+        <tr><td>Total Length</td><td>Payload Length</td><td>IPv6 excludes 40-byte fixed header</td></tr>
+        <tr><td>Protocol</td><td>Next Header</td><td>Also points to extension headers</td></tr>
+        <tr><td>TTL</td><td>Hop Limit</td><td>Renamed; same function</td></tr>
+        <tr><td>IHL, Options, Padding</td><td>—</td><td>Removed — fixed 40-byte header</td></tr>
+        <tr><td>Header Checksum</td><td>—</td><td>Removed — redundant with TCP/UDP/Ethernet</td></tr>
+        <tr><td>Identifier, Flags, Fragment Offset</td><td>—</td><td>Removed — no mid-network fragmentation in IPv6</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>IP fragmentation example (interview classic)</h3>
+      <table class="cheat">
+        <tr><th>Fragment</th><th>Data bytes</th><th>ID</th><th>Offset</th><th>MF flag</th></tr>
+        <tr><td>1st</td><td>1,480</td><td>777</td><td>0</td><td>1</td></tr>
+        <tr><td>2nd</td><td>1,480</td><td>777</td><td>185 (×8 = 1,480)</td><td>1</td></tr>
+        <tr><td>3rd</td><td>1,020</td><td>777</td><td>370 (×8 = 2,960)</td><td>0</td></tr>
+      </table>
+      <div style="font-size:12px;color:var(--tx2);margin-top:6px">Original datagram: 4,000 bytes total (20-byte header + 3,980 bytes data). MTU = 1,500 bytes. Each fragment: 20-byte header + data. Offset in units of 8 bytes. Last fragment MF = 0.</div>
+    </div>
+
+    <div class="notes-section">
+      <h3>DHCP 4-step process</h3>
+      <table class="cheat">
+        <tr><th>Step</th><th>Message</th><th>Src IP → Dst IP</th><th>Notes</th></tr>
+        <tr><td>1</td><td>DHCP Discover</td><td>0.0.0.0 → 255.255.255.255</td><td>Client broadcasts; UDP port 67</td></tr>
+        <tr><td>2</td><td>DHCP Offer</td><td>Server → 255.255.255.255</td><td>Server offers IP, mask, lease time</td></tr>
+        <tr><td>3</td><td>DHCP Request</td><td>0.0.0.0 → 255.255.255.255</td><td>Client accepts offer (may be multiple servers)</td></tr>
+        <tr><td>4</td><td>DHCP ACK</td><td>Server → 255.255.255.255</td><td>Server confirms; client now uses the IP</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>NAT translation table (how it works)</h3>
+      <div style="font-size:13px;color:var(--tx);line-height:1.7;background:var(--bg2);padding:10px 12px;border-radius:var(--r);border:0.5px solid var(--bd)">
+        Host <code>10.0.0.1:3345</code> → Web server <code>128.119.40.186:80</code><br>
+        NAT router replaces src with WAN IP + new port: <code>138.76.29.7:5001</code><br>
+        Adds entry: WAN <code>138.76.29.7:5001</code> ↔ LAN <code>10.0.0.1:3345</code><br>
+        Reply arrives to <code>138.76.29.7:5001</code> → NAT looks up table → rewrites dst to <code>10.0.0.1:3345</code><br>
+        <span style="color:var(--tx3)">Port field = 16 bits → over 60,000 simultaneous connections per public IP</span>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>ICMP message types (key ones)</h3>
+      <table class="cheat">
+        <tr><th>Type</th><th>Code</th><th>Meaning</th></tr>
+        <tr><td>0</td><td>0</td><td>Echo reply (ping response)</td></tr>
+        <tr><td>3</td><td>0</td><td>Destination network unreachable</td></tr>
+        <tr><td>3</td><td>1</td><td>Destination host unreachable</td></tr>
+        <tr><td>3</td><td>3</td><td>Destination port unreachable (used by Traceroute to stop)</td></tr>
+        <tr><td>4</td><td>0</td><td>Source quench (congestion control — rarely used)</td></tr>
+        <tr><td>8</td><td>0</td><td>Echo request (ping)</td></tr>
+        <tr><td>11</td><td>0</td><td>TTL expired (used by Traceroute for each hop)</td></tr>
+        <tr><td>12</td><td>0</td><td>IP header bad</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Router architecture components</h3>
+      <table class="cheat">
+        <tr><th>Component</th><th>Function</th><th>Plane / Speed</th></tr>
+        <tr><td>Input ports</td><td>Physical/link termination + lookup (forwarding table) + queuing</td><td>Data / nanoseconds</td></tr>
+        <tr><td>Switching fabric</td><td>Transfers packets from input to output port</td><td>Data / nanoseconds</td></tr>
+        <tr><td>Output ports</td><td>Queuing + scheduling + transmission</td><td>Data / nanoseconds</td></tr>
+        <tr><td>Routing processor</td><td>Executes routing protocols, maintains routing tables, computes forwarding table</td><td>Control / ms–seconds</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>3 switching fabric types</h3>
+      <table class="cheat">
+        <tr><th>Type</th><th>How it works</th><th>Bottleneck</th></tr>
+        <tr><td>Via memory</td><td>Packet copied to/from CPU memory; routing processor does lookup</td><td>Memory bandwidth: max B/2 pps</td></tr>
+        <tr><td>Via bus</td><td>Input port prepends label; packet crosses shared bus; only matching output keeps it</td><td>Bus bandwidth: one packet at a time</td></tr>
+        <tr><td>Via crossbar</td><td>N×N crosspoint switch; multiple packets can transfer in parallel (different output ports)</td><td>Contention if two packets go to same output</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Queueing & buffer sizing</h3>
+      <div class="notes-grid" style="grid-template-columns:1fr 1fr">
+        <div class="note-card"><div class="label">Classical buffer rule</div><div class="val">B = RTT × C (e.g., 10 Gbps × 250ms = 2.5 Gbits)</div></div>
+        <div class="note-card"><div class="label">Modern buffer rule</div><div class="val">B = RTT × C / √N where N = number of TCP flows</div></div>
+        <div class="note-card"><div class="label">HOL blocking</div><div class="val">Input-queued switch: head-of-line packet blocks packets behind it even if their output is free. Limits throughput to 58% of capacity.</div></div>
+        <div class="note-card"><div class="label">Drop-tail vs AQM</div><div class="val">Drop-tail drops arriving packet when full. AQM (e.g., RED) proactively marks/drops before full to signal congestion early.</div></div>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>Dijkstra's LS algorithm — step table (graph from book)</h3>
+      <table class="cheat">
+        <tr><th>Step</th><th>N'</th><th>D(v),p(v)</th><th>D(w),p(w)</th><th>D(x),p(x)</th><th>D(y),p(y)</th><th>D(z),p(z)</th></tr>
+        <tr><td>Init</td><td>u</td><td>2,u</td><td>5,u</td><td>1,u</td><td>∞</td><td>∞</td></tr>
+        <tr><td>1</td><td>ux</td><td>2,u</td><td>4,x</td><td>—</td><td>2,x</td><td>∞</td></tr>
+        <tr><td>2</td><td>uxy</td><td>2,u</td><td>3,y</td><td>—</td><td>—</td><td>4,y</td></tr>
+        <tr><td>3</td><td>uxyv</td><td>—</td><td>3,y</td><td>—</td><td>—</td><td>4,y</td></tr>
+        <tr><td>4</td><td>uxyvw</td><td>—</td><td>—</td><td>—</td><td>—</td><td>4,y</td></tr>
+        <tr><td>5</td><td>uxyvwz</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+      </table>
+      <div style="font-size:12px;color:var(--tx2);margin-top:6px">Complexity: O(n²) with simple implementation; O(n log n) with a heap</div>
+    </div>
+
+    <div class="notes-section">
+      <h3>LS vs DV comparison</h3>
+      <table class="cheat">
+        <tr><th>Property</th><th>Link-State (LS)</th><th>Distance-Vector (DV)</th></tr>
+        <tr><td>Information used</td><td>Complete global topology</td><td>Only from directly connected neighbors</td></tr>
+        <tr><td>Algorithm</td><td>Dijkstra's SPF</td><td>Bellman-Ford</td></tr>
+        <tr><td>Messages sent</td><td>O(|N|·|E|) — broadcasts to ALL nodes</td><td>Only to direct neighbors</td></tr>
+        <tr><td>Convergence</td><td>O(n²) computation; fast convergence</td><td>Can be slow; count-to-infinity problem</td></tr>
+        <tr><td>Robustness</td><td>Node computes its own table; errors contained</td><td>Errors can propagate through entire network</td></tr>
+        <tr><td>Internet protocols</td><td>OSPF, IS-IS</td><td>RIP, BGP (path-vector variant)</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>RIP vs OSPF vs BGP</h3>
+      <table class="cheat">
+        <tr><th></th><th>RIP</th><th>OSPF</th><th>BGP</th></tr>
+        <tr><td>Type</td><td>Intra-AS (IGP)</td><td>Intra-AS (IGP)</td><td>Inter-AS (EGP)</td></tr>
+        <tr><td>Algorithm</td><td>Distance-Vector</td><td>Link-State (Dijkstra)</td><td>Path-Vector</td></tr>
+        <tr><td>Metric</td><td>Hop count (max 15)</td><td>Admin-configured cost</td><td>Policy / AS-PATH length</td></tr>
+        <tr><td>Transport</td><td>UDP port 520</td><td>Directly over IP (protocol 89)</td><td>TCP port 179</td></tr>
+        <tr><td>Updates</td><td>Every 30 sec; timeout = 180 sec</td><td>On change + periodic (30 min); HELLO every ~10s</td><td>Triggered; semi-permanent TCP sessions</td></tr>
+        <tr><td>Scalability</td><td>Small networks only (≤15 hops)</td><td>Hierarchical areas; scales well</td><td>Entire Internet</td></tr>
+        <tr><td>Security</td><td>None (v1); MD5 (v2)</td><td>MD5 or simple password</td><td>Policy-based; no built-in security</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>BGP key attributes</h3>
+      <table class="cheat">
+        <tr><th>Attribute</th><th>Purpose</th></tr>
+        <tr><td>AS-PATH</td><td>List of ASes the advertisement has traversed. Used to detect loops (reject if own AS in path) and choose shorter paths.</td></tr>
+        <tr><td>NEXT-HOP</td><td>IP address of the first router outside the current AS along the advertised path. Links inter-AS and intra-AS routing.</td></tr>
+        <tr><td>Local Preference</td><td>Set within an AS to prefer one exit point over another. Higher = preferred. Policy-based.</td></tr>
+      </table>
+      <div style="font-size:12px;color:var(--tx2);margin-top:6px">BGP route selection order: (1) highest Local Preference → (2) shortest AS-PATH → (3) hot-potato routing (closest NEXT-HOP) → (4) BGP identifiers</div>
+    </div>
+
+    <div class="notes-section">
+      <h3>Broadcast routing algorithms</h3>
+      <table class="cheat">
+        <tr><th>Method</th><th>How it works</th><th>Problem</th></tr>
+        <tr><td>N-way unicast</td><td>Source sends N separate unicast copies</td><td>Inefficient; requires knowing all destinations</td></tr>
+        <tr><td>Uncontrolled flooding</td><td>Node forwards to all neighbors except sender</td><td>Broadcast storms in graphs with cycles</td></tr>
+        <tr><td>Seq-number controlled flooding</td><td>Node drops packet if already seen (tracks src addr + seq num)</td><td>Still some redundant packets</td></tr>
+        <tr><td>Reverse Path Forwarding (RPF)</td><td>Forward only if packet arrived on shortest unicast path back to source</td><td>Still some redundant copies</td></tr>
+        <tr><td>Spanning tree</td><td>Build tree covering all nodes; forward only on tree links</td><td>Tree construction overhead; center-based approach used</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Abbreviations</h3>
+      <table class="cheat">
+        <tr><th>Abbr.</th><th>Full form</th><th>Brief meaning</th></tr>
+        <tr><td>AS</td><td>Autonomous System</td><td>Group of routers under same admin control running same IGP</td></tr>
+        <tr><td>CIDR</td><td>Classless Interdomain Routing</td><td>a.b.c.d/x notation; replaces classful A/B/C addressing</td></tr>
+        <tr><td>DHCP</td><td>Dynamic Host Configuration Protocol</td><td>Auto-assigns IP, mask, gateway, DNS to hosts</td></tr>
+        <tr><td>NAT</td><td>Network Address Translation</td><td>Maps private IPs + ports to one public IP; hides internal network</td></tr>
+        <tr><td>ICMP</td><td>Internet Control Message Protocol</td><td>Error reporting and network diagnostics (ping, traceroute)</td></tr>
+        <tr><td>TTL</td><td>Time to Live</td><td>Decremented at each hop; packet dropped at 0 — prevents loops</td></tr>
+        <tr><td>MTU</td><td>Maximum Transmission Unit</td><td>Max frame payload size for a link (Ethernet = 1500 bytes)</td></tr>
+        <tr><td>LS</td><td>Link-State</td><td>Routing algorithm using complete network topology (Dijkstra)</td></tr>
+        <tr><td>DV</td><td>Distance-Vector</td><td>Routing algorithm using neighbor info only (Bellman-Ford)</td></tr>
+        <tr><td>RIP</td><td>Routing Information Protocol</td><td>DV-based IGP; hop count metric; max 15 hops</td></tr>
+        <tr><td>OSPF</td><td>Open Shortest Path First</td><td>LS-based IGP; Dijkstra; hierarchical areas</td></tr>
+        <tr><td>BGP</td><td>Border Gateway Protocol</td><td>Path-vector EGP; de facto Internet inter-AS routing</td></tr>
+        <tr><td>eBGP</td><td>External BGP</td><td>BGP session between routers in different ASes</td></tr>
+        <tr><td>iBGP</td><td>Internal BGP</td><td>BGP session between routers in same AS</td></tr>
+        <tr><td>IGP</td><td>Interior Gateway Protocol</td><td>Intra-AS routing (RIP, OSPF)</td></tr>
+        <tr><td>EGP</td><td>Exterior Gateway Protocol</td><td>Inter-AS routing (BGP)</td></tr>
+        <tr><td>VC</td><td>Virtual Circuit</td><td>Connection-oriented network-layer service (ATM, Frame Relay)</td></tr>
+        <tr><td>HOL</td><td>Head-of-Line blocking</td><td>Queued packet blocks packets behind it even if their output is free</td></tr>
+        <tr><td>AQM</td><td>Active Queue Management</td><td>Proactively drop/mark packets before buffer full (e.g., RED)</td></tr>
+        <tr><td>RED</td><td>Random Early Detection</td><td>AQM algorithm: drop with increasing probability as avg queue length rises</td></tr>
+        <tr><td>RPF</td><td>Reverse Path Forwarding</td><td>Broadcast: forward only if packet arrived on unicast shortest path to source</td></tr>
+        <tr><td>IGMP</td><td>Internet Group Management Protocol</td><td>Host-to-router protocol for joining/leaving IP multicast groups</td></tr>
+        <tr><td>ASN</td><td>Autonomous System Number</td><td>Globally unique number identifying an AS (assigned by ICANN/IANA)</td></tr>
+        <tr><td>TCAM</td><td>Ternary Content Addressable Memory</td><td>Hardware memory for constant-time IP lookup in forwarding tables</td></tr>
+        <tr><td>TOS</td><td>Type of Service</td><td>IPv4 header field for QoS marking (6-bit DSCP + 2-bit ECN)</td></tr>
+        <tr><td>IPsec</td><td>Internet Protocol Security</td><td>Network-layer security protocol for encryption and authentication</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL = [
+  // ─── INTRODUCTION ───
+  {cat:"Introduction",q:"What are the two key network-layer functions, and what is the difference?",
+   a:`<ul><li><strong>Forwarding</strong>: Router-local action — moves a packet from an incoming link interface to the correct outgoing link interface. Operates at nanosecond timescale in hardware.</li><li><strong>Routing</strong>: Network-wide process — determines the end-to-end path packets take from source to destination via routing algorithms. Operates at millisecond/second timescale in software.</li></ul>Analogy: forwarding = getting through a single interchange; routing = planning the whole trip.`},
+
+  {cat:"Introduction",q:"What is the Internet's network service model, and what does 'best-effort' mean?",
+   a:`The Internet provides <strong>best-effort service</strong>: no guarantees on:<ul><li>Delivery of packets</li><li>In-order delivery</li><li>Timing or delay bounds</li><li>Minimum bandwidth</li><li>Congestion notification</li></ul>A network that delivered zero packets would technically satisfy best-effort. Contrast with ATM's CBR (guaranteed constant rate) or ABR (guaranteed minimum rate) models.`},
+
+  {cat:"Introduction",q:"What is the 'connection setup' function at the network layer, and which architecture uses it?",
+   a:`Some network architectures (ATM, Frame Relay, MPLS) require routers along a path to <strong>handshake and set up state</strong> before data flows — this is called connection setup at the network layer.<br><br>The Internet (datagram network) does <strong>not</strong> have connection setup at the network layer. TCP's three-way handshake is a transport-layer connection setup involving only end systems, invisible to routers.`},
+
+  // ─── VC vs DATAGRAM ───
+  {cat:"VC vs Datagram",q:"What are the 3 phases of a Virtual Circuit (VC), and how does VC forwarding differ from datagram forwarding?",
+   a:`<strong>3 phases:</strong><ol><li><strong>VC Setup</strong>: Path chosen, VC numbers assigned to each link, forwarding table entries added at each router, resources optionally reserved</li><li><strong>Data Transfer</strong>: Packets carry VC number; routers translate VC numbers at each hop</li><li><strong>VC Teardown</strong>: Forwarding table entries removed from all routers on path</li></ol><strong>Key difference:</strong> In VC networks, routers maintain <em>per-connection state</em>. In datagram networks, routers maintain only destination-based forwarding state and each packet is routed independently.`},
+
+  {cat:"VC vs Datagram",q:"Why does a VC use different VC numbers on each link along its path?",
+   a:`Two reasons:<ol><li><strong>Reduces VC field size</strong> — a link-local VC number is shorter than a globally unique ID</li><li><strong>Simplifies setup</strong> — each link can independently pick any unused local number without coordinating with other links. If a global number were required, routers would need to exchange many messages to agree on one not in use anywhere.</li></ol>`},
+
+  {cat:"VC vs Datagram",q:"What is the Longest Prefix Matching rule and why is it needed?",
+   a:`When a packet's destination address matches <strong>multiple entries</strong> in the forwarding table, the router uses the entry with the <strong>longest matching prefix</strong> (most specific).<br><br>Example:<br><code>11001000 00010111 00010</code> → Interface 0 (21-bit prefix)<br><code>11001000 00010111 00011000</code> → Interface 1 (24-bit prefix)<br><br>A destination matching both uses Interface 1 (longer/more specific). This is essential for CIDR-based hierarchical addressing where ISPs advertise aggregate prefixes and organizations advertise more specific ones.`},
+
+  // ─── ROUTER INTERNALS ───
+  {cat:"Router Architecture",q:"Describe the 4 components of a router and which plane each belongs to.",
+   a:`<table><tr><th>Component</th><th>Plane</th><th>Function</th></tr>
+<tr><td>Input ports</td><td>Data (hardware)</td><td>Physical/link termination; forwarding table lookup; queuing</td></tr>
+<tr><td>Switching fabric</td><td>Data (hardware)</td><td>Transfers packets from input to output ports</td></tr>
+<tr><td>Output ports</td><td>Data (hardware)</td><td>Queue, schedule, and transmit packets on outgoing link</td></tr>
+<tr><td>Routing processor</td><td>Control (software)</td><td>Runs routing protocols, maintains tables, computes forwarding table</td></tr></table>
+Data plane: nanoseconds. Control plane: milliseconds–seconds.`},
+
+  {cat:"Router Architecture",q:"What is Head-of-Line (HOL) blocking and what is its impact?",
+   a:`HOL blocking occurs in an <strong>input-queued switch</strong>: a packet at the head of an input queue destined for a busy output port <strong>blocks packets behind it</strong> even if those packets' output ports are free.<br><br>Impact: Under certain assumptions, HOL blocking limits input queue throughput to only <strong>58% of link capacity</strong>, even with an infinitely fast switch fabric [Karol 1987].`},
+
+  {cat:"Router Architecture",q:"What are the 3 switching fabric approaches and their bandwidth limitations?",
+   a:`<ol><li><strong>Via memory</strong>: CPU copies packet to/from shared memory. Max throughput = B/2 (one read + one write per packet). Cannot forward two packets simultaneously.</li><li><strong>Via bus</strong>: Input port pre-pends label; all output ports see packet; only matching one keeps it. Limited by bus bandwidth (e.g., Cisco 5600: 32 Gbps).</li><li><strong>Via crossbar (interconnection network)</strong>: N×N crosspoints; multiple parallel transfers possible. Bottleneck: two packets to same output — one must wait. Most scalable.</li></ol>`},
+
+  {cat:"Router Architecture",q:"What are the two buffer sizing formulas and when does each apply?",
+   a:`<ol><li><strong>Classic rule</strong>: B = RTT × C<br>For a 10 Gbps link with RTT = 250 ms: B = 2.5 Gbits. Based on small number of TCP flows.</li><li><strong>Modern rule</strong>: B = RTT × C / √N<br>When N TCP flows pass through the link, needed buffering decreases significantly. More realistic for backbone routers with thousands of flows.</li></ol>Purpose: Absorb traffic fluctuations. Too little buffer → packet loss. Too much → excessive delay.`},
+
+  // ─── IP PROTOCOL ───
+  {cat:"IP Protocol",q:"Walk through all key fields of the IPv4 datagram header and their roles.",
+   a:`<ul><li><strong>Version (4b)</strong>: IP version (4)</li><li><strong>IHL (4b)</strong>: Header length in 32-bit words; typical = 5 (20 bytes)</li><li><strong>TOS (8b)</strong>: DSCP (6b) + ECN (2b) for QoS</li><li><strong>Total Length (16b)</strong>: Header + data; max 65,535 bytes</li><li><strong>Identifier (16b)</strong>: Ties fragments of same datagram together</li><li><strong>Flags (3b)</strong>: DF (don't fragment), MF (more fragments to come)</li><li><strong>Fragment Offset (13b)</strong>: Where fragment fits in original (units of 8 bytes)</li><li><strong>TTL (8b)</strong>: Decremented each hop; drop at 0</li><li><strong>Protocol (8b)</strong>: TCP=6, UDP=17, ICMP=1, OSPF=89</li><li><strong>Header Checksum (16b)</strong>: Header error detection; recomputed each hop</li><li><strong>Src/Dst IP (32b each)</strong>: Addresses</li><li><strong>Options</strong>: Variable; rarely used</li></ul>`},
+
+  {cat:"IP Protocol",q:"A 4,000-byte datagram (20B header + 3,980B data) must traverse a link with MTU 1,500. Show the fragments.",
+   a:`Each fragment has 20B header. Data per fragment = MTU − 20 = 1,480B (except last).<br>Must be multiple of 8 bytes: 1,480B ✓<br><br><table><tr><th>Fragment</th><th>Data</th><th>Offset (÷8)</th><th>MF</th></tr>
+<tr><td>1</td><td>1,480 B</td><td>0</td><td>1</td></tr>
+<tr><td>2</td><td>1,480 B</td><td>185</td><td>1</td></tr>
+<tr><td>3</td><td>1,020 B</td><td>370</td><td>0</td></tr></table>
+Verification: 1,480+1,480+1,020 = 3,980 ✓. Offset 185×8=1,480 ✓. Offset 370×8=2,960 ✓. Last fragment MF=0. Reassembly happens at <strong>destination host only</strong>.`},
+
+  {cat:"IP Protocol",q:"What is CIDR and how does it replace classful addressing?",
+   a:`<strong>CIDR (Classless Interdomain Routing)</strong>: a.b.c.d/x notation where x = network prefix length. Any prefix length is allowed.<br><br><strong>Before CIDR (classful)</strong>: Only /8 (Class A), /16 (Class B), /24 (Class C) allowed. A company needing 2,000 hosts got a /16 (65,534 hosts) → massive waste.<br><br><strong>CIDR advantages</strong>:<ul><li>Flexible prefix lengths match actual subnet sizes</li><li>Address aggregation: ISP can advertise one /20 instead of 8 separate /23s</li><li>Reduces global routing table size</li></ul>`},
+
+  {cat:"IP Protocol",q:"What are the 4 steps of DHCP, and what information does DHCP provide?",
+   a:`<ol><li><strong>DHCP Discover</strong>: Client broadcasts (src 0.0.0.0, dst 255.255.255.255) on UDP port 67</li><li><strong>DHCP Offer</strong>: Server broadcasts proposed IP, mask, lease time, server ID</li><li><strong>DHCP Request</strong>: Client broadcasts acceptance (echoes config back)</li><li><strong>DHCP ACK</strong>: Server confirms; client may now use the IP</li></ol>DHCP provides: IP address, subnet mask, default gateway, DNS server address, lease time.<br>Called <em>plug-and-play</em>: no manual configuration needed.`},
+
+  {cat:"IP Protocol",q:"How does NAT work step-by-step, and what are the criticisms against it?",
+   a:`<strong>Outbound</strong>: NAT router replaces (src IP, src port) with (WAN IP, new port); adds entry to NAT table.<br><strong>Inbound</strong>: NAT looks up (dst IP=WAN IP, dst port) in table; rewrites to private (IP, port) and forwards internally.<br><br><strong>Criticisms:</strong><ol><li>Port numbers used to identify hosts, not processes — violates layering</li><li>Routers should only process up to Layer 3 — NAT touches ports (Layer 4)</li><li>Violates end-to-end argument — hosts can't talk directly without NAT interference</li><li>Breaks P2P applications (host behind NAT can't accept incoming TCP connections)</li><li>Workaround = IPv6 (more addresses)</li></ol>`},
+
+  // ─── ICMP ───
+  {cat:"ICMP",q:"How does Traceroute work using ICMP?",
+   a:`Traceroute sends a series of UDP datagrams to an unlikely destination port:<ul><li>1st datagram: TTL = 1</li><li>2nd datagram: TTL = 2</li><li>nth datagram: TTL = n</li></ul>When the nth datagram reaches the nth router, TTL expires → router discards and sends back <strong>ICMP Type 11 Code 0 (TTL expired)</strong> with its name and IP.<br><br>Source measures RTT from timer. <strong>Stops when</strong>: destination host receives datagram with unlikely UDP port → sends <strong>ICMP Type 3 Code 3 (port unreachable)</strong> → source knows it's done.<br><br>Sends 3 probes per TTL; ICMP filtering on firewalls can break Traceroute.`},
+
+  {cat:"ICMP",q:"How does ping work and what ICMP message types does it use?",
+   a:`<ul><li><strong>Ping sends</strong>: ICMP Type 8 Code 0 (Echo Request) to target host</li><li><strong>Target responds</strong>: ICMP Type 0 Code 0 (Echo Reply)</li></ul>The source measures round-trip time (RTT) from the timer. Ping server is typically implemented directly in the OS kernel (not an application process).<br><br>Firewalls often block ICMP Echo Requests, making ping unreliable as a connectivity test.`},
+
+  // ─── IPv6 ───
+  {cat:"IPv6",q:"What are the key improvements in IPv6 over IPv4?",
+   a:`<ol><li><strong>128-bit addresses</strong>: 340 undecillion addresses — every grain of sand can have an IP</li><li><strong>Fixed 40-byte header</strong>: Faster processing; no IHL field needed</li><li><strong>No fragmentation at routers</strong>: Only source can fragment; sends ICMPv6 "Packet Too Big" if needed</li><li><strong>No header checksum</strong>: Redundant with TCP/UDP/Ethernet; improves speed</li><li><strong>Flow Label (20 bits)</strong>: New field for identifying flows for QoS</li><li><strong>Extension headers</strong>: Options handled as chained next-header fields</li><li><strong>Anycast addresses</strong>: New address type — deliver to nearest in a group</li></ol>`},
+
+  {cat:"IPv6",q:"What are the two IPv4-to-IPv6 transition strategies?",
+   a:`<ol><li><strong>Dual-stack</strong>: IPv6/IPv4 nodes implement both protocols. Use IPv6 with IPv6 peers, IPv4 with IPv4 peers. Problem: if an IPv4-only node is in the path, IPv6-specific fields (e.g., flow label) are lost because conversion IPv6→IPv4 drops them.</li><li><strong>Tunneling</strong>: IPv6 datagram is encapsulated as the payload of an IPv4 datagram to traverse IPv4 routers. The IPv4 datagram is addressed to the far-end IPv6-capable router. Preserves full IPv6 datagram end-to-end.</li></ol>`},
+
+  {cat:"IPv6",q:"What fields were removed from IPv4 in IPv6, and why?",
+   a:`<ul><li><strong>IHL</strong>: Removed because IPv6 header is fixed 40 bytes</li><li><strong>Header Checksum</strong>: TCP/UDP and Ethernet already provide error checking; removed for speed (TTL recomputation at every router was costly)</li><li><strong>Identifier, Flags, Fragment Offset</strong>: IPv6 doesn't fragment at routers — source handles it via Path MTU Discovery</li><li><strong>Options & Padding</strong>: Replaced by extension headers; enables fixed-length main header</li></ul>New field added: <strong>Flow Label (20 bits)</strong> for identifying traffic flows.`},
+
+  // ─── ROUTING ALGORITHMS ───
+  {cat:"Routing Algorithms",q:"Describe Dijkstra's LS algorithm — pseudocode, complexity, and when it is used.",
+   a:`<pre>Init: N'={u}; D(v)=c(u,v) for neighbors, ∞ otherwise
+Loop:
+  w = node not in N' with min D(w)
+  add w to N'
+  for each neighbor v of w not in N':
+    D(v) = min(D(v), D(w)+c(w,v))
+until N'=N</pre>
+<strong>Complexity</strong>: O(n²) with simple implementation; O(n log n) with a heap.<br>
+<strong>Property</strong>: After k iterations, shortest paths to k destinations are known.<br>
+<strong>Used by</strong>: OSPF, IS-IS. Each node broadcasts link-state info to all others (O(n·|E|) messages), then runs Dijkstra locally.`},
+
+  {cat:"Routing Algorithms",q:"State the Bellman-Ford equation and explain how the DV algorithm uses it.",
+   a:`<strong>Bellman-Ford:</strong> d<sub>x</sub>(y) = min<sub>v</sub> { c(x,v) + d<sub>v</sub>(y) }<br><br>where the min is taken over all neighbors v of x.<br><br><strong>DV Algorithm:</strong> Each node x maintains:<ul><li>Distance vector D<sub>x</sub> = estimates to all nodes</li><li>Distance vectors of all direct neighbors</li></ul>On receiving a neighbor's updated DV, node x recomputes: D<sub>x</sub>(y) = min<sub>v</sub>{c(x,v) + D<sub>v</sub>(y)} for all y.<br>If any D<sub>x</sub>(y) changed → send updated DV to all neighbors.<br><strong>Distributed, asynchronous, self-terminating.</strong>`},
+
+  {cat:"Routing Algorithms",q:"What is the count-to-infinity problem and how does poisoned reverse attempt to fix it?",
+   a:`<strong>Count-to-infinity</strong>: When a link cost increases (or link fails), bad news propagates slowly. Example: if c(x,y) increases from 4 to 60, y thinks it can reach x via z (cost 5+1=6). z then thinks x is reachable via y (1+6=7). They keep incrementing each other's estimates by 1 until the count exceeds the true cost — takes 44 iterations in the example.<br><br><strong>Poisoned Reverse</strong>: If z routes to x via y, z tells y that D<sub>z</sub>(x) = ∞ (lies). So y never routes to x via z. Prevents 2-node loops.<br><br><strong>Limitation</strong>: Poisoned reverse only prevents 2-node loops. Loops involving 3 or more nodes are NOT detected.`},
+
+  {cat:"Routing Algorithms",q:"Compare LS and DV routing algorithms across message complexity, convergence speed, and robustness.",
+   a:`<table><tr><th>Property</th><th>LS</th><th>DV</th></tr>
+<tr><td>Messages</td><td>O(|N||E|) — broadcasts to all</td><td>Only to direct neighbors</td></tr>
+<tr><td>Convergence</td><td>O(n²) computation; fast; no loops during convergence</td><td>Slow; routing loops during convergence; count-to-infinity</td></tr>
+<tr><td>Robustness</td><td>Node computes own table; errors stay local</td><td>Bad routes propagate through entire network</td></tr>
+<tr><td>Oscillation risk</td><td>Yes (with congestion-sensitive metrics)</td><td>Yes (count-to-infinity)</td></tr></table>
+Neither is clearly better — <strong>both are used in the Internet</strong> (OSPF=LS, RIP/BGP=DV/path-vector).`},
+
+  {cat:"Routing Algorithms",q:"What is hierarchical routing and why is it necessary?",
+   a:`<strong>Problem</strong>: With hundreds of millions of routers, running a single routing algorithm is impossible — O(n²) memory and O(n|E|) messages would use all available bandwidth.<br><br><strong>Solution</strong>: Organize routers into <strong>Autonomous Systems (ASes)</strong>.<ul><li>Within an AS: run intra-AS protocol (IGP: RIP, OSPF)</li><li>Between ASes: run inter-AS protocol (EGP: BGP)</li><li>Gateway routers handle both IGP and EGP</li></ul>Benefits: Scale (intra-AS routing only needs local info) + Administrative autonomy (each AS chooses its own IGP).`},
+
+  {cat:"Routing Algorithms",q:"What is hot-potato routing and when is it used?",
+   a:`<strong>Hot-potato routing</strong>: When an AS can reach a destination via multiple gateway routers, it sends the packet to the gateway with the <strong>smallest intra-AS cost</strong>, regardless of the inter-AS path quality — it gets rid of the packet as cheaply as possible.<br><br>Used in: BGP route selection (Step 3: select route with closest NEXT-HOP after local preference and AS-PATH length are tied).<br><br>Rationale: An AS only controls its own routing costs; it shouldn't bear the burden of carrying transit traffic for other ASes.`},
+
+  // ─── RIP ───
+  {cat:"RIP",q:"How does RIP work, including update frequency, metric, and failure detection?",
+   a:`<ul><li><strong>Algorithm</strong>: Distance-Vector</li><li><strong>Metric</strong>: Hop count (each link costs 1); max 15 hops (16 = infinity)</li><li><strong>Updates</strong>: RIP response messages (advertisements) sent every <strong>30 seconds</strong> to neighbors via UDP port 520</li><li><strong>Failure detection</strong>: If no update heard from neighbor within <strong>180 seconds</strong>, neighbor declared dead; routing table updated; new advertisements sent</li><li><strong>Advertisement</strong>: Contains up to 25 destination subnets and distances</li><li><strong>Implementation</strong>: Runs as application-layer daemon (routed) on top of UDP/IP</li></ul>Used in lower-tier ISPs and enterprise networks. Limited by 15-hop diameter.`},
+
+  // ─── OSPF ───
+  {cat:"OSPF",q:"What are OSPF's key advances over RIP?",
+   a:`<ol><li><strong>Security</strong>: OSPF packets can be authenticated with MD5 (or simple password) to prevent malicious routing injections</li><li><strong>Multiple equal-cost paths</strong>: OSPF can use all equal-cost paths simultaneously (load balancing)</li><li><strong>Multicast support</strong>: MOSPF extends OSPF for multicast routing</li><li><strong>Hierarchical areas</strong>: AS can be split into areas; routers only need full topology of their own area; reduces overhead</li><li><strong>Link-state based</strong>: Uses Dijkstra, not DV — no count-to-infinity; faster convergence</li></ol>OSPF runs directly over IP (protocol 89), not over UDP/TCP.`},
+
+  {cat:"OSPF",q:"Explain OSPF's hierarchical area structure — what is the backbone area and what are area border routers?",
+   a:`<ul><li>An OSPF AS can be divided into <strong>areas</strong>. Each area runs its own LS algorithm internally.</li><li><strong>Backbone area (Area 0)</strong>: Must exist; routes traffic between all other areas. Contains all area border routers.</li><li><strong>Area Border Routers (ABRs)</strong>: Routers connected to both a non-backbone area and the backbone. Maintain two separate topology databases. Summarize intra-area routes to backbone.</li><li><strong>Inter-area routing</strong>: Packet → intra-area route to ABR → through backbone → ABR of destination area → intra-area route to destination.</li></ul>Reduces topology database size and LSA flooding scope.`},
+
+  // ─── BGP ───
+  {cat:"BGP",q:"What are eBGP and iBGP sessions, and why are both needed?",
+   a:`<ul><li><strong>eBGP (external BGP)</strong>: Session between gateway routers in <em>different</em> ASes. Used to learn reachability information from neighboring ASes.</li><li><strong>iBGP (internal BGP)</strong>: Session between routers in the <em>same</em> AS. Used to distribute eBGP-learned prefixes to all routers within the AS. Typically a full mesh of sessions within an AS.</li></ul>Both are needed: eBGP brings in external routes; iBGP distributes them internally so all routers can configure their forwarding tables correctly.`},
+
+  {cat:"BGP",q:"Explain the BGP NEXT-HOP attribute and why it is critical.",
+   a:`The NEXT-HOP attribute contains the <strong>IP address of the first router outside the current AS</strong> on the advertised path to a prefix.<br><br>Why critical: When router 1d (inside AS1) learns via iBGP that prefix x is reachable via gateway 1c (AS1's border), it uses the NEXT-HOP attribute with its <strong>intra-AS routing protocol (OSPF)</strong> to find the shortest path to 1c. The outgoing interface for that path becomes the interface entry in the forwarding table for prefix x.<br><br>This is the link between inter-AS BGP routing and intra-AS OSPF/RIP routing.`},
+
+  {cat:"BGP",q:"What is BGP route selection and in what order are rules applied?",
+   a:`BGP eliminates routes sequentially until one remains:<ol><li><strong>Local Preference</strong>: Highest wins (policy-set within AS; overrides all other criteria)</li><li><strong>Shortest AS-PATH</strong>: Fewest AS hops (this is essentially DV with AS-hop count as distance)</li><li><strong>Hot-Potato routing</strong>: Closest NEXT-HOP (smallest intra-AS cost to the exit router)</li><li><strong>BGP identifiers</strong>: Tiebreaker using router IDs</li></ol>Policy dominates in BGP — economic and business relationships between ISPs drive routing decisions, not just path quality.`},
+
+  {cat:"BGP",q:"Why are different inter-AS and intra-AS routing protocols used?",
+   a:`Three key reasons:<ol><li><strong>Policy</strong>: Inter-AS routing is dominated by business relationships (who pays whom, traffic engineering). BGP's path attributes enable fine-grained policy. Within an AS, everything is under one admin — policy is less critical, just find the best path.</li><li><strong>Scale</strong>: Inter-AS routing must handle the entire Internet. Intra-AS only needs to handle one domain — if it gets too big, split it into sub-ASes.</li><li><strong>Performance</strong>: Inter-AS may deliberately take a longer path to satisfy policy (e.g., avoid routing through a competitor's AS). Within an AS, performance (cost/delay) is the primary concern.</li></ol>`},
+
+  // ─── BROADCAST / MULTICAST ───
+  {cat:"Broadcast & Multicast",q:"What is Reverse Path Forwarding (RPF) and why does it avoid broadcast storms?",
+   a:`<strong>RPF idea</strong>: A router forwards a broadcast packet out all links (except incoming) <em>only if</em> the packet arrived on the link that is on the router's own shortest-path unicast route back to the source. Otherwise, discard.<br><br><strong>Why no storms</strong>: Each router only propagates what it would receive on the "official" path from the source. Duplicate copies from other paths are silently dropped. No looping because the tree is consistent with the shortest-path DAG rooted at source.<br><br>RPF doesn't require the router to know the full path — just the next hop back to the source.`},
+
+  {cat:"Broadcast & Multicast",q:"What is a multicast group and how does IGMP work?",
+   a:`A <strong>multicast group</strong> is identified by a Class D IP address (224.0.0.0/4). All hosts that join the group receive datagrams addressed to that group address.<br><br><strong>IGMP (Internet Group Management Protocol)</strong> operates between a host and its directly attached first-hop router. It has 3 message types:<ol><li><code>membership_query</code>: Router → hosts; asks which multicast groups are joined</li><li><code>membership_report</code>: Host → router; declares group membership (also sent spontaneously when joining)</li><li><code>leave_group</code>: Optional; router infers departure if host stops responding to queries (soft state)</li></ol>IGMP is carried in IP datagrams (protocol number 2).`},
+
+  // ─── INTERVIEW QUESTIONS ───
+  {cat:"⭐ Interview",q:"[Interview] A packet with destination 200.23.18.5 arrives at a router. The table has two entries: 200.23.16.0/20 (interface 1) and 200.23.18.0/23 (interface 2). Which interface is chosen?",
+   a:`<strong>Interface 2 (200.23.18.0/23)</strong> — by the longest prefix matching rule.<br><br>Check each entry:<ul><li><code>200.23.18.5</code> in binary starts: 11001000 00010111 00010010 00000101</li><li>200.23.16.0/20: first 20 bits match ✓</li><li>200.23.18.0/23: first 23 bits match ✓ (more specific)</li></ul>The /23 prefix is longer (more specific), so Interface 2 wins. This is exactly how ISPs-R-Us captures traffic for Organization 1 even when a larger aggregated prefix exists in the routing table.`},
+
+  {cat:"⭐ Interview",q:"[Interview] What happens to a TCP connection when a mobile host moves from one subnet to another and gets a new DHCP address?",
+   a:`The TCP connection is <strong>broken</strong>.<br><br>Reason: TCP connections are identified by the 4-tuple (src IP, src port, dst IP, dst port). When the host moves to a new subnet, DHCP assigns a new IP address. The old IP is no longer valid, and the existing TCP connection cannot be maintained.<br><br>Solutions:<ul><li><strong>Mobile IP</strong>: Permanent home address; care-of address for current location; home agent tunnels packets</li><li><strong>MPTCP</strong>: Multi-path TCP allows connections to survive address changes</li><li>Application-layer reconnection (e.g., HTTP persistent connections are re-established)</li></ul>`},
+
+  {cat:"⭐ Interview",q:"[Interview] Can NAT coexist with a server hosted inside the private network? What are the issues and solutions?",
+   a:`<strong>Problem</strong>: Servers inside a NAT network cannot accept incoming TCP connections from the public Internet because incoming packets only know the NAT's public IP — there's no way to initiate a connection to a private IP.<br><br><strong>Solutions:</strong><ol><li><strong>Static NAT mapping</strong>: Manually configure NAT table entry (publicIP:publicPort) → (privateIP:privatePort). Works for web servers (port 80), etc.</li><li><strong>UPnP</strong>: Application requests NAT to create a hole dynamically — maps (private:3345) to (public:5001). Allows P2P apps behind NAT.</li><li><strong>Connection reversal</strong>: Peer B (behind NAT) connects to public relay C first; Peer A contacts B via C; B initiates direct connection back to A.</li></ol>`},
+
+  {cat:"⭐ Interview",q:"[Interview] Why does IPv6 not include a checksum field, and is this safe?",
+   a:`IPv6 <strong>removed the header checksum</strong> for two reasons:<ol><li><strong>Redundancy</strong>: Transport-layer protocols (TCP, UDP) already have checksums. Ethernet (Layer 2) also has a CRC check. Checking at Layer 3 is redundant.</li><li><strong>Performance</strong>: In IPv4, the checksum must be <em>recomputed at every router</em> because the TTL field (renamed Hop Limit) changes at each hop. This is costly at Gbps line rates.</li></ol><strong>Safety</strong>: Yes, this is safe because:<ul><li>UDP checksum is <strong>mandatory</strong> in IPv6 (optional in IPv4) — since there's no L3 checksum</li><li>TCP always checksums</li><li>Ethernet CRC catches link-level errors</li></ul>`},
+
+  {cat:"⭐ Interview",q:"[Interview] Explain how Dijkstra's algorithm is used in OSPF. What would happen if two routers ran it at different times?",
+   a:`In OSPF, each router:<ol><li>Broadcasts its link-state to <em>all</em> routers in the AS (via flooding)</li><li>All routers build the same complete topology graph</li><li>Each router independently runs Dijkstra's algorithm on the same graph</li><li>Each gets the same shortest-path tree (rooted at itself)</li></ol><strong>Different execution times</strong>: This is actually a known problem — "oscillations." If all routers run LS simultaneously after a topology change, they may all shift routes in the same direction, causing congestion → route shift again → oscillation. <strong>Fix</strong>: Randomize the time at which each router sends link-state advertisements, desynchronizing executions.`},
+
+  {cat:"⭐ Interview",q:"[Interview] Compare the count-to-infinity problem in RIP and BGP. Does BGP suffer from it?",
+   a:`<strong>RIP (DV)</strong>: Full count-to-infinity — when a link cost increases, routes slowly count upward until reaching infinity (16 in RIP). Poisoned reverse helps only for 2-node loops.<br><br><strong>BGP (Path-Vector)</strong>: BGP uses a <em>path-vector</em> variant of DV where each route advertisement includes the <em>full AS-PATH</em>, not just the distance. This completely prevents count-to-infinity loops:<ul><li>Loop detection: If a router sees its own AS in the AS-PATH of an advertisement, it <em>rejects</em> it</li><li>No 2-node back-and-forth: the path explicitly shows where the route goes</li></ul>BGP does not suffer from count-to-infinity. The AS-PATH attribute is the key mechanism.`},
+
+  {cat:"⭐ Interview",q:"[Interview] What is the difference between eBGP and iBGP, and why does iBGP typically require a full mesh of sessions?",
+   a:`<ul><li><strong>eBGP</strong>: Between routers in <em>different</em> ASes. Used to learn external reachability.</li><li><strong>iBGP</strong>: Between routers in the <em>same</em> AS. Used to distribute eBGP-learned routes internally.</li></ul><strong>Why full mesh for iBGP</strong>: Unlike eBGP routes, iBGP routes are <strong>not re-advertised by a router to other iBGP peers</strong> (to prevent loops). So if router A learns a route via iBGP from B, it won't tell C via iBGP. The only way all routers learn all routes is if every router has a direct iBGP session with every other — O(n²) sessions.<br><br><strong>Scalability fix</strong>: Use <em>route reflectors</em> (one router re-advertises iBGP routes on behalf of others) or <em>confederations</em>.`},
+
+  {cat:"⭐ Interview",q:"[Interview] A datagram arrives at a router with TTL = 1. What happens? What ICMP message is generated?",
+   a:`The router <strong>decrements TTL to 0</strong> and must <strong>discard the datagram</strong>. It then generates and sends back to the source:<ul><li><strong>ICMP Type 11, Code 0</strong>: TTL Expired in Transit</li></ul>The ICMP message contains:<ul><li>The ICMP type/code</li><li>The header + first 8 bytes of the <em>original</em> discarded datagram (so the sender can identify which packet was lost)</li><li>The router's own source IP and name</li></ul>This is exactly the mechanism Traceroute exploits: it deliberately sends datagrams with TTL = 1, 2, 3, ... to collect ICMP TTL-expired messages from each router along the path.`},
+
+  {cat:"⭐ Interview",q:"[Interview] What is the difference between a router and a Layer-2 switch in terms of forwarding decisions?",
+   a:`<table><tr><th></th><th>Layer-2 Switch</th><th>Router (Layer-3)</th></tr>
+<tr><td>Forwarding based on</td><td>MAC address (link-layer frame)</td><td>IP address (network-layer datagram)</td></tr>
+<tr><td>Protocol</td><td>Link-layer protocol</td><td>Network-layer protocol (IP)</td></tr>
+<tr><td>Scope</td><td>Within a LAN/subnet</td><td>Between subnets/networks</td></tr>
+<tr><td>Routing table</td><td>MAC address table (learned via flooding/learning)</td><td>IP forwarding table (built by routing protocol)</td></tr>
+<tr><td>TTL</td><td>Does not decrement TTL</td><td>Decrements TTL; generates ICMP TTL-expired</td></tr></table>
+"Layer-3 switch" in marketing = a router with Ethernet interfaces. It's actually a network-layer device.`},
+
+  {cat:"⭐ Interview",q:"[Interview] Why can't routing algorithms scale to the entire Internet as a single AS?",
+   a:`Two fundamental problems:<ol><li><strong>Scale</strong>: The Internet has hundreds of millions of hosts. A link-state algorithm requires O(|N|·|E|) messages to broadcast link state — this would consume all available bandwidth. A DV algorithm with hundreds of millions of routers would never converge. Forwarding tables would need hundreds of millions of entries.</li><li><strong>Administrative autonomy</strong>: Companies, ISPs, and governments want to run their own routing protocols, set their own policies, and hide their internal topology from outsiders. A single global routing algorithm violates this.</li></ol>Solution: Autonomous Systems with intra-AS IGPs (OSPF/RIP) and inter-AS EGP (BGP).`},
+
+  {cat:"⭐ Interview",q:"[Interview] Walk through the complete path of an entry from BGP advertisement to router forwarding table.",
+   a:`<ol><li>Subnet x is advertised by its AS via <strong>eBGP</strong> to a neighboring AS's gateway router (with AS-PATH, NEXT-HOP attributes)</li><li>Gateway router applies <strong>import policy</strong>; if accepted, it distributes the route to all routers in its AS via <strong>iBGP</strong></li><li>Internal routers run <strong>BGP route selection</strong> (local preference → AS-PATH length → hot-potato/NEXT-HOP)</li><li>Winning route has a <strong>NEXT-HOP</strong> attribute = IP of border router outside AS</li><li>Router uses <strong>intra-AS routing protocol (OSPF)</strong> to find shortest path to NEXT-HOP</li><li>Identifies the <strong>outgoing interface</strong> on that shortest path</li><li>Enters <code>(prefix x, interface)</code> into forwarding table</li><li>Routing processor pushes forwarding table to input port line cards</li></ol>`},
+];
+
+let current=0, activeCat="All", filtered=[...ALL];
+const cats=["All",...new Set(ALL.map(c=>c.cat))];
+
+function renderCats(){
+  document.getElementById('cats').innerHTML=cats.map(c=>
+    `<button class="cat-btn${c===activeCat?' active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">
+      ${c==='⭐ Interview'?'⭐ Interview':c}
+    </button>`
+  ).join('');
+}
+function setCat(c){
+  activeCat=c;
+  filtered=c==="All"?[...ALL]:ALL.filter(x=>x.cat===c);
+  current=0;
+  document.getElementById('card').classList.remove('flipped');
+  renderCats();render();
+}
+function shuffle(){
+  filtered=filtered.sort(()=>Math.random()-.5);
+  current=0;
+  document.getElementById('card').classList.remove('flipped');
+  render();
+}
+function flipCard(){document.getElementById('card').classList.toggle('flipped')}
+function nav(d){
+  document.getElementById('card').classList.remove('flipped');
+  setTimeout(()=>{current=Math.max(0,Math.min(filtered.length-1,current+d));render();},50);
+}
+function render(){
+  const c=filtered[current];
+  document.getElementById('card-q').textContent=c.q;
+  document.getElementById('card-a').innerHTML=c.a;
+  const isInterview=c.cat==='⭐ Interview';
+  document.getElementById('cat-badge').textContent=c.cat;
+  document.getElementById('cat-badge').className='card-cat-badge'+(isInterview?' interview':'');
+  document.getElementById('cat-badge2').textContent=c.cat;
+  document.getElementById('cat-badge2').className='card-cat-badge'+(isInterview?' interview':'');
+  document.getElementById('counter').textContent=`${current+1} / ${filtered.length}`;
+  document.getElementById('prog').style.width=((current+1)/filtered.length*100)+'%';
+  document.getElementById('prev-btn').disabled=current===0;
+  document.getElementById('next-btn').disabled=current===filtered.length-1;
+}
+function setMode(m){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().trim().startsWith(m)));
+  document.getElementById('flash-mode').style.display=m==='flash'?'block':'none';
+  document.getElementById('notes-mode').style.display=m==='notes'?'block':'none';
+}
+renderCats();render();
+</script>
+</body>
+</html>

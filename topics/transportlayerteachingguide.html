@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transport Layer — Teaching Guide</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f1929;--navy2:#1a2840;--navy3:#243350;
+  --teal:#00c9a7;--teal2:#00a88c;
+  --amber:#f5a623;--coral:#e05c5c;--blue:#4a9eff;--purple:#a78bfa;
+  --bg:#f8f9fb;--white:#ffffff;
+  --tx:#1e293b;--tx2:#475569;--tx3:#94a3b8;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --mono:'SFMono-Regular',Consolas,monospace;
+  --sidebar:260px;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.7;font-size:16px;display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--navy);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;flex-shrink:0;z-index:100}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-track{background:var(--navy)}.sidebar::-webkit-scrollbar-thumb{background:var(--navy3);border-radius:2px}
+.sidebar-header{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--navy3)}
+.sidebar-header h1{font-size:14px;font-weight:600;color:var(--white);letter-spacing:.04em;line-height:1.4}
+.sidebar-header p{font-size:11px;color:var(--tx3);margin-top:4px}
+.sidebar-nav{padding:.75rem 0 2rem}
+.nav-section{margin-bottom:.25rem}
+.nav-section-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);padding:.5rem 1.25rem .25rem;display:block}
+.nav-link{display:flex;align-items:center;gap:8px;padding:.4rem 1.25rem;font-size:12.5px;color:rgba(255,255,255,.6);text-decoration:none;transition:all .15s;border-left:2px solid transparent}
+.nav-link:hover{color:var(--white);background:var(--navy2);border-left-color:var(--navy3)}
+.nav-link.active{color:var(--teal);border-left-color:var(--teal);background:rgba(0,201,167,.08)}
+.nav-link .num{font-size:11px;color:var(--tx3);font-variant-numeric:tabular-nums;min-width:18px}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;max-width:860px;padding:3rem 3rem 6rem}
+
+/* SECTIONS */
+.section{margin-bottom:5rem;scroll-margin-top:2rem}
+.section-header{margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--border)}
+.section-num{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--teal2);margin-bottom:.25rem}
+.section-title{font-size:1.9rem;font-weight:700;color:var(--tx);line-height:1.2}
+.section-subtitle{font-size:1rem;color:var(--tx2);margin-top:.5rem;line-height:1.6}
+
+/* TYPOGRAPHY */
+h3{font-size:1.2rem;font-weight:600;color:var(--tx);margin:2rem 0 .75rem}
+h4{font-size:1rem;font-weight:600;color:var(--tx);margin:1.5rem 0 .5rem}
+p{margin-bottom:1rem;color:var(--tx2);line-height:1.8}
+ul,ol{padding-left:1.4rem;margin-bottom:1rem;color:var(--tx2)}
+li{margin-bottom:.35rem;line-height:1.7}
+strong{color:var(--tx);font-weight:600}
+code{font-family:var(--mono);font-size:.8em;background:#eef2f7;padding:2px 5px;border-radius:4px;color:#c92a2a;border:1px solid #dde4ee}
+
+/* CALLOUT BOXES */
+.callout{border-radius:10px;padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-key{background:#f0fdf8;border-color:var(--teal);}.callout-key strong{color:var(--teal2)}
+.callout-warn{background:#fffbeb;border-color:var(--amber);}.callout-warn strong{color:#b45309}
+.callout-note{background:#f0f4ff;border-color:var(--blue);}.callout-note strong{color:#1d4ed8}
+.callout-alert{background:#fff5f5;border-color:var(--coral);}.callout-alert strong{color:#b91c1c}
+.callout p{margin:0;font-size:.93rem;line-height:1.7;color:var(--tx)}
+.callout p+p{margin-top:.5rem}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.9rem}
+.compare-table th{background:var(--navy);color:var(--white);padding:.65rem .9rem;text-align:left;font-weight:500;font-size:.82rem;letter-spacing:.03em}
+.compare-table td{padding:.6rem .9rem;border-bottom:1px solid var(--border);color:var(--tx2);vertical-align:top}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:nth-child(even) td{background:#f8fafc}
+.compare-table td:first-child{font-weight:500;color:var(--tx)}
+
+/* DIAGRAM CONTAINERS */
+.diagram{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0;overflow-x:auto}
+.diagram-title{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+.diagram-title::before{content:'';display:block;width:3px;height:12px;background:var(--teal);border-radius:2px}
+.diagram svg{display:block;max-width:100%;height:auto}
+
+/* STEP BOXES */
+.steps{display:flex;flex-direction:column;gap:.75rem;margin:1.25rem 0}
+.step{display:flex;gap:1rem;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--teal);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.15rem}
+.step-content{flex:1}.step-content strong{display:block;color:var(--tx);margin-bottom:.2rem;font-size:.95rem}
+.step-content p{margin:0;color:var(--tx2);font-size:.9rem;line-height:1.65}
+
+/* TWO-COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+.col-box{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.25rem}
+.col-box h4{margin-top:0;font-size:.95rem;color:var(--tx)}
+.col-box p,.col-box ul{font-size:.88rem;color:var(--tx2);margin-bottom:.5rem}
+.col-box ul{padding-left:1.1rem}
+
+/* TAGS */
+.tag{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:20px;margin:0 3px}
+.tag-teal{background:#d0faf2;color:#065f46}
+.tag-amber{background:#fef3c7;color:#92400e}
+.tag-blue{background:#dbeafe;color:#1e40af}
+.tag-red{background:#fee2e2;color:#991b1b}
+.tag-purple{background:#ede9fe;color:#6d28d9}
+
+/* PACKET FIELD ROWS */
+.packet-fields{display:flex;flex-direction:column;gap:2px;margin:1rem 0}
+.pf-row{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;font-size:.82rem}
+.pf-name{background:var(--navy);color:rgba(255,255,255,.85);padding:.35rem .75rem;font-weight:500;min-width:180px;flex-shrink:0}
+.pf-bits{background:#f8fafc;color:var(--tx3);padding:.35rem .5rem;min-width:55px;flex-shrink:0;border-right:1px solid var(--border);text-align:center;font-family:var(--mono)}
+.pf-desc{padding:.35rem .75rem;color:var(--tx2);flex:1}
+
+/* ALGO BOX */
+.algo-box{background:var(--navy);border-radius:10px;padding:1.25rem 1.5rem;margin:1.25rem 0;color:rgba(255,255,255,.85);font-family:var(--mono);font-size:.82rem;line-height:1.8;overflow-x:auto}
+.algo-box .comment{color:rgba(0,201,167,.7)}
+.algo-box .kw{color:var(--blue)}
+.algo-box .num{color:var(--amber)}
+
+/* PROGRESS NOTE */
+.progress-note{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:var(--white);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:3rem;display:flex;align-items:center;gap:1rem}
+.progress-note .icon{font-size:1.5rem;flex-shrink:0}
+.progress-note p{margin:0;font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5}
+.progress-note strong{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h1>The Transport Layer</h1>
+    <p>Kurose &amp; Ross — Chapter 3</p>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Foundations</span>
+      <a class="nav-link active" href="#s1"><span class="num">1</span>Introduction &amp; Services</a>
+      <a class="nav-link" href="#s2"><span class="num">2</span>Multiplexing &amp; Demux</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Protocols</span>
+      <a class="nav-link" href="#s3"><span class="num">3</span>UDP</a>
+      <a class="nav-link" href="#s4"><span class="num">4</span>Reliable Data Transfer</a>
+      <a class="nav-link" href="#s5"><span class="num">5</span>Pipelining: GBN &amp; SR</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">TCP</span>
+      <a class="nav-link" href="#s6"><span class="num">6</span>TCP: Connection &amp; Segments</a>
+      <a class="nav-link" href="#s7"><span class="num">7</span>TCP: Reliable Transfer</a>
+      <a class="nav-link" href="#s8"><span class="num">8</span>TCP: Flow Control</a>
+      <a class="nav-link" href="#s9"><span class="num">9</span>TCP: Connection Mgmt</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Congestion</span>
+      <a class="nav-link" href="#s10"><span class="num">10</span>Congestion Principles</a>
+      <a class="nav-link" href="#s11"><span class="num">11</span>TCP Congestion Control</a>
+      <a class="nav-link" href="#s12"><span class="num">12</span>Fairness &amp; AIMD</a>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="progress-note">
+    <div class="icon">🚀</div>
+    <p><strong>Chapter 3: Transport Layer</strong> — A complete teaching guide covering every concept from Kurose &amp; Ross. Start at Section 1 and work through in order, or jump to any topic using the sidebar. Each section builds on the last.</p>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">Section 1</div>
+      <h2 class="section-title">Introduction &amp; Transport-Layer Services</h2>
+      <p class="section-subtitle">What the transport layer does, how it relates to the network layer, and the two Internet transport protocols.</p>
+    </div>
+
+    <p>Imagine two people in different cities trying to have a conversation. The postal system delivers envelopes from house to house—but it doesn't know or care which person in the house the letter is addressed to. Someone inside each house reads the name on the letter and hands it to the right person. The transport layer is exactly that someone inside the house.</p>
+
+    <div class="callout callout-key">
+      <p><strong>Core Definition:</strong> A transport-layer protocol provides <em>logical communication between application processes</em> running on different hosts. The network layer provides logical communication between hosts; the transport layer extends this to process-to-process delivery.</p>
+    </div>
+
+    <h3>3.1.1 Transport Layer vs. Network Layer</h3>
+    <p>The distinction between these two layers is subtle but critical:</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Household Analogy — Transport vs. Network Layer</div>
+      <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="arr1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <!-- West House -->
+        <rect x="30" y="30" width="180" height="160" rx="10" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="120" y="55" text-anchor="middle" fill="white" font-size="13" font-weight="600">West Coast House</text>
+        <text x="120" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">Ann (Transport Layer)</text>
+        <circle cx="60" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="60" y="115" text-anchor="middle" fill="white" font-size="9">Kid 1</text>
+        <circle cx="100" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="100" y="115" text-anchor="middle" fill="white" font-size="9">Kid 2</text>
+        <circle cx="140" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="140" y="115" text-anchor="middle" fill="white" font-size="9">Kid 3</text>
+        <circle cx="180" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="180" y="115" text-anchor="middle" fill="white" font-size="9">Kid 4</text>
+        <rect x="60" y="145" width="120" height="26" rx="6" fill="#243350" stroke="#00c9a7" stroke-width="1"/>
+        <text x="120" y="163" text-anchor="middle" fill="#00c9a7" font-size="11">Ann collects mail</text>
+
+        <!-- Postal Service Arrow -->
+        <rect x="240" y="85" width="220" height="50" rx="8" fill="#0f1929" stroke="#f5a623" stroke-width="1.5"/>
+        <text x="350" y="107" text-anchor="middle" fill="#f5a623" font-size="11" font-weight="600">Postal Service</text>
+        <text x="350" y="124" text-anchor="middle" fill="#94a3b8" font-size="10">(Network Layer)</text>
+        <line x1="210" y1="110" x2="240" y2="110" stroke="#00c9a7" stroke-width="2" marker-end="url(#arr1)"/>
+        <line x1="460" y1="110" x2="490" y2="110" stroke="#00c9a7" stroke-width="2" marker-end="url(#arr1)"/>
+
+        <!-- East House -->
+        <rect x="490" y="30" width="180" height="160" rx="10" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="580" y="55" text-anchor="middle" fill="white" font-size="13" font-weight="600">East Coast House</text>
+        <text x="580" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">Bill (Transport Layer)</text>
+        <circle cx="520" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="520" y="115" text-anchor="middle" fill="white" font-size="9">Kid A</text>
+        <circle cx="560" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="560" y="115" text-anchor="middle" fill="white" font-size="9">Kid B</text>
+        <circle cx="600" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="600" y="115" text-anchor="middle" fill="white" font-size="9">Kid C</text>
+        <circle cx="640" cy="110" r="14" fill="#243350" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="640" y="115" text-anchor="middle" fill="white" font-size="9">Kid D</text>
+        <rect x="520" y="145" width="120" height="26" rx="6" fill="#243350" stroke="#00c9a7" stroke-width="1"/>
+        <text x="580" y="163" text-anchor="middle" fill="#00c9a7" font-size="11">Bill delivers mail</text>
+
+        <!-- Labels -->
+        <text x="350" y="200" text-anchor="middle" fill="#475569" font-size="10">app messages = letters · processes = kids · hosts = houses</text>
+      </svg>
+    </div>
+
+    <table class="compare-table">
+      <tr><th>Analogy Element</th><th>Network Concept</th></tr>
+      <tr><td>Letters in envelopes</td><td>Application messages</td></tr>
+      <tr><td>Cousins (individual people)</td><td>Processes</td></tr>
+      <tr><td>Houses</td><td>Hosts (end systems)</td></tr>
+      <tr><td>Ann and Bill (in-house distributors)</td><td>Transport-layer protocol</td></tr>
+      <tr><td>Postal service (house-to-house)</td><td>Network-layer protocol (IP)</td></tr>
+    </table>
+
+    <div class="callout callout-warn">
+      <p><strong>Key Constraint:</strong> The services a transport protocol can provide are constrained by the underlying network-layer service model. If IP cannot guarantee delay or bandwidth, TCP/UDP cannot either — at least not without adding mechanisms on top.</p>
+    </div>
+
+    <h3>3.1.2 Internet Transport Protocols: TCP and UDP</h3>
+    <p>IP — the Internet's network layer protocol — provides a <strong>best-effort delivery service</strong>: no guarantees on delivery, ordering, or data integrity. It is an <em>unreliable service</em>. Both TCP and UDP sit on top of IP and extend it in different ways.</p>
+
+    <div class="two-col">
+      <div class="col-box">
+        <h4>UDP — User Datagram Protocol</h4>
+        <ul>
+          <li>Connectionless (no handshaking)</li>
+          <li>Unreliable — no guarantee of delivery or ordering</li>
+          <li>Provides only multiplexing/demultiplexing + error checking</li>
+          <li>Low overhead (8-byte header)</li>
+          <li>Used by: DNS, SNMP, RIP, streaming media</li>
+        </ul>
+      </div>
+      <div class="col-box">
+        <h4>TCP — Transmission Control Protocol</h4>
+        <ul>
+          <li>Connection-oriented (3-way handshake)</li>
+          <li>Reliable, in-order byte stream delivery</li>
+          <li>Flow control (receiver buffer management)</li>
+          <li>Congestion control (network protection)</li>
+          <li>Used by: HTTP, SMTP, FTP, Telnet</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout callout-note">
+      <p><strong>Terminology Note:</strong> The book refers to both TCP and UDP packets as <em>segments</em>. The term <em>datagram</em> is reserved for network-layer (IP) packets. In RFCs, UDP packets are sometimes called datagrams, but Kurose &amp; Ross use "segment" throughout for clarity.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">Section 2</div>
+      <h2 class="section-title">Multiplexing &amp; Demultiplexing</h2>
+      <p class="section-subtitle">How one transport layer serves many application processes simultaneously using port numbers.</p>
+    </div>
+
+    <p>At any moment, a computer may run a web browser, an email client, a file-transfer session, and more — all simultaneously receiving data from the network. The transport layer needs a way to hand incoming data to the correct application. This is <strong>demultiplexing</strong>. The reverse — collecting data from multiple apps and sending them as segments — is <strong>multiplexing</strong>.</p>
+
+    <div class="callout callout-key">
+      <p><strong>Port Numbers:</strong> Each segment carries a source port number and a destination port number, each 16 bits (range: 0–65535). Port numbers 0–1023 are <em>well-known ports</em> reserved for standard protocols (HTTP=80, FTP=21). Applications above 1023 are assigned dynamically.</p>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-title">Transport-Layer Multiplexing and Demultiplexing</div>
+      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4a9eff"/>
+          </marker>
+          <marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <!-- Host A (Sender) -->
+        <rect x="10" y="10" width="150" height="250" rx="8" fill="#1a2840" stroke="#243350" stroke-width="1.5"/>
+        <text x="85" y="32" text-anchor="middle" fill="white" font-size="12" font-weight="600">Host A (Sender)</text>
+        <!-- App processes -->
+        <rect x="25" y="45" width="55" height="28" rx="5" fill="#243350" stroke="#4a9eff" stroke-width="1"/>
+        <text x="52" y="64" text-anchor="middle" fill="#4a9eff" font-size="10">P1</text>
+        <rect x="90" y="45" width="55" height="28" rx="5" fill="#243350" stroke="#4a9eff" stroke-width="1"/>
+        <text x="117" y="64" text-anchor="middle" fill="#4a9eff" font-size="10">P2</text>
+        <!-- Arrow down -->
+        <line x1="85" y1="73" x2="85" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+        <!-- Transport -->
+        <rect x="20" y="105" width="120" height="35" rx="5" fill="#243350" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="80" y="120" text-anchor="middle" fill="white" font-size="10" font-weight="600">Transport</text>
+        <text x="80" y="133" text-anchor="middle" fill="#94a3b8" font-size="9">Multiplexing</text>
+        <!-- Segment box -->
+        <rect x="20" y="155" width="120" height="30" rx="4" fill="#0f1929" stroke="#f5a623" stroke-width="1"/>
+        <text x="55" y="174" text-anchor="middle" fill="#f5a623" font-size="9">src:p1</text>
+        <text x="90" y="174" text-anchor="middle" fill="#f5a623" font-size="9">dst:80</text>
+        <!-- Network -->
+        <rect x="20" y="200" width="120" height="28" rx="5" fill="#243350" stroke="#94a3b8" stroke-width="1"/>
+        <text x="80" y="219" text-anchor="middle" fill="#94a3b8" font-size="10">Network Layer</text>
+        <text x="80" y="248" text-anchor="middle" fill="#475569" font-size="9">to network →</text>
+
+        <!-- Middle Network Cloud -->
+        <ellipse cx="350" cy="165" rx="80" ry="45" fill="#0f1929" stroke="#243350" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="350" y="161" text-anchor="middle" fill="#94a3b8" font-size="11">Network</text>
+        <text x="350" y="177" text-anchor="middle" fill="#94a3b8" font-size="11">Core</text>
+        <!-- Arrows -->
+        <line x1="160" y1="165" x2="270" y2="165" stroke="#4a9eff" stroke-width="2" marker-end="url(#arr2)"/>
+        <line x1="430" y1="165" x2="540" y2="165" stroke="#4a9eff" stroke-width="2" marker-end="url(#arr2)"/>
+
+        <!-- Host B (Receiver) -->
+        <rect x="540" y="10" width="150" height="250" rx="8" fill="#1a2840" stroke="#243350" stroke-width="1.5"/>
+        <text x="615" y="32" text-anchor="middle" fill="white" font-size="12" font-weight="600">Host B (Receiver)</text>
+        <!-- App processes -->
+        <rect x="555" y="45" width="55" height="28" rx="5" fill="#243350" stroke="#4a9eff" stroke-width="1"/>
+        <text x="582" y="64" text-anchor="middle" fill="#4a9eff" font-size="10">P3</text>
+        <rect x="620" y="45" width="55" height="28" rx="5" fill="#243350" stroke="#4a9eff" stroke-width="1"/>
+        <text x="647" y="64" text-anchor="middle" fill="#4a9eff" font-size="10">P4</text>
+        <!-- Arrow up -->
+        <line x1="615" y1="105" x2="615" y2="73" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <!-- Transport -->
+        <rect x="550" y="105" width="120" height="35" rx="5" fill="#243350" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="610" y="120" text-anchor="middle" fill="white" font-size="10" font-weight="600">Transport</text>
+        <text x="610" y="133" text-anchor="middle" fill="#94a3b8" font-size="9">Demultiplexing</text>
+        <!-- Segment box -->
+        <rect x="550" y="155" width="120" height="30" rx="4" fill="#0f1929" stroke="#f5a623" stroke-width="1"/>
+        <text x="585" y="174" text-anchor="middle" fill="#f5a623" font-size="9">src:p1</text>
+        <text x="620" y="174" text-anchor="middle" fill="#f5a623" font-size="9">dst:80</text>
+        <!-- Network -->
+        <rect x="550" y="200" width="120" height="28" rx="5" fill="#243350" stroke="#94a3b8" stroke-width="1"/>
+        <text x="610" y="219" text-anchor="middle" fill="#94a3b8" font-size="10">Network Layer</text>
+        <text x="610" y="248" text-anchor="middle" fill="#475569" font-size="9">← from network</text>
+      </svg>
+    </div>
+
+    <h3>Connectionless Demultiplexing (UDP)</h3>
+    <p>A UDP socket is identified by a <strong>two-tuple</strong>: (destination IP address, destination port number). Two UDP segments with different source addresses/ports but the same destination IP and destination port will be directed to the <em>same</em> socket.</p>
+
+    <div class="callout callout-note">
+      <p><strong>Why does the source port matter in UDP?</strong> It serves as a "return address." When Host B wants to reply to Host A, B uses A's source port number as the destination port in its response segment.</p>
+    </div>
+
+    <h3>Connection-Oriented Demultiplexing (TCP)</h3>
+    <p>A TCP socket is identified by a <strong>four-tuple</strong>: (source IP, source port, destination IP, destination port). This means two TCP segments arriving with different source IPs or source ports — even with the same destination port 80 — are directed to <em>different</em> sockets.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">TCP Demultiplexing — Multiple Clients, Same Destination Port</div>
+      <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="arr4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <!-- Client A -->
+        <rect x="10" y="80" width="120" height="60" rx="8" fill="#1a2840" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="70" y="107" text-anchor="middle" fill="white" font-size="11" font-weight="600">Client A</text>
+        <text x="70" y="124" text-anchor="middle" fill="#94a3b8" font-size="9">src: A:26145</text>
+        <!-- Client C (two connections) -->
+        <rect x="10" y="10" width="120" height="55" rx="8" fill="#1a2840" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="70" y="32" text-anchor="middle" fill="white" font-size="11" font-weight="600">Client C — Conn 1</text>
+        <text x="70" y="48" text-anchor="middle" fill="#94a3b8" font-size="9">src: C:26145</text>
+        <rect x="10" y="155" width="120" height="55" rx="8" fill="#1a2840" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="70" y="177" text-anchor="middle" fill="white" font-size="11" font-weight="600">Client C — Conn 2</text>
+        <text x="70" y="193" text-anchor="middle" fill="#94a3b8" font-size="9">src: C:7532</text>
+
+        <!-- Arrows to server -->
+        <line x1="130" y1="37" x2="390" y2="80" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr4)"/>
+        <line x1="130" y1="110" x2="390" y2="110" stroke="#4a9eff" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr4)"/>
+        <line x1="130" y1="182" x2="390" y2="140" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr4)"/>
+
+        <!-- Labels -->
+        <text x="255" y="62" text-anchor="middle" fill="#a78bfa" font-size="9">dst: B:80, src IP=C</text>
+        <text x="255" y="103" text-anchor="middle" fill="#4a9eff" font-size="9">dst: B:80, src IP=A</text>
+        <text x="255" y="155" text-anchor="middle" fill="#a78bfa" font-size="9">dst: B:80, src IP=C</text>
+
+        <!-- Server B -->
+        <rect x="390" y="20" width="290" height="190" rx="10" fill="#1a2840" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="535" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="600">Server B — Port 80</text>
+        <!-- Three sockets -->
+        <rect x="405" y="60" width="120" height="35" rx="5" fill="#243350" stroke="#a78bfa" stroke-width="1"/>
+        <text x="465" y="82" text-anchor="middle" fill="#a78bfa" font-size="10">Socket: (C,26145,B,80)</text>
+        <rect x="405" y="105" width="120" height="35" rx="5" fill="#243350" stroke="#4a9eff" stroke-width="1"/>
+        <text x="465" y="127" text-anchor="middle" fill="#4a9eff" font-size="10">Socket: (A,26145,B,80)</text>
+        <rect x="405" y="150" width="120" height="35" rx="5" fill="#243350" stroke="#a78bfa" stroke-width="1"/>
+        <text x="465" y="172" text-anchor="middle" fill="#a78bfa" font-size="10">Socket: (C,7532,B,80)</text>
+
+        <text x="550" y="85" text-anchor="start" fill="#94a3b8" font-size="9">→ Process C-conn1</text>
+        <text x="550" y="127" text-anchor="start" fill="#94a3b8" font-size="9">→ Process A</text>
+        <text x="550" y="172" text-anchor="start" fill="#94a3b8" font-size="9">→ Process C-conn2</text>
+      </svg>
+    </div>
+
+    <div class="callout callout-key">
+      <p><strong>UDP socket = 2-tuple</strong> (dst IP, dst port). <strong>TCP socket = 4-tuple</strong> (src IP, src port, dst IP, dst port). This is why a web server can handle thousands of simultaneous HTTP connections all arriving on port 80 — each is a unique 4-tuple.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">Section 3</div>
+      <h2 class="section-title">Connectionless Transport: UDP</h2>
+      <p class="section-subtitle">The minimal transport protocol — what it does, why you'd use it, and how its checksum works.</p>
+    </div>
+
+    <p>UDP does almost nothing on top of IP. It adds port numbers for multiplexing, a length field, and a checksum — that's it. There is no handshaking, no connection state, no congestion control, and no reliability. If the application passes data to UDP, UDP immediately shoots it out as a segment without consulting the other end.</p>
+
+    <h3>Why Use UDP Instead of TCP?</h3>
+    <ul>
+      <li><strong>Finer application control over what/when to send</strong> — UDP doesn't throttle; TCP's congestion control can delay or reduce transmission.</li>
+      <li><strong>No connection-establishment delay</strong> — DNS uses UDP precisely because a TCP 3-way handshake would roughly double DNS query latency.</li>
+      <li><strong>No connection state</strong> — A UDP server can support far more simultaneous clients because it maintains no per-connection buffers or variables.</li>
+      <li><strong>Small header overhead</strong> — UDP has 8 bytes; TCP has 20 bytes.</li>
+    </ul>
+
+    <table class="compare-table">
+      <tr><th>Application</th><th>Protocol</th><th>Reason</th></tr>
+      <tr><td>DNS</td><td>UDP</td><td>No setup delay; retransmit at app level if needed</td></tr>
+      <tr><td>SNMP (network mgmt)</td><td>UDP</td><td>Must work under congestion; TCP may not be available</td></tr>
+      <tr><td>RIP routing updates</td><td>UDP</td><td>Periodic — stale updates replaced by newer ones</td></tr>
+      <tr><td>Streaming media</td><td>UDP or TCP</td><td>Tolerates loss; avoids TCP congestion throttling</td></tr>
+      <tr><td>HTTP, SMTP, FTP</td><td>TCP</td><td>Requires reliable delivery</td></tr>
+    </table>
+
+    <div class="callout callout-warn">
+      <p><strong>UDP and Congestion:</strong> UDP has no congestion control. If all applications used UDP freely during network congestion, router queues would overflow and TCP connections (which do back off) would be crowded out. This is a real fairness concern.</p>
+    </div>
+
+    <h3>3.3.1 UDP Segment Structure</h3>
+    <p>The UDP header is only 8 bytes — four fields, two bytes each:</p>
+
+    <div class="packet-fields">
+      <div class="pf-row">
+        <span class="pf-name">Source Port</span>
+        <span class="pf-bits">16 bits</span>
+        <span class="pf-desc">Port number of the sending process. Used as return address in replies.</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Destination Port</span>
+        <span class="pf-bits">16 bits</span>
+        <span class="pf-desc">Port number of the receiving process. Used by transport layer to demultiplex to the correct socket.</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Length</span>
+        <span class="pf-bits">16 bits</span>
+        <span class="pf-desc">Total length of the UDP segment (header + data) in bytes. Minimum value is 8 (header only).</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Checksum</span>
+        <span class="pf-bits">16 bits</span>
+        <span class="pf-desc">1s complement of sum of all 16-bit words in segment. Used for error detection. All-zeros means no checksum was computed.</span>
+      </div>
+    </div>
+
+    <h3>3.3.2 UDP Checksum — Worked Example</h3>
+    <p>The sender adds up all 16-bit words in the segment, wraps overflows around, then takes the 1s complement. The receiver adds all four 16-bit words (including checksum) — if the result is all 1s, no error was detected.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">1s Complement Checksum Calculation</div>
+      <svg viewBox="0 0 620 270" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <!-- Background -->
+        <rect x="10" y="10" width="600" height="250" rx="10" fill="#0f1929"/>
+        <!-- Step 1: Add first two words -->
+        <text x="30" y="45" fill="#94a3b8" font-size="11" font-weight="600">Step 1: Add first two 16-bit words</text>
+        <text x="30" y="68" fill="#4a9eff" font-size="13" font-family="monospace">  0110011001100000</text>
+        <text x="30" y="86" fill="#4a9eff" font-size="13" font-family="monospace">+ 0101010101010101</text>
+        <line x1="30" y1="92" x2="280" y2="92" stroke="#243350" stroke-width="1.5"/>
+        <text x="30" y="110" fill="#00c9a7" font-size="13" font-family="monospace">= 1011101110110101</text>
+
+        <!-- Step 2: Add third word -->
+        <text x="30" y="140" fill="#94a3b8" font-size="11" font-weight="600">Step 2: Add third word (with overflow wrap-around)</text>
+        <text x="30" y="163" fill="#00c9a7" font-size="13" font-family="monospace">  1011101110110101</text>
+        <text x="30" y="181" fill="#4a9eff" font-size="13" font-family="monospace">+ 1000111100001100</text>
+        <line x1="30" y1="187" x2="280" y2="187" stroke="#243350" stroke-width="1.5"/>
+        <text x="30" y="205" fill="#f5a623" font-size="13" font-family="monospace">= 0100101011000010</text>
+        <text x="290" y="200" fill="#94a3b8" font-size="10">(overflow wrapped around)</text>
+
+        <!-- Step 3: 1s complement -->
+        <text x="30" y="235" fill="#94a3b8" font-size="11" font-weight="600">Step 3: 1s complement = flip all bits → checksum</text>
+        <text x="290" y="235" fill="#e05c5c" font-size="13" font-family="monospace">1011010100111101</text>
+      </svg>
+    </div>
+
+    <p>At the receiver, all four 16-bit words (including the checksum) are summed. If no errors occurred, the result is <code>1111111111111111</code>. If any bit is 0, an error has been detected.</p>
+
+    <div class="callout callout-note">
+      <p><strong>End-End Principle:</strong> UDP provides checksum even though link-layer protocols (like Ethernet) also check for errors. Why? Because not all links provide error checking, and errors can occur in router memory. Reliable end-to-end integrity requires an end-to-end check — the "end-end principle."</p>
+    </div>
+  </section>
+
+  <!-- SECTION 4: Reliable Data Transfer -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">Section 4</div>
+      <h2 class="section-title">Principles of Reliable Data Transfer</h2>
+      <p class="section-subtitle">Building rdt1.0 through rdt3.0 — how to achieve reliability over an unreliable channel.</p>
+    </div>
+
+    <p>Here we build up a reliable data transfer (rdt) protocol step by step, each version handling a harder channel model. The goal: the <em>service abstraction</em> is a perfectly reliable channel; the <em>reality</em> is a channel that can corrupt bits or lose packets entirely.</p>
+
+    <div class="callout callout-key">
+      <p><strong>Interface:</strong> <code>rdt_send(data)</code> — called from above to send data. <code>udt_send(packet)</code> — sends over unreliable channel. <code>rdt_rcv(packet)</code> — called when packet arrives. <code>deliver_data(data)</code> — delivers to upper layer.</p>
+    </div>
+
+    <h3>rdt1.0 — Perfectly Reliable Channel</h3>
+    <p>If the channel never corrupts or loses packets, the protocol is trivial: sender wraps data in a packet and sends it; receiver extracts and delivers. No feedback needed.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">rdt1.0 FSM — Sender and Receiver</div>
+      <svg viewBox="0 0 620 160" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="selfArr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <!-- Sender state -->
+        <circle cx="150" cy="85" r="55" fill="#1a2840" stroke="#00c9a7" stroke-width="2"/>
+        <text x="150" y="78" text-anchor="middle" fill="white" font-size="11" font-weight="600">Wait for</text>
+        <text x="150" y="95" text-anchor="middle" fill="white" font-size="11">call from</text>
+        <text x="150" y="112" text-anchor="middle" fill="white" font-size="11">above</text>
+        <!-- Self loop sender -->
+        <path d="M 200 55 Q 240 10 200 40" fill="none" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#selfArr)"/>
+        <text x="255" y="28" text-anchor="middle" fill="#f5a623" font-size="10">rdt_send(data)</text>
+        <text x="255" y="43" text-anchor="middle" fill="#94a3b8" font-size="9">packet=make_pkt(data)</text>
+        <text x="255" y="56" text-anchor="middle" fill="#94a3b8" font-size="9">udt_send(packet)</text>
+
+        <!-- Receiver state -->
+        <circle cx="470" cy="85" r="55" fill="#1a2840" stroke="#4a9eff" stroke-width="2"/>
+        <text x="470" y="78" text-anchor="middle" fill="white" font-size="11" font-weight="600">Wait for</text>
+        <text x="470" y="95" text-anchor="middle" fill="white" font-size="11">call from</text>
+        <text x="470" y="112" text-anchor="middle" fill="white" font-size="11">below</text>
+        <!-- Self loop receiver -->
+        <path d="M 520 55 Q 560 10 520 40" fill="none" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#selfArr)"/>
+        <text x="580" y="28" text-anchor="middle" fill="#f5a623" font-size="10">rdt_rcv(packet)</text>
+        <text x="580" y="43" text-anchor="middle" fill="#94a3b8" font-size="9">extract(packet,data)</text>
+        <text x="580" y="56" text-anchor="middle" fill="#94a3b8" font-size="9">deliver_data(data)</text>
+
+        <text x="10" y="90" fill="#00c9a7" font-size="11" font-weight="600">SENDER</text>
+        <text x="390" y="90" fill="#4a9eff" font-size="11" font-weight="600">RECEIVER</text>
+      </svg>
+    </div>
+
+    <h3>rdt2.0 — Channel with Bit Errors (ACK/NAK)</h3>
+    <p>Now bits can be flipped. The receiver must detect corruption and tell the sender. This introduces <strong>ARQ (Automatic Repeat reQuest)</strong> — three new mechanisms:</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content"><strong>Error Detection</strong><p>A checksum field in the data packet lets the receiver detect bit errors.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content"><strong>Receiver Feedback</strong><p>The receiver sends explicit ACK (positive) or NAK (negative) acknowledgments back to the sender.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content"><strong>Retransmission</strong><p>On receiving a NAK, the sender retransmits the corrupted packet. This makes rdt2.0 a <em>stop-and-wait</em> protocol.</p></div>
+      </div>
+    </div>
+
+    <div class="callout callout-alert">
+      <p><strong>Fatal Flaw in rdt2.0:</strong> What if the ACK or NAK itself is corrupted? The sender can't tell if the receiver got the packet. If the sender re-sends on a garbled ACK/NAK, the receiver can't tell if it's new data or a retransmission. rdt2.0 is broken.</p>
+    </div>
+
+    <h3>rdt2.1 — Sequence Numbers Fix Duplicates</h3>
+    <p>The fix: add a <strong>sequence number</strong> to each data packet. For stop-and-wait, a <strong>1-bit sequence number</strong> suffices — it alternates between 0 and 1. The receiver uses it to distinguish retransmissions from new data.</p>
+
+    <div class="two-col">
+      <div class="col-box">
+        <h4>Sender Behavior (rdt2.1)</h4>
+        <ul>
+          <li>Numbers packets 0 or 1</li>
+          <li>Waits for ACK or NAK</li>
+          <li>On NAK or corrupted ACK/NAK: retransmits same packet</li>
+          <li>On correct ACK: moves to next sequence number</li>
+        </ul>
+      </div>
+      <div class="col-box">
+        <h4>Receiver Behavior (rdt2.1)</h4>
+        <ul>
+          <li>Checks seq number against expected</li>
+          <li>Correct packet, correct seq: deliver + ACK</li>
+          <li>Correct packet, wrong seq: must be duplicate, ACK (don't deliver)</li>
+          <li>Corrupted packet: send NAK</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>rdt2.2 — NAK-Free Protocol</h3>
+    <p>Instead of sending a NAK, the receiver can send an <strong>ACK for the last correctly received packet</strong>. A duplicate ACK for sequence 0 means sequence 1 was corrupt — same effect as NAK. The sender checks the ACK's sequence number field.</p>
+
+    <div class="callout callout-key">
+      <p><strong>Insight:</strong> rdt2.2 is NAK-free by using <em>duplicate ACKs</em> instead of explicit NAKs. TCP uses this exact approach — no NAK packets, but duplicate ACKs trigger retransmission.</p>
+    </div>
+
+    <h3>rdt3.0 — Lossy Channel with Bit Errors (Timers)</h3>
+    <p>Now packets can be <em>lost</em> entirely (not just corrupted). A lost data packet or lost ACK leaves the sender waiting forever. Solution: a <strong>countdown timer</strong>. If the sender doesn't hear an ACK within a timeout interval, it retransmits.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">rdt3.0 Operation — Four Scenarios</div>
+      <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="msgArr" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="#4a9eff"/>
+          </marker>
+          <marker id="ackArr" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <!-- Scenario A: No Loss -->
+        <text x="80" y="18" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">a. No Loss</text>
+        <line x1="30" y1="25" x2="30" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="130" y1="25" x2="130" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="30" y="22" text-anchor="middle" fill="#475569" font-size="9">S</text>
+        <text x="130" y="22" text-anchor="middle" fill="#475569" font-size="9">R</text>
+        <line x1="30" y1="50" x2="130" y2="90" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="80" y="63" text-anchor="middle" fill="#4a9eff" font-size="8">pkt0</text>
+        <line x1="130" y1="110" x2="30" y2="150" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#ackArr)"/>
+        <text x="80" y="123" text-anchor="middle" fill="#00c9a7" font-size="8">ACK0</text>
+        <line x1="30" y1="170" x2="130" y2="210" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="80" y="183" text-anchor="middle" fill="#4a9eff" font-size="8">pkt1</text>
+        <line x1="130" y1="230" x2="30" y2="270" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#ackArr)"/>
+        <text x="80" y="243" text-anchor="middle" fill="#00c9a7" font-size="8">ACK1</text>
+
+        <!-- Scenario B: Lost Packet -->
+        <text x="255" y="18" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">b. Lost Packet</text>
+        <line x1="205" y1="25" x2="205" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="305" y1="25" x2="305" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="205" y="22" text-anchor="middle" fill="#475569" font-size="9">S</text>
+        <text x="305" y="22" text-anchor="middle" fill="#475569" font-size="9">R</text>
+        <line x1="205" y1="50" x2="305" y2="90" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="255" y="63" text-anchor="middle" fill="#4a9eff" font-size="8">pkt0</text>
+        <line x1="205" y1="110" x2="305" y2="150" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#msgArr)" stroke-dasharray="4,3"/>
+        <text x="255" y="128" fill="#e05c5c" font-size="11">✕</text>
+        <text x="255" y="140" text-anchor="middle" fill="#e05c5c" font-size="8">pkt1 LOST</text>
+        <!-- Timer bracket -->
+        <rect x="196" y="108" width="8" height="80" rx="2" fill="#f5a623" opacity=".5"/>
+        <text x="185" y="160" text-anchor="end" fill="#f5a623" font-size="8">timeout</text>
+        <!-- Retransmit -->
+        <line x1="205" y1="200" x2="305" y2="240" stroke="#f5a623" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="255" y="213" text-anchor="middle" fill="#f5a623" font-size="8">pkt1 retx</text>
+        <line x1="305" y1="258" x2="205" y2="295" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#ackArr)"/>
+        <text x="255" y="270" text-anchor="middle" fill="#00c9a7" font-size="8">ACK1</text>
+
+        <!-- Scenario C: Lost ACK -->
+        <text x="430" y="18" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">c. Lost ACK</text>
+        <line x1="380" y1="25" x2="380" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="480" y1="25" x2="480" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="380" y="22" text-anchor="middle" fill="#475569" font-size="9">S</text>
+        <text x="480" y="22" text-anchor="middle" fill="#475569" font-size="9">R</text>
+        <line x1="380" y1="50" x2="480" y2="90" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="430" y="63" text-anchor="middle" fill="#4a9eff" font-size="8">pkt1</text>
+        <line x1="480" y1="108" x2="380" y2="145" stroke="#00c9a7" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ackArr)"/>
+        <text x="430" y="120" fill="#e05c5c" font-size="11">✕</text>
+        <text x="430" y="133" text-anchor="middle" fill="#e05c5c" font-size="8">ACK1 LOST</text>
+        <rect x="371" y="108" width="8" height="75" rx="2" fill="#f5a623" opacity=".5"/>
+        <text x="358" y="155" text-anchor="end" fill="#f5a623" font-size="8">timeout</text>
+        <line x1="380" y1="193" x2="480" y2="233" stroke="#f5a623" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="430" y="207" text-anchor="middle" fill="#f5a623" font-size="8">pkt1 retx</text>
+        <text x="495" y="248" fill="#94a3b8" font-size="8">dup, discard</text>
+        <line x1="480" y1="253" x2="380" y2="290" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#ackArr)"/>
+        <text x="430" y="265" text-anchor="middle" fill="#00c9a7" font-size="8">ACK1</text>
+
+        <!-- Scenario D: Premature Timeout -->
+        <text x="610" y="18" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">d. Premature Timeout</text>
+        <line x1="560" y1="25" x2="560" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="660" y1="25" x2="660" y2="310" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="560" y="22" text-anchor="middle" fill="#475569" font-size="9">S</text>
+        <text x="660" y="22" text-anchor="middle" fill="#475569" font-size="9">R</text>
+        <line x1="560" y1="50" x2="660" y2="90" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="610" y="63" text-anchor="middle" fill="#4a9eff" font-size="8">pkt0</text>
+        <rect x="551" y="50" width="8" height="55" rx="2" fill="#f5a623" opacity=".5"/>
+        <line x1="560" y1="115" x2="660" y2="155" stroke="#f5a623" stroke-width="1.5" marker-end="url(#msgArr)"/>
+        <text x="610" y="128" text-anchor="middle" fill="#f5a623" font-size="8">pkt0 retx (premature)</text>
+        <line x1="660" y1="108" x2="560" y2="190" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#ackArr)"/>
+        <text x="620" y="148" text-anchor="middle" fill="#00c9a7" font-size="8">ACK0</text>
+        <text x="665" y="170" fill="#94a3b8" font-size="8">dup, discard</text>
+        <line x1="660" y1="175" x2="560" y2="250" stroke="#00c9a7" stroke-width="1.5" marker-end="url(#ackArr)"/>
+      </svg>
+    </div>
+
+    <div class="callout callout-key">
+      <p><strong>rdt3.0 = Alternating-Bit Protocol.</strong> Sequence numbers alternate 0 ↔ 1. Sender starts timer on every packet; retransmits on timeout. Sequence numbers handle duplicates. This protocol is correct but slow — it's stop-and-wait with 1 packet in flight at a time.</p>
+    </div>
+
+    <h3>Performance of rdt3.0 (Stop-and-Wait)</h3>
+    <p>Consider two hosts on opposite coasts: RTT = 30 ms, link rate R = 1 Gbps, packet size L = 1,000 bytes (8,000 bits).</p>
+
+    <div class="algo-box">
+<span class="comment">// Transmission time to send one packet:</span>
+d_trans = L / R = <span class="num">8000</span> bits / <span class="num">10^9</span> bits/sec = <span class="num">8 microseconds</span>
+
+<span class="comment">// Sender utilization (fraction of time actually sending):</span>
+U_sender = (L/R) / (RTT + L/R)
+         = <span class="num">0.008</span> ms / (<span class="num">30.008</span> ms)
+         = <span class="num">0.00027</span>   <span class="comment">// Only 0.027% of the time!</span>
+
+<span class="comment">// Effective throughput (despite 1 Gbps link):</span>
+Throughput ≈ L / (RTT + L/R) = <span class="num">8000</span> bits / <span class="num">0.030008</span> s ≈ <span class="num">267 kbps</span>
+    </div>
+
+    <div class="callout callout-alert">
+      <p><strong>Critical Performance Problem:</strong> Stop-and-wait achieves only 267 kbps on a 1 Gbps link. The sender is idle 99.97% of the time. Solution: <em>pipelining</em> — allow multiple packets to be in flight simultaneously.</p>
+    </div>
+
+    <h3>Summary of rdt Mechanisms</h3>
+    <table class="compare-table">
+      <tr><th>Mechanism</th><th>Purpose</th></tr>
+      <tr><td>Checksum</td><td>Detect bit errors in transmitted packet</td></tr>
+      <tr><td>Timer</td><td>Timeout/retransmit if ACK not received in time (handles lost packets)</td></tr>
+      <tr><td>Sequence Number</td><td>Number packets to detect lost or duplicate copies</td></tr>
+      <tr><td>Acknowledgment (ACK)</td><td>Receiver tells sender packet(s) received correctly</td></tr>
+      <tr><td>Negative Ack (NAK)</td><td>Receiver tells sender packet was corrupted (replaced by duplicate ACK in rdt2.2+)</td></tr>
+      <tr><td>Window / Pipelining</td><td>Allow multiple in-flight packets to increase utilization</td></tr>
+    </table>
+  </section>
+
+  <!-- SECTION 5: GBN and SR -->
+  <section class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">Section 5</div>
+      <h2 class="section-title">Pipelined Protocols: Go-Back-N &amp; Selective Repeat</h2>
+      <p class="section-subtitle">How to keep the pipe full — window-based protocols and their error recovery strategies.</p>
+    </div>
+
+    <p>Pipelining allows the sender to send multiple packets without waiting for each individual ACK. The sender can have up to <strong>N unacknowledged packets</strong> in the pipeline at once (the <em>window size</em>). Two protocols handle errors differently when they occur.</p>
+
+    <h3>3.4.3 Go-Back-N (GBN)</h3>
+    <p>The sender maintains a window of size N. On timeout or wrong-seq-num ACK, it retransmits the lost packet <em>and all subsequent packets</em> — it goes back to N.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">GBN Sender Window — Sequence Number Space</div>
+      <svg viewBox="0 0 620 120" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <!-- Sequence number boxes -->
+        <!-- Already ACK'd: 0-2 -->
+        <rect x="10" y="40" width="40" height="40" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="30" y="65" text-anchor="middle" fill="#94a3b8" font-size="13">0</text>
+        <rect x="50" y="40" width="40" height="40" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="70" y="65" text-anchor="middle" fill="#94a3b8" font-size="13">1</text>
+        <rect x="90" y="40" width="40" height="40" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="110" y="65" text-anchor="middle" fill="#94a3b8" font-size="13">2</text>
+        <!-- Sent, not ACK'd: 3-6 (window) -->
+        <rect x="130" y="30" width="40" height="60" fill="#243350" stroke="#f5a623" stroke-width="2"/>
+        <text x="150" y="65" text-anchor="middle" fill="#f5a623" font-size="13">3</text>
+        <rect x="170" y="30" width="40" height="60" fill="#243350" stroke="#f5a623" stroke-width="2"/>
+        <text x="190" y="65" text-anchor="middle" fill="#f5a623" font-size="13">4</text>
+        <rect x="210" y="30" width="40" height="60" fill="#243350" stroke="#f5a623" stroke-width="2"/>
+        <text x="230" y="65" text-anchor="middle" fill="#f5a623" font-size="13">5</text>
+        <rect x="250" y="30" width="40" height="60" fill="#243350" stroke="#f5a623" stroke-width="2"/>
+        <text x="270" y="65" text-anchor="middle" fill="#f5a623" font-size="13">6</text>
+        <!-- Usable, not sent: 7-9 -->
+        <rect x="290" y="30" width="40" height="60" fill="#0f1929" stroke="#00c9a7" stroke-width="2"/>
+        <text x="310" y="65" text-anchor="middle" fill="#00c9a7" font-size="13">7</text>
+        <rect x="330" y="30" width="40" height="60" fill="#0f1929" stroke="#00c9a7" stroke-width="2"/>
+        <text x="350" y="65" text-anchor="middle" fill="#00c9a7" font-size="13">8</text>
+        <rect x="370" y="30" width="40" height="60" fill="#0f1929" stroke="#00c9a7" stroke-width="2"/>
+        <text x="390" y="65" text-anchor="middle" fill="#00c9a7" font-size="13">9</text>
+        <!-- Not usable: 10+ -->
+        <rect x="410" y="40" width="40" height="40" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="430" y="65" text-anchor="middle" fill="#475569" font-size="13">10</text>
+        <rect x="450" y="40" width="40" height="40" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="470" y="65" text-anchor="middle" fill="#475569" font-size="13">11</text>
+
+        <!-- Labels -->
+        <text x="70" y="15" text-anchor="middle" fill="#94a3b8" font-size="10">Already ACK'd</text>
+        <text x="210" y="15" text-anchor="middle" fill="#f5a623" font-size="10">Sent, not ACK'd</text>
+        <text x="345" y="15" text-anchor="middle" fill="#00c9a7" font-size="10">Usable (window)</text>
+        <text x="450" y="15" text-anchor="middle" fill="#475569" font-size="10">Not usable yet</text>
+
+        <!-- base and nextseqnum markers -->
+        <line x1="130" y1="95" x2="130" y2="105" stroke="#f5a623" stroke-width="1.5"/>
+        <text x="130" y="116" text-anchor="middle" fill="#f5a623" font-size="9">base</text>
+        <line x1="290" y1="95" x2="290" y2="105" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="290" y="116" text-anchor="middle" fill="#00c9a7" font-size="9">nextseqnum</text>
+
+        <!-- Window bracket -->
+        <line x1="130" y1="97" x2="410" y2="97" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="270" y="108" text-anchor="middle" fill="#94a3b8" font-size="9">Window size N = 7</text>
+      </svg>
+    </div>
+
+    <div class="callout callout-key">
+      <p><strong>GBN Cumulative ACKs:</strong> An ACK for packet n means all packets up through n have been received. The receiver discards all out-of-order packets — no buffering needed. On timeout, the sender resends ALL unACK'd packets (base through nextseqnum-1).</p>
+    </div>
+
+    <div class="algo-box">
+<span class="comment">// GBN Sender — three events:</span>
+<span class="kw">Event:</span> rdt_send(data)
+  <span class="kw">if</span> (nextseqnum &lt; base + N) {
+    send packet[nextseqnum]; <span class="kw">if</span> (base==nextseqnum) start_timer;
+    nextseqnum++;
+  } <span class="kw">else</span> refuse_data(data)
+
+<span class="kw">Event:</span> timeout
+  start_timer; resend ALL of sndpkt[base..nextseqnum-<span class="num">1</span>]
+
+<span class="kw">Event:</span> ACK(n) received
+  base = n + <span class="num">1</span>
+  <span class="kw">if</span> (base == nextseqnum) stop_timer; <span class="kw">else</span> start_timer
+    </div>
+
+    <h3>3.4.4 Selective Repeat (SR)</h3>
+    <p>GBN wastes bandwidth retransmitting good packets. SR retransmits <em>only the packet(s) suspected lost</em>. The receiver buffers out-of-order packets. Each packet has its own timer.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">SR Sender and Receiver Windows — Note They Can Differ</div>
+      <svg viewBox="0 0 620 160" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <!-- Sender window -->
+        <text x="310" y="25" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">SENDER VIEW</text>
+        <!-- Already ACK'd -->
+        <rect x="10" y="35" width="35" height="35" fill="#1a2840" stroke="#243350"/>
+        <text x="27" y="57" text-anchor="middle" fill="#94a3b8" font-size="11">0</text>
+        <rect x="45" y="35" width="35" height="35" fill="#1a2840" stroke="#243350"/>
+        <text x="62" y="57" text-anchor="middle" fill="#94a3b8" font-size="11">1</text>
+        <!-- Window: some ACK'd, some not -->
+        <rect x="80" y="25" width="35" height="55" fill="#243350" stroke="#00c9a7" stroke-width="2"/>
+        <text x="97" y="48" text-anchor="middle" fill="#00c9a7" font-size="11">2</text>
+        <text x="97" y="65" text-anchor="middle" fill="#00c9a7" font-size="8">ACK'd</text>
+        <rect x="115" y="25" width="35" height="55" fill="#243350" stroke="#f5a623" stroke-width="2"/>
+        <text x="132" y="48" text-anchor="middle" fill="#f5a623" font-size="11">3</text>
+        <text x="132" y="65" text-anchor="middle" fill="#f5a623" font-size="8">no ACK</text>
+        <rect x="150" y="25" width="35" height="55" fill="#243350" stroke="#f5a623" stroke-width="2"/>
+        <text x="167" y="48" text-anchor="middle" fill="#f5a623" font-size="11">4</text>
+        <text x="167" y="65" text-anchor="middle" fill="#f5a623" font-size="8">no ACK</text>
+        <rect x="185" y="25" width="35" height="55" fill="#243350" stroke="#00c9a7" stroke-width="2"/>
+        <text x="202" y="48" text-anchor="middle" fill="#00c9a7" font-size="11">5</text>
+        <text x="202" y="65" text-anchor="middle" fill="#00c9a7" font-size="8">ACK'd</text>
+        <!-- Not yet sent -->
+        <rect x="220" y="25" width="35" height="55" fill="#0f1929" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="237" y="57" text-anchor="middle" fill="#4a9eff" font-size="11">6</text>
+        <rect x="255" y="25" width="35" height="55" fill="#0f1929" stroke="#4a9eff" stroke-width="1.5"/>
+        <text x="272" y="57" text-anchor="middle" fill="#4a9eff" font-size="11">7</text>
+        <!-- Not usable -->
+        <rect x="290" y="35" width="35" height="35" fill="#1a2840" stroke="#243350"/>
+        <text x="307" y="57" text-anchor="middle" fill="#475569" font-size="11">8</text>
+
+        <!-- Sender window label -->
+        <line x1="80" y1="88" x2="290" y2="88" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="185" y="100" text-anchor="middle" fill="#94a3b8" font-size="9">Sender window (N=6)</text>
+
+        <!-- Receiver window -->
+        <text x="310" y="128" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">RECEIVER VIEW</text>
+        <rect x="10" y="118" width="35" height="35" fill="#1a2840" stroke="#243350"/>
+        <text x="27" y="140" text-anchor="middle" fill="#94a3b8" font-size="11">0</text>
+        <rect x="45" y="118" width="35" height="35" fill="#1a2840" stroke="#243350"/>
+        <text x="62" y="140" text-anchor="middle" fill="#94a3b8" font-size="11">1</text>
+        <rect x="80" y="118" width="35" height="35" fill="#1a2840" stroke="#243350"/>
+        <text x="97" y="140" text-anchor="middle" fill="#94a3b8" font-size="11">2</text>
+        <rect x="115" y="108" width="35" height="55" fill="#0f1929" stroke="#00c9a7" stroke-width="2"/>
+        <text x="132" y="140" text-anchor="middle" fill="#00c9a7" font-size="11">3</text>
+        <rect x="150" y="108" width="35" height="55" fill="#243350" stroke="#4a9eff" stroke-width="2"/>
+        <text x="167" y="128" text-anchor="middle" fill="#4a9eff" font-size="11">4</text>
+        <text x="167" y="148" text-anchor="middle" fill="#4a9eff" font-size="8">buffered</text>
+        <rect x="185" y="108" width="35" height="55" fill="#243350" stroke="#4a9eff" stroke-width="2"/>
+        <text x="202" y="128" text-anchor="middle" fill="#4a9eff" font-size="11">5</text>
+        <text x="202" y="148" text-anchor="middle" fill="#4a9eff" font-size="8">buffered</text>
+        <rect x="220" y="108" width="35" height="55" fill="#0f1929" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="237" y="140" text-anchor="middle" fill="#00c9a7" font-size="11">6</text>
+        <rect x="255" y="108" width="35" height="55" fill="#0f1929" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="272" y="140" text-anchor="middle" fill="#00c9a7" font-size="11">7</text>
+        <rect x="290" y="118" width="35" height="35" fill="#1a2840" stroke="#243350"/>
+        <text x="307" y="140" text-anchor="middle" fill="#475569" font-size="11">8</text>
+
+        <!-- Receiver window label -->
+        <line x1="115" y1="168" x2="295" y2="168" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="205" y="158" text-anchor="middle" fill="#94a3b8" font-size="9">Receiver window — note it differs from sender's!</text>
+      </svg>
+    </div>
+
+    <div class="callout callout-warn">
+      <p><strong>SR Window Size Constraint:</strong> The SR receiver window must be ≤ half the sequence number space. If window size W &gt; (max_seq + 1) / 2, the receiver can't distinguish a retransmitted old packet from a new one in a wrapped-around sequence space. For GBN, window must be ≤ (max_seq + 1 - 1) = max_seq.</p>
+    </div>
+
+    <table class="compare-table">
+      <tr><th>Property</th><th>GBN</th><th>Selective Repeat</th></tr>
+      <tr><td>On timeout</td><td>Retransmit ALL unACK'd packets (base to nextseqnum-1)</td><td>Retransmit only the specific timed-out packet</td></tr>
+      <tr><td>ACK type</td><td>Cumulative — ACK(n) means all ≤ n received</td><td>Individual — ACK each packet separately</td></tr>
+      <tr><td>Receiver buffering</td><td>None — out-of-order packets discarded</td><td>Yes — buffers out-of-order packets</td></tr>
+      <tr><td>Receiver complexity</td><td>Simple (one state variable: expectedseqnum)</td><td>Complex (must track individual packet status)</td></tr>
+      <tr><td>Max window size</td><td>2^k − 1 (for k-bit seq numbers)</td><td>2^(k−1) (half the seq space)</td></tr>
+    </table>
+  </section>
+
+  <!-- SECTION 6: TCP Connection and Segment Structure -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">Section 6</div>
+      <h2 class="section-title">TCP: Connection &amp; Segment Structure</h2>
+      <p class="section-subtitle">TCP's byte-stream model, the 20-byte header anatomy, and how sequence/ACK numbers work.</p>
+    </div>
+
+    <p>TCP is <strong>connection-oriented</strong>: before data flows, a 3-way handshake establishes the connection and initializes state variables at both ends. TCP is also <strong>full-duplex</strong> (data flows both ways simultaneously) and always <strong>point-to-point</strong> (one sender, one receiver — no multicast).</p>
+
+    <div class="callout callout-key">
+      <p><strong>TCP is NOT a circuit:</strong> The "connection" exists only in the end systems (buffers, state variables). Routers in between are completely oblivious — they only see IP datagrams, never TCP connections.</p>
+    </div>
+
+    <h3>3.5.1 The TCP Connection — Buffers and MSS</h3>
+    <p>When a connection is established, both sides allocate <strong>send buffers</strong> and <strong>receive buffers</strong>. TCP sends data when it has enough to fill a segment, or when forced by a timer or PSH flag. The <strong>Maximum Segment Size (MSS)</strong> is the maximum application data per segment — typically 1,460 bytes (to fit within a 1,500-byte Ethernet frame with 40 bytes of TCP/IP headers).</p>
+
+    <h3>3.5.2 TCP Segment Structure</h3>
+    <p>The TCP header is 20 bytes long (when no options are present). Here is every field:</p>
+
+    <div class="diagram">
+      <div class="diagram-title">TCP Segment Header Format (20 bytes minimum)</div>
+      <svg viewBox="0 0 620 230" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <rect x="10" y="10" width="600" height="205" rx="8" fill="#0f1929" stroke="#243350" stroke-width="1.5"/>
+        <!-- Row labels -->
+        <text x="20" y="28" fill="#94a3b8" font-size="9">bits:</text>
+        <text x="50" y="28" fill="#94a3b8" font-size="9">0</text>
+        <text x="165" y="28" fill="#94a3b8" font-size="9">8</text>
+        <text x="305" y="28" fill="#94a3b8" font-size="9">16</text>
+        <text x="430" y="28" fill="#94a3b8" font-size="9">24</text>
+        <text x="565" y="28" fill="#94a3b8" font-size="9">31</text>
+
+        <!-- Row 1: src port / dst port -->
+        <rect x="45" y="32" width="260" height="28" fill="#1a2840" stroke="#4a9eff" stroke-width="1"/>
+        <text x="175" y="51" text-anchor="middle" fill="#4a9eff" font-size="11">Source Port (16 bits)</text>
+        <rect x="305" y="32" width="260" height="28" fill="#1a2840" stroke="#4a9eff" stroke-width="1"/>
+        <text x="435" y="51" text-anchor="middle" fill="#4a9eff" font-size="11">Destination Port (16 bits)</text>
+
+        <!-- Row 2: Sequence number -->
+        <rect x="45" y="60" width="520" height="28" fill="#1a2840" stroke="#00c9a7" stroke-width="1"/>
+        <text x="305" y="79" text-anchor="middle" fill="#00c9a7" font-size="11">Sequence Number (32 bits)</text>
+
+        <!-- Row 3: Acknowledgment number -->
+        <rect x="45" y="88" width="520" height="28" fill="#1a2840" stroke="#00c9a7" stroke-width="1"/>
+        <text x="305" y="107" text-anchor="middle" fill="#00c9a7" font-size="11">Acknowledgment Number (32 bits)</text>
+
+        <!-- Row 4: Header len / flags / rwnd -->
+        <rect x="45" y="116" width="65" height="28" fill="#1a2840" stroke="#a78bfa" stroke-width="1"/>
+        <text x="77" y="131" text-anchor="middle" fill="#a78bfa" font-size="9">Hdr Len</text>
+        <text x="77" y="140" text-anchor="middle" fill="#a78bfa" font-size="9">(4 bits)</text>
+        <rect x="110" y="116" width="50" height="28" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="135" y="135" text-anchor="middle" fill="#475569" font-size="9">Unused</text>
+        <rect x="160" y="116" width="90" height="28" fill="#1a2840" stroke="#f5a623" stroke-width="1"/>
+        <text x="205" y="131" text-anchor="middle" fill="#f5a623" font-size="9">Flags (6 bits)</text>
+        <text x="205" y="141" text-anchor="middle" fill="#f5a623" font-size="8">URG ACK PSH RST SYN FIN</text>
+        <rect x="250" y="116" width="315" height="28" fill="#1a2840" stroke="#e05c5c" stroke-width="1"/>
+        <text x="407" y="135" text-anchor="middle" fill="#e05c5c" font-size="11">Receive Window (16 bits)</text>
+
+        <!-- Row 5: checksum / urgent ptr -->
+        <rect x="45" y="144" width="260" height="28" fill="#1a2840" stroke="#4a9eff" stroke-width="1"/>
+        <text x="175" y="163" text-anchor="middle" fill="#4a9eff" font-size="11">Internet Checksum (16 bits)</text>
+        <rect x="305" y="144" width="260" height="28" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="435" y="163" text-anchor="middle" fill="#475569" font-size="11">Urgent Data Pointer (16 bits)</text>
+
+        <!-- Row 6: Options -->
+        <rect x="45" y="172" width="520" height="28" fill="#0f1929" stroke="#243350" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="305" y="191" text-anchor="middle" fill="#475569" font-size="11">Options (variable, 0–40 bytes)</text>
+      </svg>
+    </div>
+
+    <div class="packet-fields">
+      <div class="pf-row">
+        <span class="pf-name">Source/Dest Port</span>
+        <span class="pf-bits">16 bits</span>
+        <span class="pf-desc">Multiplexing/demultiplexing — identifies sending and receiving process sockets.</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Sequence Number</span>
+        <span class="pf-bits">32 bits</span>
+        <span class="pf-desc">Byte-stream position of the first data byte in this segment (not packet number). Random initial value chosen at connection setup.</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Acknowledgment Number</span>
+        <span class="pf-bits">32 bits</span>
+        <span class="pf-desc">Next byte the sender is expecting from the other side. Cumulative — implicitly ACKs all bytes below this number.</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Header Length</span>
+        <span class="pf-bits">4 bits</span>
+        <span class="pf-desc">Length of TCP header in 32-bit words. Needed because Options field is variable-length. Typical value: 5 (= 20 bytes).</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Flags (ACK/RST/SYN/FIN/PSH/URG)</span>
+        <span class="pf-bits">6 bits</span>
+        <span class="pf-desc">ACK: ACK field is valid. SYN: connection setup. FIN: connection teardown. RST: reset. PSH: push to app now. URG: urgent data present.</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Receive Window (rwnd)</span>
+        <span class="pf-bits">16 bits</span>
+        <span class="pf-desc">Flow control — number of bytes the receiver is currently willing to accept. Tells the sender how much data it can send without overflow.</span>
+      </div>
+      <div class="pf-row">
+        <span class="pf-name">Checksum</span>
+        <span class="pf-bits">16 bits</span>
+        <span class="pf-desc">Same 1s complement checksum as UDP. Mandatory in TCP (unlike UDP where it's optional in IPv4).</span>
+      </div>
+    </div>
+
+    <h3>Sequence Numbers and Acknowledgment Numbers</h3>
+    <p>TCP views data as a byte stream. Sequence numbers count <em>bytes</em>, not packets. The seq number of a segment = byte-stream position of the <em>first byte</em> in that segment.</p>
+
+    <div class="callout callout-note">
+      <p><strong>Example:</strong> A 500,000-byte file with MSS = 1,000 bytes produces 500 segments. First segment: seq = 0. Second: seq = 1,000. Third: seq = 2,000. And so on. The seq field tells the receiver exactly where each chunk fits in the reassembled stream.</p>
+    </div>
+
+    <div class="callout callout-key">
+      <p><strong>ACK number = next expected byte.</strong> If Host A has received all bytes 0–535, its ACK number is 536. TCP is said to use <em>cumulative acknowledgments</em> — ACK(536) implicitly acknowledges all bytes 0–535.</p>
+    </div>
+
+    <h3>Telnet Example — Seq and ACK Numbers in Action</h3>
+    <p>Suppose Host A (client, starts at seq 42) opens a Telnet session to Host B (server, starts at seq 79). The user types 'C':</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Telnet: Three Segments for One Keystroke</div>
+      <svg viewBox="0 0 560 270" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="telArr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4a9eff"/>
+          </marker>
+          <marker id="telArr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <!-- Lifelines -->
+        <line x1="120" y1="20" x2="120" y2="260" stroke="#243350" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <line x1="440" y1="20" x2="440" y2="260" stroke="#243350" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="120" y="15" text-anchor="middle" fill="white" font-size="12" font-weight="600">Host A (client)</text>
+        <text x="440" y="15" text-anchor="middle" fill="white" font-size="12" font-weight="600">Host B (server)</text>
+
+        <!-- Segment 1: A→B -->
+        <line x1="120" y1="60" x2="440" y2="100" stroke="#4a9eff" stroke-width="2" marker-end="url(#telArr)"/>
+        <rect x="180" y="55" width="200" height="35" rx="4" fill="#0f1929" stroke="#4a9eff" stroke-width="1"/>
+        <text x="280" y="70" text-anchor="middle" fill="#4a9eff" font-size="10" font-weight="600">Seq=42, ACK=79</text>
+        <text x="280" y="84" text-anchor="middle" fill="#94a3b8" font-size="9">data='C' (1 byte)</text>
+
+        <!-- Segment 2: B→A (echo + ACK) -->
+        <line x1="440" y1="140" x2="120" y2="180" stroke="#00c9a7" stroke-width="2" marker-end="url(#telArr2)"/>
+        <rect x="180" y="135" width="200" height="35" rx="4" fill="#0f1929" stroke="#00c9a7" stroke-width="1"/>
+        <text x="280" y="150" text-anchor="middle" fill="#00c9a7" font-size="10" font-weight="600">Seq=79, ACK=43</text>
+        <text x="280" y="164" text-anchor="middle" fill="#94a3b8" font-size="9">data='C' (echo back)</text>
+        <text x="100" y="125" fill="#f5a623" font-size="9" text-anchor="end">piggybacked</text>
+        <text x="100" y="137" fill="#f5a623" font-size="9" text-anchor="end">ACK + data</text>
+
+        <!-- Segment 3: A→B (ACK only) -->
+        <line x1="120" y1="220" x2="440" y2="250" stroke="#4a9eff" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#telArr)"/>
+        <rect x="180" y="215" width="200" height="28" rx="4" fill="#0f1929" stroke="#4a9eff" stroke-width="1" stroke-dasharray="4,2"/>
+        <text x="280" y="228" text-anchor="middle" fill="#4a9eff" font-size="10">Seq=43, ACK=80</text>
+        <text x="280" y="239" text-anchor="middle" fill="#94a3b8" font-size="9">(ACK only, no data)</text>
+      </svg>
+    </div>
+
+    <p>Key observations: (1) The server's reply <em>piggybacks</em> the ACK and echo data in a single segment. (2) TCP always carries a seq number even in pure-ACK segments. (3) The client's ACK=79 means it's waiting for byte 79 from the server (not yet received any from the server).</p>
+  </section>
+
+  <!-- SECTION 7: TCP Reliable Data Transfer -->
+  <section class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">Section 7</div>
+      <h2 class="section-title">TCP: Reliable Data Transfer</h2>
+      <p class="section-subtitle">RTT estimation, retransmission timeout, fast retransmit, and how TCP handles loss scenarios.</p>
+    </div>
+
+    <h3>3.5.3 RTT Estimation and Timeout</h3>
+    <p>TCP needs a timeout interval that is large enough to avoid unnecessary retransmissions, but small enough to recover quickly from loss. It estimates the RTT dynamically using an exponentially-weighted moving average (EWMA).</p>
+
+    <div class="algo-box">
+<span class="comment">// Estimated RTT (EWMA with α = 0.125):</span>
+EstimatedRTT = (<span class="num">1</span> - α) · EstimatedRTT + α · SampleRTT
+             = <span class="num">0.875</span> · EstimatedRTT + <span class="num">0.125</span> · SampleRTT
+
+<span class="comment">// DevRTT — RTT variation (β = 0.25):</span>
+DevRTT = (<span class="num">1</span> - β) · DevRTT + β · |SampleRTT - EstimatedRTT|
+       = <span class="num">0.75</span> · DevRTT + <span class="num">0.25</span> · |SampleRTT - EstimatedRTT|
+
+<span class="comment">// Timeout interval (add margin for variance):</span>
+TimeoutInterval = EstimatedRTT + <span class="num">4</span> · DevRTT
+    </div>
+
+    <div class="callout callout-note">
+      <p><strong>Why EWMA?</strong> Recent samples should count more than old ones (network conditions change). The exponential weighting does this automatically — the weight of a SampleRTT decays exponentially as new samples arrive. The larger α = 0.125 gives more weight to new samples; smaller means smoother but slower adaptation.</p>
+    </div>
+
+    <div class="callout callout-warn">
+      <p><strong>Karn's Algorithm:</strong> TCP never measures SampleRTT for a retransmitted segment. Why? After a retransmission, we can't tell if an arriving ACK is for the original or the retransmission — either would give a garbage RTT estimate. Also: when a timeout occurs, the timeout interval is <em>doubled</em> (exponential backoff) to avoid flooding a congested network.</p>
+    </div>
+
+    <h3>3.5.4 Reliable Data Transfer</h3>
+    <p>TCP maintains <code>SendBase</code> (oldest unACK'd byte) and <code>NextSeqNum</code> (next byte to send). It uses a single retransmission timer for the oldest unACK'd segment.</p>
+
+    <div class="algo-box">
+<span class="comment">/* Simplified TCP Sender */</span>
+NextSeqNum = InitialSeqNum; SendBase = InitialSeqNum;
+
+<span class="kw">Event:</span> data from app
+  create segment with seq = NextSeqNum
+  <span class="kw">if</span> timer not running: start_timer
+  pass to IP; NextSeqNum += length(data)
+
+<span class="kw">Event:</span> timer timeout
+  retransmit segment with smallest seq number
+  start_timer  <span class="comment">// restart</span>
+
+<span class="kw">Event:</span> ACK(y) received
+  <span class="kw">if</span> (y &gt; SendBase):
+    SendBase = y
+    <span class="kw">if</span> (unACK'd segments exist): start_timer
+    </div>
+
+    <h3>Three Interesting TCP Retransmission Scenarios</h3>
+    <div class="two-col">
+      <div class="col-box">
+        <h4>Scenario 1: Lost ACK</h4>
+        <p>Host A sends seq=92 (8 bytes). ACK=100 is lost. Timer expires. A retransmits seq=92. B receives duplicate, discards bytes (but sends ACK=100 again). A receives ACK=100, moves on.</p>
+      </div>
+      <div class="col-box">
+        <h4>Scenario 2: Cumulative ACK Saves Retransmission</h4>
+        <p>A sends seq=92 and seq=100. Both arrive at B. ACK=100 is lost, but ACK=120 arrives before timeout. A knows B has everything up to 119 — no retransmission needed! Cumulative ACKs save work.</p>
+      </div>
+    </div>
+
+    <h3>Fast Retransmit</h3>
+    <p>Waiting for a timeout can take hundreds of milliseconds. TCP detects likely loss earlier through <strong>duplicate ACKs</strong>: when the receiver gets an out-of-order segment, it resends the ACK for the last in-order byte received.</p>
+
+    <table class="compare-table">
+      <tr><th>TCP Receiver Event</th><th>ACK Action</th></tr>
+      <tr><td>In-order segment, all prev ACK'd</td><td>Wait up to 500ms for next in-order; then send ACK</td></tr>
+      <tr><td>In-order, one segment waiting</td><td>Send single cumulative ACK immediately</td></tr>
+      <tr><td>Out-of-order segment (gap detected)</td><td>Send duplicate ACK immediately (gap start)</td></tr>
+      <tr><td>Segment fills a gap</td><td>Send ACK immediately if gap start filled</td></tr>
+    </table>
+
+    <div class="callout callout-key">
+      <p><strong>Fast Retransmit Rule:</strong> If the sender receives <strong>3 duplicate ACKs</strong> for the same sequence number, it retransmits the missing segment <em>immediately</em> — before its timer expires. Three duplicates strongly suggests the segment was lost (not just reordered).</p>
+    </div>
+
+    <div class="algo-box">
+<span class="comment">// Fast Retransmit addition to ACK handler:</span>
+<span class="kw">Event:</span> ACK(y) received
+  <span class="kw">if</span> (y &gt; SendBase):
+    SendBase = y; dupACKcount = <span class="num">0</span>
+    <span class="kw">if</span> (unACK'd exist): start_timer
+  <span class="kw">else</span>:  <span class="comment">// duplicate ACK</span>
+    dupACKcount++
+    <span class="kw">if</span> (dupACKcount == <span class="num">3</span>):
+      resend segment with seq = y  <span class="comment">// fast retransmit!</span>
+    </div>
+
+    <div class="callout callout-note">
+      <p><strong>TCP: GBN or SR?</strong> TCP is a hybrid. Like GBN it uses cumulative ACKs and a single timer. Like SR, modern implementations buffer out-of-order segments and use selective acknowledgment (SACK, RFC 2018). In practice, TCP typically retransmits at most one segment per event (more SR-like), not all unACK'd packets like GBN.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 8: TCP Flow Control -->
+  <section class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">Section 8</div>
+      <h2 class="section-title">TCP: Flow Control</h2>
+      <p class="section-subtitle">How the receiver prevents the sender from overwhelming its buffer using the receive window.</p>
+    </div>
+
+    <p>Even if the network is perfect, the sender could overrun the <em>receiver's application buffer</em> if the application reads data slowly. Flow control is a speed-matching service between sender and receiver (distinct from congestion control, which matches sender to network capacity).</p>
+
+    <div class="callout callout-key">
+      <p><strong>Key Variables at Receiver B:</strong> <code>RcvBuffer</code> = total receive buffer size. <code>LastByteRcvd</code> = last byte arrived from network. <code>LastByteRead</code> = last byte read by application. The constraint: LastByteRcvd − LastByteRead ≤ RcvBuffer.</p>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-title">TCP Receive Buffer and the rwnd Field</div>
+      <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <!-- Buffer rectangle -->
+        <rect x="50" y="50" width="500" height="80" rx="6" fill="#0f1929" stroke="#243350" stroke-width="1.5"/>
+        <!-- Used portion -->
+        <rect x="50" y="50" width="220" height="80" rx="0" fill="#1a2840" stroke="#243350" stroke-width="1"/>
+        <text x="160" y="97" text-anchor="middle" fill="#94a3b8" font-size="11">Data received, not yet read</text>
+        <!-- Spare room -->
+        <rect x="270" y="50" width="280" height="80" fill="#243350" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="410" y="97" text-anchor="middle" fill="#00c9a7" font-size="12" font-weight="600">Spare room = rwnd</text>
+
+        <!-- Arrows -->
+        <line x1="50" y1="145" x2="270" y2="145" stroke="#f5a623" stroke-width="1.5"/>
+        <text x="160" y="162" text-anchor="middle" fill="#f5a623" font-size="10">LastByteRcvd - LastByteRead</text>
+        <line x1="270" y1="145" x2="550" y2="145" stroke="#00c9a7" stroke-width="1.5"/>
+        <text x="410" y="162" text-anchor="middle" fill="#00c9a7" font-size="10">rwnd = RcvBuffer − above</text>
+
+        <!-- Labels -->
+        <text x="50" y="43" text-anchor="middle" fill="#94a3b8" font-size="9">read cursor</text>
+        <text x="270" y="43" text-anchor="middle" fill="#f5a623" font-size="9">LastByteRcvd</text>
+        <text x="550" y="43" text-anchor="middle" fill="#94a3b8" font-size="9">end of buffer</text>
+
+        <!-- Formula -->
+        <text x="300" y="190" text-anchor="middle" fill="#475569" font-size="10">Sender constraint: LastByteSent − LastByteAcked ≤ rwnd</text>
+      </svg>
+    </div>
+
+    <p>The receiver puts its current <code>rwnd</code> value in the <em>receive window field</em> of every TCP segment it sends. The sender ensures its amount of unACK'd data never exceeds <code>rwnd</code>.</p>
+
+    <div class="callout callout-warn">
+      <p><strong>The rwnd=0 Problem:</strong> Suppose B's buffer fills up (rwnd=0) and it has nothing to send A. A stops sending. Later, B's app reads data — but B doesn't tell A! A is stuck forever. Solution: when rwnd=0, A continues sending 1-byte "probe" segments. When B replies with a nonzero rwnd, the deadlock breaks.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="col-box">
+        <h4>Flow Control vs. Congestion Control</h4>
+        <p>Both throttle the sender, but for different reasons:</p>
+        <ul>
+          <li><strong>Flow control</strong>: prevents receiver buffer overflow</li>
+          <li><strong>Congestion control</strong>: prevents network router overflow</li>
+        </ul>
+        <p>The effective send rate is limited by: <code>min(cwnd, rwnd) / RTT</code></p>
+      </div>
+      <div class="col-box">
+        <h4>UDP Has No Flow Control</h4>
+        <p>UDP appends segments to a finite socket buffer. If the application reads too slowly, the buffer overflows and segments are silently dropped. Applications using UDP must manage their own rate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 9: TCP Connection Management -->
+  <section class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num">Section 9</div>
+      <h2 class="section-title">TCP: Connection Management</h2>
+      <p class="section-subtitle">The 3-way handshake, connection teardown with FIN/ACK, TCP state machines, and the SYN flood attack.</p>
+    </div>
+
+    <h3>3.5.6 Establishing a TCP Connection: 3-Way Handshake</h3>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content"><strong>SYN — Client sends connection request</strong><p>SYN bit = 1, seq = client_isn (randomly chosen). No data payload. This is the "SYN segment."</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content"><strong>SYNACK — Server grants connection</strong><p>SYN bit = 1, ACK bit = 1. seq = server_isn (server's random ISN). ACK = client_isn + 1. Server allocates buffers and variables. Called a "SYNACK segment."</p></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content"><strong>ACK — Client confirms</strong><p>SYN bit = 0, ACK bit = 1. ACK = server_isn + 1. Client allocates buffers. May carry data in payload. Connection is now established.</p></div>
+      </div>
+    </div>
+
+    <div class="diagram">
+      <div class="diagram-title">TCP 3-Way Handshake</div>
+      <svg viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="hwArr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4a9eff"/>
+          </marker>
+          <marker id="hwArr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <line x1="130" y1="25" x2="130" y2="270" stroke="#243350" stroke-width="2" stroke-dasharray="5,3"/>
+        <line x1="430" y1="25" x2="430" y2="270" stroke="#243350" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="130" y="18" text-anchor="middle" fill="white" font-size="12" font-weight="600">Client</text>
+        <text x="430" y="18" text-anchor="middle" fill="white" font-size="12" font-weight="600">Server</text>
+
+        <!-- Step 1: SYN -->
+        <line x1="130" y1="65" x2="430" y2="110" stroke="#4a9eff" stroke-width="2" marker-end="url(#hwArr)"/>
+        <rect x="170" y="60" width="220" height="35" rx="5" fill="#0f1929" stroke="#4a9eff" stroke-width="1"/>
+        <text x="280" y="76" text-anchor="middle" fill="#4a9eff" font-size="11" font-weight="600">SYN=1, seq=client_isn</text>
+        <text x="280" y="90" text-anchor="middle" fill="#94a3b8" font-size="9">Connection request (no data)</text>
+
+        <!-- Server state -->
+        <rect x="440" y="100" width="100" height="28" rx="5" fill="#1a2840" stroke="#243350"/>
+        <text x="490" y="119" text-anchor="middle" fill="#94a3b8" font-size="9">Allocate buffers</text>
+
+        <!-- Step 2: SYNACK -->
+        <line x1="430" y1="145" x2="130" y2="190" stroke="#00c9a7" stroke-width="2" marker-end="url(#hwArr2)"/>
+        <rect x="170" y="140" width="220" height="40" rx="5" fill="#0f1929" stroke="#00c9a7" stroke-width="1"/>
+        <text x="280" y="155" text-anchor="middle" fill="#00c9a7" font-size="11" font-weight="600">SYN=1, ACK=client_isn+1</text>
+        <text x="280" y="170" text-anchor="middle" fill="#00c9a7" font-size="10">seq=server_isn (SYNACK)</text>
+
+        <!-- Client state -->
+        <rect x="20" y="185" width="100" height="28" rx="5" fill="#1a2840" stroke="#243350"/>
+        <text x="70" y="204" text-anchor="middle" fill="#94a3b8" font-size="9">Allocate buffers</text>
+
+        <!-- Step 3: ACK -->
+        <line x1="130" y1="225" x2="430" y2="260" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#hwArr)"/>
+        <rect x="170" y="220" width="220" height="35" rx="5" fill="#0f1929" stroke="#4a9eff" stroke-width="1"/>
+        <text x="280" y="235" text-anchor="middle" fill="#4a9eff" font-size="11" font-weight="600">SYN=0, ACK=server_isn+1</text>
+        <text x="280" y="250" text-anchor="middle" fill="#94a3b8" font-size="9">May carry data</text>
+      </svg>
+    </div>
+
+    <h3>Closing a TCP Connection: Four-Way FIN Handshake</h3>
+    <p>Either side can initiate closure. The closing side sends a FIN segment; the other side ACKs it; then that side sends its own FIN; the first side ACKs it. This results in four segments total (though the middle ACK and FIN are often combined into one).</p>
+
+    <div class="callout callout-note">
+      <p><strong>TIME_WAIT State:</strong> After sending the final ACK, the client waits in TIME_WAIT (typically 30 sec–2 min) before releasing the port. This ensures the final ACK was received — if not, the server will retransmit its FIN, giving the client a chance to re-ACK.</p>
+    </div>
+
+    <h3>TCP State Machines</h3>
+    <div class="two-col">
+      <div class="col-box">
+        <h4>Client States (Typical)</h4>
+        <p>CLOSED → send SYN → <strong>SYN_SENT</strong> → receive SYNACK, send ACK → <strong>ESTABLISHED</strong> → send FIN → <strong>FIN_WAIT_1</strong> → receive ACK → <strong>FIN_WAIT_2</strong> → receive FIN, send ACK → <strong>TIME_WAIT</strong> → (wait) → CLOSED</p>
+      </div>
+      <div class="col-box">
+        <h4>Server States (Typical)</h4>
+        <p>CLOSED → LISTEN → receive SYN, send SYNACK → <strong>SYN_RCVD</strong> → receive ACK → <strong>ESTABLISHED</strong> → receive FIN, send ACK → <strong>CLOSE_WAIT</strong> → send FIN → <strong>LAST_ACK</strong> → receive ACK → CLOSED</p>
+      </div>
+    </div>
+
+    <h3>Security: The SYN Flood Attack</h3>
+    <p>Because the server allocates buffers and state upon receiving a SYN (before completing the 3-way handshake), an attacker can exhaust server resources by sending thousands of SYN segments without ever completing the handshake.</p>
+
+    <div class="callout callout-alert">
+      <p><strong>SYN Flood Defense — SYN Cookies (RFC 4987):</strong> Instead of allocating state, the server encodes connection info into a carefully crafted initial sequence number (a hash of src/dst IPs and ports + a secret). State is only allocated when a valid ACK arrives — the server reconstructs state from the "cookie" in the ACK's acknowledgment field.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 10: Principles of Congestion Control -->
+  <section class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num">Section 10</div>
+      <h2 class="section-title">Principles of Congestion Control</h2>
+      <p class="section-subtitle">What causes congestion, its costs to network performance, and the two broad approaches to controlling it.</p>
+    </div>
+
+    <p>Packet retransmission treats the <em>symptom</em> of congestion (a lost segment) but not the <em>cause</em> (too many senders, too fast). Congestion control mechanisms throttle senders to prevent or react to overload in the network.</p>
+
+    <h3>3.6.1 The Costs of Congestion — Three Scenarios</h3>
+
+    <p><strong>Scenario 1: Two senders, infinite buffers.</strong> As sending rate approaches R/2, queuing delays grow without bound. Throughput caps at R/2 but delay becomes infinite. Lesson: <em>large queuing delays occur near link capacity</em>.</p>
+
+    <p><strong>Scenario 2: Finite buffers, reliable transport.</strong> Senders must retransmit lost packets. This wasted work means at offered load R/2, actual delivered throughput is only R/3. Premature timeouts waste even more bandwidth on duplicate transmissions. Lesson: <em>retransmissions consume bandwidth; throughput efficiency degrades</em>.</p>
+
+    <p><strong>Scenario 3: Multihop paths, finite buffers.</strong> When a packet is dropped at the second hop after already traversing the first hop, all the first-hop bandwidth used to forward that packet is wasted. Throughput collapses to zero as load increases. Lesson: <em>upstream capacity wasted on packets eventually dropped downstream</em>.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Congestion Cost Summary — Throughput vs. Offered Load</div>
+      <svg viewBox="0 0 580 210" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <!-- Axes for scenario 1 -->
+        <g transform="translate(30,20)">
+          <line x1="0" y1="160" x2="140" y2="160" stroke="#475569" stroke-width="1.5"/>
+          <line x1="0" y1="160" x2="0" y2="0" stroke="#475569" stroke-width="1.5"/>
+          <text x="70" y="178" text-anchor="middle" fill="#94a3b8" font-size="9">λ_in (offered load)</text>
+          <text x="-8" y="80" text-anchor="middle" fill="#94a3b8" font-size="9" transform="rotate(-90 -8 80)">λ_out</text>
+          <text x="70" y="-5" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">Scenario 1 (∞ buffers)</text>
+          <!-- Throughput curve: linear until R/2, then flat -->
+          <polyline points="0,160 80,80 140,80" fill="none" stroke="#00c9a7" stroke-width="2"/>
+          <!-- Delay curve - exponential increase -->
+          <text x="60" y="78" fill="#00c9a7" font-size="8">throughput = R/2</text>
+          <text x="80" y="155" fill="#f5a623" font-size="8">R/2</text>
+          <line x1="80" y1="155" x2="80" y2="160" stroke="#f5a623" stroke-width="1"/>
+          <line x1="0" y1="80" x2="5" y2="80" stroke="#475569" stroke-width="1"/>
+          <text x="-5" y="83" fill="#94a3b8" font-size="8" text-anchor="end">R/2</text>
+        </g>
+
+        <!-- Scenario 2 -->
+        <g transform="translate(210,20)">
+          <line x1="0" y1="160" x2="140" y2="160" stroke="#475569" stroke-width="1.5"/>
+          <line x1="0" y1="160" x2="0" y2="0" stroke="#475569" stroke-width="1.5"/>
+          <text x="70" y="178" text-anchor="middle" fill="#94a3b8" font-size="9">λ'_in (offered load)</text>
+          <text x="70" y="-5" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">Scenario 2 (finite buffers)</text>
+          <!-- a: ideal -->
+          <polyline points="0,160 80,80 140,80" fill="none" stroke="#00c9a7" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="30" y="100" fill="#00c9a7" font-size="8">(a) ideal</text>
+          <!-- b: retransmissions -->
+          <polyline points="0,160 80,107 140,107" fill="none" stroke="#4a9eff" stroke-width="1.5"/>
+          <text x="100" y="103" fill="#4a9eff" font-size="8">(b) R/3</text>
+          <!-- c: premature timeout -->
+          <polyline points="0,160 80,120 140,120" fill="none" stroke="#f5a623" stroke-width="1.5"/>
+          <text x="100" y="116" fill="#f5a623" font-size="8">(c) R/4</text>
+          <line x1="0" y1="80" x2="5" y2="80" stroke="#475569" stroke-width="1"/>
+          <text x="-5" y="83" fill="#94a3b8" font-size="8" text-anchor="end">R/2</text>
+        </g>
+
+        <!-- Scenario 3 -->
+        <g transform="translate(390,20)">
+          <line x1="0" y1="160" x2="140" y2="160" stroke="#475569" stroke-width="1.5"/>
+          <line x1="0" y1="160" x2="0" y2="0" stroke="#475569" stroke-width="1.5"/>
+          <text x="70" y="178" text-anchor="middle" fill="#94a3b8" font-size="9">λ'_in (offered load)</text>
+          <text x="70" y="-5" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">Scenario 3 (multihop)</text>
+          <!-- Rise then fall -->
+          <polyline points="0,160 50,100 140,160" fill="none" stroke="#e05c5c" stroke-width="2"/>
+          <text x="70" y="95" text-anchor="middle" fill="#e05c5c" font-size="8">throughput → 0!</text>
+          <line x1="0" y1="80" x2="5" y2="80" stroke="#475569" stroke-width="1"/>
+          <text x="-5" y="83" fill="#94a3b8" font-size="8" text-anchor="end">R/2</text>
+        </g>
+      </svg>
+    </div>
+
+    <h3>3.6.2 Approaches to Congestion Control</h3>
+
+    <table class="compare-table">
+      <tr><th>Approach</th><th>Description</th><th>Example</th></tr>
+      <tr><td>End-to-end congestion control</td><td>No explicit network feedback. End systems infer congestion from packet loss and delay. TCP uses this.</td><td>TCP (loss events = timeout or 3 dup ACKs)</td></tr>
+      <tr><td>Network-assisted congestion control</td><td>Routers provide explicit feedback to senders via single-bit flags or explicit rate signals in packets.</td><td>ATM ABR, DECnet, ECN (TCP/IP extension)</td></tr>
+    </table>
+
+    <div class="callout callout-note">
+      <p><strong>ATM ABR Congestion Control (brief):</strong> Uses Resource Management (RM) cells interspersed with data cells. Switches set EFCI bit (mild congestion), CI/NI bits (severe), or ER field (explicit rate) in RM cells to directly signal rate adjustments to sources. More fine-grained than TCP's binary loss-based signal.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 11: TCP Congestion Control -->
+  <section class="section" id="s11">
+    <div class="section-header">
+      <div class="section-num">Section 11</div>
+      <h2 class="section-title">TCP Congestion Control</h2>
+      <p class="section-subtitle">Slow start, congestion avoidance, fast recovery, and the cwnd/ssthresh state machine.</p>
+    </div>
+
+    <p>TCP must use end-to-end congestion control (IP provides no congestion signals). The core mechanism: the sender maintains a <strong>congestion window</strong> (<code>cwnd</code>) that limits how much unACK'd data can be in the network at once. The effective send rate is approximately <code>min(cwnd, rwnd) / RTT</code>.</p>
+
+    <div class="callout callout-key">
+      <p><strong>Loss Event Detection:</strong> TCP treats two events as evidence of congestion: (1) a <strong>timeout</strong> — strong signal, network probably severely congested; (2) <strong>3 duplicate ACKs</strong> — weaker signal, likely a single lost packet but network still delivering.</p>
+    </div>
+
+    <h3>3.7 The Three Components of TCP Congestion Control</h3>
+
+    <h3>1. Slow Start</h3>
+    <p>When a new connection starts (or after a timeout), <code>cwnd</code> begins at 1 MSS and <em>doubles every RTT</em>: for every ACK received, <code>cwnd</code> increases by 1 MSS. Despite its name, slow start is <em>exponential growth</em>.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Slow Start — Exponential cwnd Growth</div>
+      <svg viewBox="0 0 560 200" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="ssArr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4a9eff"/>
+          </marker>
+          <marker id="ssArr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00c9a7"/>
+          </marker>
+        </defs>
+        <!-- Timeline: Sender on left, receiver on right -->
+        <line x1="80" y1="15" x2="80" y2="185" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="480" y1="15" x2="480" y2="185" stroke="#243350" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="80" y="11" text-anchor="middle" fill="white" font-size="11" font-weight="600">Sender</text>
+        <text x="480" y="11" text-anchor="middle" fill="white" font-size="11" font-weight="600">Receiver</text>
+
+        <!-- RTT 1: send 1 segment -->
+        <line x1="80" y1="30" x2="480" y2="65" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#ssArr)"/>
+        <text x="50" y="32" fill="#f5a623" font-size="9" text-anchor="end">cwnd=1</text>
+        <text x="280" y="42" text-anchor="middle" fill="#4a9eff" font-size="9">1 segment</text>
+        <line x1="480" y1="68" x2="80" y2="103" stroke="#00c9a7" stroke-width="1" marker-end="url(#ssArr2)"/>
+        <text x="280" y="82" text-anchor="middle" fill="#00c9a7" font-size="9">ACK → cwnd = 2</text>
+
+        <!-- RTT 2: send 2 segments -->
+        <line x1="80" y1="108" x2="480" y2="130" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#ssArr)"/>
+        <line x1="80" y1="113" x2="480" y2="135" stroke="#4a9eff" stroke-width="1.5" marker-end="url(#ssArr)"/>
+        <text x="50" y="115" fill="#f5a623" font-size="9" text-anchor="end">cwnd=2</text>
+        <text x="280" y="118" text-anchor="middle" fill="#4a9eff" font-size="9">2 segments</text>
+        <line x1="480" y1="142" x2="80" y2="160" stroke="#00c9a7" stroke-width="1" marker-end="url(#ssArr2)"/>
+        <text x="280" y="148" text-anchor="middle" fill="#00c9a7" font-size="9">2 ACKs → cwnd = 4</text>
+
+        <!-- RTT 3 label only -->
+        <text x="50" y="180" fill="#f5a623" font-size="9" text-anchor="end">cwnd=4</text>
+        <text x="200" y="182" fill="#4a9eff" font-size="9">4 segments ... (cwnd doubles each RTT)</text>
+      </svg>
+    </div>
+
+    <p>Slow start ends when:</p>
+    <ul>
+      <li><code>cwnd</code> reaches <code>ssthresh</code> (slow start threshold) → transition to <strong>Congestion Avoidance</strong></li>
+      <li>A <strong>timeout</strong> occurs → <code>ssthresh = cwnd/2</code>, <code>cwnd = 1</code>, restart slow start</li>
+      <li><strong>3 duplicate ACKs</strong> → fast retransmit, enter <strong>Fast Recovery</strong></li>
+    </ul>
+
+    <h3>2. Congestion Avoidance</h3>
+    <p>Once <code>cwnd ≥ ssthresh</code>, growth slows to <strong>linear: +1 MSS per RTT</strong> (approximately +MSS × MSS/cwnd per ACK received). The sender is "close to the edge" so it probes cautiously.</p>
+
+    <p>Congestion avoidance ends when:</p>
+    <ul>
+      <li><strong>Timeout</strong> → <code>ssthresh = cwnd/2</code>, <code>cwnd = 1</code>, restart slow start</li>
+      <li><strong>3 duplicate ACKs</strong> → <code>ssthresh = cwnd/2</code>, <code>cwnd = ssthresh + 3·MSS</code>, enter fast recovery</li>
+    </ul>
+
+    <h3>3. Fast Recovery</h3>
+    <p>After a triple-dup-ACK loss event, TCP doesn't drop to cwnd=1 (like TCP Tahoe). Instead (TCP Reno): set <code>ssthresh = cwnd/2</code>, <code>cwnd = ssthresh + 3·MSS</code>. For each additional duplicate ACK, <code>cwnd += 1 MSS</code>. When a new ACK arrives (loss repaired), <code>cwnd = ssthresh</code> and transition to congestion avoidance.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">TCP Reno vs TCP Tahoe — cwnd Evolution</div>
+      <svg viewBox="0 0 580 260" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <!-- Axes -->
+        <line x1="50" y1="220" x2="560" y2="220" stroke="#475569" stroke-width="1.5"/>
+        <line x1="50" y1="220" x2="50" y2="20" stroke="#475569" stroke-width="1.5"/>
+        <text x="305" y="245" text-anchor="middle" fill="#94a3b8" font-size="11">Transmission Round</text>
+        <text x="20" y="130" text-anchor="middle" fill="#94a3b8" font-size="11" transform="rotate(-90 20 130)">cwnd (MSS)</text>
+
+        <!-- X axis ticks -->
+        <text x="50" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">0</text>
+        <text x="120" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">2</text>
+        <text x="190" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">4</text>
+        <text x="260" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">6</text>
+        <text x="330" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">8</text>
+        <text x="400" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">10</text>
+        <text x="470" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">12</text>
+        <text x="540" y="232" text-anchor="middle" fill="#94a3b8" font-size="9">14</text>
+
+        <!-- Y axis ticks -->
+        <line x1="47" y1="220" x2="53" y2="220" stroke="#475569" stroke-width="1"/>
+        <text x="44" y="223" text-anchor="end" fill="#94a3b8" font-size="9">0</text>
+        <line x1="47" y1="170" x2="53" y2="170" stroke="#475569" stroke-width="1"/>
+        <text x="44" y="173" text-anchor="end" fill="#94a3b8" font-size="9">4</text>
+        <line x1="47" y1="120" x2="53" y2="120" stroke="#475569" stroke-width="1"/>
+        <text x="44" y="123" text-anchor="end" fill="#94a3b8" font-size="9">8</text>
+        <line x1="47" y1="70" x2="53" y2="70" stroke="#475569" stroke-width="1"/>
+        <text x="44" y="73" text-anchor="end" fill="#94a3b8" font-size="9">12</text>
+        <line x1="47" y1="33" x2="53" y2="33" stroke="#475569" stroke-width="1"/>
+        <text x="44" y="36" text-anchor="end" fill="#94a3b8" font-size="9">15</text>
+
+        <!-- ssthresh initial = 8 MSS → y = 120 -->
+        <line x1="50" y1="120" x2="560" y2="120" stroke="#94a3b8" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="563" y="122" fill="#94a3b8" font-size="9">ssthresh=8</text>
+
+        <!-- TCP Reno / Tahoe common path: rounds 1-8 -->
+        <!-- Slow start: 1,2,4,8 (exponential) then congestion avoidance 9,10,11,12 -->
+        <!-- Round 0→1: cwnd=1, Round 1→2: cwnd=2, Round 2→3: cwnd=4, Round 3→4: cwnd=8 (hits ssthresh) -->
+        <!-- Then linear: 9,10,11,12 in rounds 5,6,7,8 -->
+        <!-- Scale: 1 round = 35px, 1 MSS = 12.5px -->
+        <!-- cwnd values: 1,2,4,8,9,10,11,12 at rounds 1,2,3,4,5,6,7,8 -->
+        <!-- y = 220 - cwnd*12.5 -->
+        <!-- Round  cwnd  x     y  -->
+        <!-- 0      1     50    207.5 -->
+        <!-- 1      1     85    207.5 -->
+        <!-- 2      2     120   195 -->
+        <!-- 3      4     155   170 -->
+        <!-- 4      8     190   120 (hits ssthresh) -->
+        <!-- 5      9     225   107.5 -->
+        <!-- 6      10    260   95 -->
+        <!-- 7      11    295   82.5 -->
+        <!-- 8      12    330   70 -->
+        <!-- Loss event at round 8: triple dup ACK -->
+        <!-- Reno: ssthresh=6, cwnd=9 -->
+        <!-- Tahoe: ssthresh=6, cwnd=1 -->
+        <polyline points="50,207 85,207 120,195 155,170 190,120 225,108 260,95 295,83 330,70"
+          fill="none" stroke="#4a9eff" stroke-width="2"/>
+
+        <!-- Loss marker at round 8 -->
+        <circle cx="330" cy="70" r="5" fill="#e05c5c"/>
+        <text x="340" y="65" fill="#e05c5c" font-size="9">3 dup ACKs!</text>
+        <line x1="330" y1="70" x2="330" y2="220" stroke="#e05c5c" stroke-width="1" stroke-dasharray="3,3"/>
+
+        <!-- Reno after loss: cwnd = ssthresh+3 = 9, then linear to ~10 -->
+        <!-- ssthresh new = 6, cwnd=9 at round 9 (330+35=365), then linear -->
+        <polyline points="330,70 365,95 400,83 435,70 470,58 505,58"
+          fill="none" stroke="#00c9a7" stroke-width="2"/>
+        <!-- ssthresh new = 6 -->
+        <line x1="330" y1="145" x2="560" y2="145" stroke="#00c9a7" stroke-width="1" stroke-dasharray="5,3" opacity=".6"/>
+        <text x="563" y="148" fill="#00c9a7" font-size="9">ssthresh=6</text>
+
+        <!-- Tahoe after loss: cwnd=1, slow start again -->
+        <polyline points="330,207 365,207 400,195 435,170 470,145 505,133"
+          fill="none" stroke="#f5a623" stroke-width="2" stroke-dasharray="7,3"/>
+
+        <!-- Legend -->
+        <line x1="60" y1="30" x2="90" y2="30" stroke="#00c9a7" stroke-width="2"/>
+        <text x="95" y="34" fill="#00c9a7" font-size="10">TCP Reno</text>
+        <line x1="60" y1="48" x2="90" y2="48" stroke="#f5a623" stroke-width="2" stroke-dasharray="7,3"/>
+        <text x="95" y="52" fill="#f5a623" font-size="10">TCP Tahoe</text>
+        <line x1="60" y1="66" x2="90" y2="66" stroke="#4a9eff" stroke-width="2"/>
+        <text x="95" y="70" fill="#4a9eff" font-size="10">Common (SS + CA)</text>
+      </svg>
+    </div>
+
+    <h3>The Full TCP Congestion Control FSM</h3>
+    <table class="compare-table">
+      <tr><th>State</th><th>cwnd growth</th><th>On timeout</th><th>On 3 dup ACKs</th></tr>
+      <tr><td><strong>Slow Start</strong></td><td>+1 MSS per ACK (doubles per RTT)</td><td>ssthresh=cwnd/2, cwnd=1, stay SS</td><td>ssthresh=cwnd/2, cwnd=ssthresh+3MSS, → Fast Recovery</td></tr>
+      <tr><td><strong>Congestion Avoidance</strong></td><td>+MSS·(MSS/cwnd) per ACK (~1 MSS/RTT)</td><td>ssthresh=cwnd/2, cwnd=1, → SS</td><td>ssthresh=cwnd/2, cwnd=ssthresh+3MSS, → Fast Recovery</td></tr>
+      <tr><td><strong>Fast Recovery</strong></td><td>+1 MSS per dup ACK</td><td>ssthresh=cwnd/2, cwnd=1, → SS</td><td>ssthresh=cwnd/2, cwnd=ssthresh+3MSS, retransmit</td></tr>
+    </table>
+
+    <div class="callout callout-key">
+      <p><strong>TCP Tahoe vs. Reno:</strong> Tahoe always goes to cwnd=1 on any loss event (treats 3 dup ACKs same as timeout). Reno distinguishes: timeout → cwnd=1 (slow start); 3 dup ACKs → cwnd=ssthresh+3 MSS (fast recovery). Reno recovers faster from isolated packet loss.</p>
+    </div>
+
+    <h3>Macroscopic TCP Throughput</h3>
+    <p>In steady state (AIMD, ignoring slow start), the congestion window oscillates between W/2 and W MSS. Average throughput ≈ <strong>0.75·W / RTT</strong>. With packet loss rate L:</p>
+
+    <div class="algo-box">
+<span class="comment">// Average TCP throughput formula (Padhye model):</span>
+avg_throughput ≈ <span class="num">1.22</span> · MSS / (RTT · √L)
+
+<span class="comment">// Example: 10 Gbps over 100ms RTT, MSS = 1500 bytes</span>
+<span class="comment">// Required window: 83,333 segments in flight</span>
+<span class="comment">// Tolerable loss rate: L ≤ 2 × 10⁻¹⁰</span>
+<span class="comment">// (1 loss per 5,000,000,000 segments!)</span>
+    </div>
+  </section>
+
+  <!-- SECTION 12: Fairness and AIMD -->
+  <section class="section" id="s12">
+    <div class="section-header">
+      <div class="section-num">Section 12</div>
+      <h2 class="section-title">Fairness and AIMD</h2>
+      <p class="section-subtitle">Why TCP's additive-increase multiplicative-decrease converges to equal bandwidth sharing, and its limits.</p>
+    </div>
+
+    <h3>AIMD — The Saw-Tooth Pattern</h3>
+    <p>TCP's congestion control is called <strong>Additive Increase, Multiplicative Decrease (AIMD)</strong>: increase cwnd by 1 MSS per RTT (additive); halve cwnd on a loss event (multiplicative). This produces the characteristic "saw-tooth" behavior — probing upward, crashing back, probing again.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">AIMD Saw-Tooth Congestion Window</div>
+      <svg viewBox="0 0 580 180" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <!-- Axes -->
+        <line x1="40" y1="160" x2="560" y2="160" stroke="#475569" stroke-width="1.5"/>
+        <line x1="40" y1="160" x2="40" y2="20" stroke="#475569" stroke-width="1.5"/>
+        <text x="300" y="175" text-anchor="middle" fill="#94a3b8" font-size="10">Time</text>
+        <text x="15" y="90" text-anchor="middle" fill="#94a3b8" font-size="10" transform="rotate(-90 15 90)">cwnd</text>
+
+        <!-- Saw tooth: 3 cycles -->
+        <!-- Cycle 1: linear rise from cwnd=W/2=8 to W=16, then drop to 8 -->
+        <polyline points="40,100 160,40 162,100 280,40 282,100 400,40 402,100 520,40"
+          fill="none" stroke="#00c9a7" stroke-width="2.5"/>
+
+        <!-- Loss markers -->
+        <circle cx="162" cy="40" r="4" fill="#e05c5c"/>
+        <circle cx="282" cy="40" r="4" fill="#e05c5c"/>
+        <circle cx="402" cy="40" r="4" fill="#e05c5c"/>
+        <text x="162" y="33" text-anchor="middle" fill="#e05c5c" font-size="8">loss</text>
+        <text x="282" y="33" text-anchor="middle" fill="#e05c5c" font-size="8">loss</text>
+        <text x="402" y="33" text-anchor="middle" fill="#e05c5c" font-size="8">loss</text>
+
+        <!-- Level markers -->
+        <line x1="40" y1="40" x2="560" y2="40" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="563" y="42" fill="#94a3b8" font-size="9">W</text>
+        <line x1="40" y1="100" x2="560" y2="100" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="563" y="102" fill="#94a3b8" font-size="9">W/2</text>
+
+        <!-- Annotations -->
+        <text x="100" y="75" text-anchor="middle" fill="#4a9eff" font-size="9">+1 MSS/RTT</text>
+        <text x="100" y="88" text-anchor="middle" fill="#4a9eff" font-size="9">(linear probe)</text>
+        <text x="175" y="80" text-anchor="middle" fill="#f5a623" font-size="9">÷2</text>
+      </svg>
+    </div>
+
+    <h3>Convergence to Fairness</h3>
+    <p>Consider two TCP connections sharing a bottleneck link of capacity R. Both start at different points. AIMD provably converges to equal sharing:</p>
+
+    <div class="diagram">
+      <div class="diagram-title">AIMD Fairness Convergence — Equal Bandwidth Share Line</div>
+      <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,sans-serif">
+        <defs>
+          <marker id="fairArr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#f5a623"/>
+          </marker>
+        </defs>
+        <!-- Axes -->
+        <line x1="50" y1="280" x2="440" y2="280" stroke="#475569" stroke-width="1.5"/>
+        <line x1="50" y1="280" x2="50" y2="20" stroke="#475569" stroke-width="1.5"/>
+        <text x="245" y="300" text-anchor="middle" fill="#94a3b8" font-size="11">Connection 1 throughput</text>
+        <text x="20" y="150" text-anchor="middle" fill="#94a3b8" font-size="11" transform="rotate(-90 20 150)">Connection 2 throughput</text>
+
+        <!-- Equal bandwidth line (y = x) -->
+        <line x1="50" y1="280" x2="380" y2="50" stroke="#00c9a7" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="390" y="45" fill="#00c9a7" font-size="10">Equal share</text>
+
+        <!-- Full bandwidth utilization line (x + y = R) -->
+        <line x1="50" y1="60" x2="400" y2="280" stroke="#4a9eff" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="415" y="280" fill="#4a9eff" font-size="10">x+y=R</text>
+
+        <!-- Convergence path -->
+        <!-- Point A: (100, 250) → after additive increase → B: (180,330 but capped at ~B=(240,200)) -->
+        <!-- Let's plot: A=(120,220) B=(220,150) C=(110,75) D=(185,130) → converge to intersection ~(200,170) -->
+        <circle cx="130" cy="220" r="5" fill="#f5a623"/>
+        <text x="122" y="215" fill="#f5a623" font-size="9">A</text>
+        <!-- A to B: 45° increase -->
+        <line x1="130" y1="220" x2="220" y2="130" stroke="#f5a623" stroke-width="1.5" marker-end="url(#fairArr)"/>
+        <text x="180" y="165" fill="#f5a623" font-size="8">AI (+45°)</text>
+        <!-- B: loss event, halve -->
+        <circle cx="220" cy="130" r="4" fill="#e05c5c"/>
+        <text x="228" y="127" fill="#e05c5c" font-size="9">B</text>
+        <!-- B to C: halve (toward origin) -->
+        <line x1="220" y1="130" x2="110" y2="65" stroke="#f5a623" stroke-width="1.5" marker-end="url(#fairArr)"/>
+        <text x="145" y="88" fill="#f5a623" font-size="8">MD (÷2)</text>
+        <!-- C: additive increase again -->
+        <circle cx="110" cy="65" r="4" fill="#f5a623"/>
+        <text x="102" y="61" fill="#f5a623" font-size="9">C</text>
+        <line x1="110" y1="65" x2="210" y2="120" stroke="#f5a623" stroke-width="1.5" marker-end="url(#fairArr)"/>
+        <!-- D: loss, halve -->
+        <circle cx="210" cy="120" r="4" fill="#e05c5c"/>
+        <text x="218" y="117" fill="#e05c5c" font-size="9">D</text>
+        <line x1="210" y1="120" x2="150" y2="145" stroke="#f5a623" stroke-width="1.5" marker-end="url(#fairArr)"/>
+        <!-- Converging -->
+        <circle cx="150" cy="145" r="5" fill="#00c9a7"/>
+        <text x="158" y="142" fill="#00c9a7" font-size="9">converging…</text>
+      </svg>
+    </div>
+
+    <div class="callout callout-key">
+      <p><strong>AIMD Fairness Proof Intuition:</strong> Starting from any point, additive increase moves the operating point along a 45° line (equal increase for both). When loss occurs (above x+y=R line), multiplicative decrease moves toward the origin along a ray. These two movements spiral toward the intersection of the equal-share and full-utilization lines — regardless of starting point.</p>
+    </div>
+
+    <h3>Limits to Fairness</h3>
+
+    <div class="two-col">
+      <div class="col-box">
+        <h4>UDP Unfairness</h4>
+        <p>UDP has no congestion control. A high-bandwidth UDP stream will not back off during congestion, crowding out TCP connections that do. This is a known unfairness problem — an active research area.</p>
+      </div>
+      <div class="col-box">
+        <h4>Parallel TCP Connections</h4>
+        <p>An application can open multiple TCP connections. With 11 parallel connections on a 10-connection link, the app gets over R/2 bandwidth — taking an unfair share. Modern web browsers use multiple parallel connections for this very reason.</p>
+      </div>
+    </div>
+
+    <h3>TCP Versions: Tahoe, Reno, Vegas, CUBIC</h3>
+    <table class="compare-table">
+      <tr><th>Version</th><th>Behavior on 3 Dup ACKs</th><th>Key Difference</th></tr>
+      <tr><td>TCP Tahoe</td><td>cwnd = 1, slow start</td><td>Same response as timeout — conservative</td></tr>
+      <tr><td>TCP Reno</td><td>cwnd = ssthresh + 3·MSS, fast recovery</td><td>Distinguishes soft (dup ACK) vs. hard (timeout) loss</td></tr>
+      <tr><td>TCP Vegas</td><td>Similar to Reno</td><td>Uses RTT increase (not just loss) as early congestion signal</td></tr>
+      <tr><td>TCP CUBIC</td><td>Cubic function of time since last loss</td><td>Default in Linux 2.6.18+; optimized for high-bandwidth paths</td></tr>
+    </table>
+
+    <div class="callout callout-note">
+      <p><strong>High-Speed TCP Problem:</strong> At 10 Gbps with RTT=100ms and MSS=1500B, TCP needs a loss rate of &lt;2×10⁻¹⁰ to sustain throughput. That's essentially zero loss — existing congestion-control mechanisms break down at this scale. This motivates newer protocols (QUIC, BBR, CUBIC) designed for high-bandwidth, long-distance paths.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      links.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+sections.forEach(s => observer.observe(s));
+links.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

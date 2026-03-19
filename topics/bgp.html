@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGP Flashcard Study App</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#ffffff; --bg2:#f5f5f3; --bg3:#eeede8; --bgi:#e6f1fb;
+    --tx:#1a1a18; --tx2:#5f5e5a; --tx3:#888780; --txi:#185fa5;
+    --bd:rgba(0,0,0,0.12); --bd2:rgba(0,0,0,0.22); --bdi:#85b7eb;
+    --teal:#1D9E75; --teal-bg:#E1F5EE; --teal-tx:#0F6E56; --teal-bd:#5DCAA5;
+    --r:8px; --rl:12px;
+    --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --font-mono:'SFMono-Regular','Consolas',monospace;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1e1e1c; --bg2:#2a2a28; --bg3:#333330; --bgi:#0c2e4a;
+      --tx:#f0ede8; --tx2:#b4b2a9; --tx3:#888780; --txi:#85b7eb;
+      --bd:rgba(255,255,255,0.1); --bd2:rgba(255,255,255,0.2); --bdi:#85b7eb;
+      --teal-bg:#073d28; --teal-tx:#5DCAA5; --teal-bd:#1D9E75;
+    }
+  }
+  body { font-family:var(--font-sans); background:var(--bg3); color:var(--tx); min-height:100vh; padding:2rem 1rem; }
+  .app { max-width:740px; margin:0 auto; }
+  .back-link { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--tx2); text-decoration:none; margin-bottom:1.25rem; padding:5px 0; }
+  .back-link:hover { color:var(--tx); }
+  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:8px; }
+  .title { font-size:20px; font-weight:500; }
+  .mode-btns { display:flex; gap:6px; }
+  .mode-btn { font-size:12px; padding:5px 14px; border:0.5px solid var(--bd2); border-radius:var(--r); cursor:pointer; background:transparent; color:var(--tx2); transition:all 0.15s; }
+  .mode-btn.active { background:var(--bgi); color:var(--txi); border-color:var(--bdi); }
+  .cats { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:1.25rem; }
+  .cat-btn { font-size:12px; padding:4px 10px; border:0.5px solid var(--bd); border-radius:20px; cursor:pointer; background:transparent; color:var(--tx2); transition:all 0.15s; white-space:nowrap; }
+  .cat-btn.active { background:var(--teal-bg); color:var(--teal-tx); border-color:var(--teal-bd); }
+  .cat-btn.active.interview { background:#FAEEDA; color:#854F0B; border-color:#e4b87c; }
+  .progress-bar { height:3px; background:var(--bd); border-radius:2px; margin-bottom:1.25rem; }
+  .progress-fill { height:100%; background:var(--teal); border-radius:2px; transition:width 0.3s; }
+  .card-area { perspective:1200px; margin-bottom:1.25rem; }
+  .card { width:100%; min-height:210px; position:relative; transform-style:preserve-3d; transition:transform 0.45s cubic-bezier(0.4,0,0.2,1); cursor:pointer; }
+  .card.flipped { transform:rotateY(180deg); }
+  .card-face { position:absolute; width:100%; min-height:210px; backface-visibility:hidden; -webkit-backface-visibility:hidden; border:0.5px solid var(--bd); border-radius:var(--rl); padding:1.5rem; display:flex; flex-direction:column; background:var(--bg); }
+  .card-back { transform:rotateY(180deg); }
+  .card-label { font-size:11px; font-weight:500; letter-spacing:0.06em; color:var(--tx3); text-transform:uppercase; margin-bottom:0.75rem; }
+  .card-content { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; }
+  .card-q { font-size:17px; font-weight:500; line-height:1.55; }
+  .card-a { font-size:14px; line-height:1.7; color:var(--tx); }
+  .card-a code { font-family:var(--font-mono); font-size:13px; background:var(--bg2); padding:2px 6px; border-radius:4px; border:0.5px solid var(--bd); }
+  .card-a ul, .card-a ol { text-align:left; padding-left:1.2rem; }
+  .card-a ul li, .card-a ol li { margin-bottom:4px; }
+  .card-hint { font-size:12px; color:var(--tx3); margin-top:1rem; align-self:center; }
+  .card-cat-badge { font-size:11px; padding:3px 9px; border-radius:20px; background:var(--teal-bg); color:var(--teal-tx); align-self:flex-start; margin-bottom:0.5rem; }
+  .card-cat-badge.interview { background:#FAEEDA; color:#854F0B; }
+  .controls { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .nav-btn { padding:8px 22px; border:0.5px solid var(--bd2); border-radius:var(--r); cursor:pointer; background:transparent; color:var(--tx); font-size:14px; transition:all 0.15s; }
+  .nav-btn:hover { background:var(--bg2); }
+  .nav-btn:disabled { opacity:0.3; cursor:not-allowed; }
+  .counter { font-size:13px; color:var(--tx2); }
+  .shuffle-btn { font-size:12px; padding:6px 12px; border:0.5px solid var(--bd); border-radius:var(--r); cursor:pointer; background:transparent; color:var(--tx2); }
+  .shuffle-btn:hover { background:var(--bg2); }
+  #notes-mode { display:none; }
+  #notes-mode.visible { display:block; }
+  .notes-section { margin-bottom:1.75rem; }
+  .notes-section h3 { font-size:14px; font-weight:500; color:var(--teal-tx); margin-bottom:0.75rem; padding-bottom:6px; border-bottom:0.5px solid var(--bd); }
+  .notes-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px; }
+  .note-card { background:var(--bg2); border-radius:var(--r); padding:10px 12px; font-size:13px; }
+  .note-card .label { font-size:11px; color:var(--tx3); margin-bottom:4px; }
+  .note-card .val { font-weight:500; line-height:1.5; }
+  .note-card code { font-family:var(--font-mono); font-size:12px; }
+  table.cheat { width:100%; font-size:13px; border-collapse:collapse; background:var(--bg); border-radius:var(--r); overflow:hidden; }
+  table.cheat th { text-align:left; font-weight:500; font-size:11px; color:var(--tx3); padding:8px 10px; border-bottom:0.5px solid var(--bd); background:var(--bg2); }
+  table.cheat td { padding:8px 10px; border-bottom:0.5px solid var(--bd); vertical-align:top; }
+  table.cheat tr:last-child td { border-bottom:none; }
+  .tag { display:inline-block; font-size:11px; padding:2px 7px; border-radius:20px; background:var(--teal-bg); color:var(--teal-tx); margin-right:4px; }
+  .tag.red { background:#FCEBEB; color:#A32D2D; }
+  .tag.blue { background:#E6F1FB; color:#185FA5; }
+  .tag.amber { background:#FAEEDA; color:#854F0B; }
+  /* MOBILE SIDEBAR */
+  .hamburger{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--tx);padding:4px 6px;line-height:1;margin-right:6px}
+  #sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;opacity:0;transition:opacity .2s}
+  #sidebar-overlay.open{display:block;opacity:1}
+  #sidebar{position:fixed;top:0;left:0;height:100%;width:260px;background:var(--bg);z-index:210;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;padding:1rem}
+  #sidebar.open{transform:translateX(0)}
+  .sidebar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:0.5px solid var(--bd)}
+  .sidebar-title{font-size:13px;font-weight:600;color:var(--tx2)}
+  .sidebar-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--tx3);padding:2px 6px}
+  .sidebar-pills{display:flex;flex-direction:column;gap:6px}
+  .sidebar-pills button{text-align:left;font-size:13px;padding:7px 12px;border:0.5px solid var(--bd);border-radius:var(--r);cursor:pointer;color:var(--tx2);background:var(--bg2);white-space:normal;transition:all .15s}
+  .sidebar-pills button.active{background:var(--teal-bg);color:var(--teal-tx);border-color:var(--teal-bd);font-weight:500}
+  .sidebar-pills button.active.interview{background:#FAEEDA;color:#854F0B;border-color:#e4b87c}
+  /* JUMP ROW */
+  .jump-row{display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:center}
+  .jump-label{font-size:12px;color:var(--tx3)}
+  .jump-input{width:60px;padding:5px 8px;font-size:13px;border:0.5px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--tx);text-align:center;-moz-appearance:textfield;appearance:textfield}
+  .jump-input::-webkit-inner-spin-button,.jump-input::-webkit-outer-spin-button{-webkit-appearance:none}
+  .jump-btn{font-size:12px;padding:5px 10px;border:0.5px solid var(--bd2);border-radius:var(--r);background:transparent;color:var(--tx2);cursor:pointer;transition:all .15s}
+  .jump-btn:hover{background:var(--bg2)}
+  @media(max-width:768px){
+    .hamburger{display:block}
+    .cats{display:none!important}
+    .card-area{max-width:96vw!important;margin:0 auto}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-title">Categories</span>
+    <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+  </div>
+  <div class="sidebar-pills" id="sidebar-cats"></div>
+</div>
+
+<div class="app">
+  <a class="back-link" href="../index.html">← All Topics</a>
+  <div class="header">
+    <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">☰</button>
+    <div class="title">BGP Study Guide</div>
+    <div class="mode-btns">
+      <button class="mode-btn active" onclick="setMode('flash')">Flashcards</button>
+      <button class="mode-btn" onclick="setMode('notes')">Cheat Sheet</button>
+    </div>
+  </div>
+
+  <div id="flash-mode">
+    <div class="cats" id="cats"></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    <div class="card-area">
+      <div class="card" id="card" onclick="flipCard()">
+        <div class="card-face card-front">
+          <div class="card-cat-badge" id="cat-badge"></div>
+          <div class="card-label">Question — tap to reveal</div>
+          <div class="card-content"><div class="card-q" id="card-q"></div></div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-cat-badge" id="cat-badge2"></div>
+          <div class="card-label">Answer</div>
+          <div class="card-content"><div class="card-a" id="card-a"></div></div>
+          <div class="card-hint">tap to flip back</div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="nav-btn" id="prev-btn" onclick="nav(-1)">← Prev</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <span class="counter" id="counter"></span>
+        <button class="shuffle-btn" onclick="shuffle()">↻ Shuffle</button>
+      </div>
+      <button class="nav-btn" id="next-btn" onclick="nav(1)">Next →</button>
+    </div>
+    <div class="jump-row">
+      <label class="jump-label" for="jump-input">Go to:</label>
+      <input class="jump-input" id="jump-input" type="number" min="1" placeholder="#"
+             onkeydown="if(event.key==='Enter')goToCard()">
+      <button class="jump-btn" onclick="goToCard()">Go</button>
+    </div>
+  </div>
+
+  <div id="notes-mode">
+
+    <div class="notes-section">
+      <h3>BGP at a glance</h3>
+      <div class="notes-grid">
+        <div class="note-card"><div class="label">Protocol type</div><div class="val">Path-Vector EGP</div></div>
+        <div class="note-card"><div class="label">Transport</div><div class="val">TCP port 179</div></div>
+        <div class="note-card"><div class="label">AD — eBGP</div><div class="val">20</div></div>
+        <div class="note-card"><div class="label">AD — iBGP / local</div><div class="val">200</div></div>
+        <div class="note-card"><div class="label">Keepalive default</div><div class="val">60 sec</div></div>
+        <div class="note-card"><div class="label">Hold-time default</div><div class="val">180 sec</div></div>
+        <div class="note-card"><div class="label">ASN range (public)</div><div class="val">1 – 64511</div></div>
+        <div class="note-card"><div class="label">ASN range (private)</div><div class="val">64512 – 65535</div></div>
+      </div>
+    </div>
+
+    <div class="notes-section">
+      <h3>BGP FSM states (in order)</h3>
+      <table class="cheat">
+        <tr><th>State</th><th>Meaning</th><th>Normal?</th><th>If stuck — check</th></tr>
+        <tr><td><span class="tag red">Idle</span></td><td>Not attempting connection; error backoff or admin down</td><td>Transient</td><td>Admin shutdown? ConnectRetry timer?</td></tr>
+        <tr><td><span class="tag amber">Connect</span></td><td>Waiting for TCP 3-way handshake to complete</td><td>Transient</td><td>TCP connectivity to port 179</td></tr>
+        <tr><td><span class="tag red">Active</span></td><td>TCP failed; actively retrying</td><td>Bad</td><td>Peer IP reachable? Port 179 open? remote-as correct? update-source?</td></tr>
+        <tr><td><span class="tag blue">OpenSent</span></td><td>TCP up; OPEN sent; awaiting peer's OPEN</td><td>Transient</td><td>Peer rejecting OPEN params (ASN, hold-time)</td></tr>
+        <tr><td><span class="tag blue">OpenConfirm</span></td><td>OPEN received; awaiting KEEPALIVE</td><td>Transient</td><td>Auth mismatch?</td></tr>
+        <tr><td><span class="tag">Established</span></td><td>Session fully up; exchanging UPDATEs</td><td>Normal</td><td>—</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Message types</h3>
+      <table class="cheat">
+        <tr><th>Type</th><th>Purpose</th><th>Key contents</th></tr>
+        <tr><td><strong>OPEN</strong></td><td>Initiate session; negotiate parameters</td><td>BGP version, ASN, hold-time, BGP identifier (RID), optional params</td></tr>
+        <tr><td><strong>KEEPALIVE</strong></td><td>Confirm session alive; ACK for OPEN</td><td>No data — header only. Sent every 60 sec.</td></tr>
+        <tr><td><strong>UPDATE</strong></td><td>Advertise or withdraw routes</td><td>Withdrawn routes, path attributes (AS-Path, Next-Hop, etc.), NLRI (prefixes)</td></tr>
+        <tr><td><strong>NOTIFICATION</strong></td><td>Signal error; tears down session</td><td>Error code + subcode + data. Session closes immediately after.</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>BGP attributes</h3>
+      <table class="cheat">
+        <tr><th>Attribute</th><th>Category</th><th>Scope</th><th>Prefer</th><th>Used for</th></tr>
+        <tr><td>Weight</td><td>Cisco proprietary</td><td>Local router only</td><td>Higher</td><td>Outbound (exit path)</td></tr>
+        <tr><td>Local Preference</td><td>Well-known discretionary</td><td>Entire AS (iBGP)</td><td>Higher</td><td>Outbound (exit path)</td></tr>
+        <tr><td>AS-Path</td><td>Well-known mandatory</td><td>All peers</td><td>Shorter</td><td>Loop prevention; inbound engineering via prepend</td></tr>
+        <tr><td>Origin</td><td>Well-known mandatory</td><td>All peers</td><td>i &gt; e &gt; ?</td><td>Route source indicator</td></tr>
+        <tr><td>MED</td><td>Optional non-transitive</td><td>Between adjacent ASes</td><td>Lower</td><td>Inbound (entry path hint to neighbor)</td></tr>
+        <tr><td>Next-Hop</td><td>Well-known mandatory</td><td>All peers</td><td>Reachable</td><td>Next-hop IP for the route</td></tr>
+        <tr><td>Community</td><td>Optional transitive</td><td>Configurable</td><td>Policy</td><td>Route tagging for policy decisions</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Best-path decision order</h3>
+      <table class="cheat">
+        <tr><th>#</th><th>Attribute</th><th>Win condition</th><th>Controls</th></tr>
+        <tr><td>1</td><td>Weight</td><td>Highest</td><td>Outbound (local router)</td></tr>
+        <tr><td>2</td><td>Local Preference</td><td>Highest</td><td>Outbound (AS-wide)</td></tr>
+        <tr><td>3</td><td>Locally originated</td><td>network/aggregate &gt; redistributed</td><td>—</td></tr>
+        <tr><td>4</td><td>AS-Path length</td><td>Shortest</td><td>Inbound (via prepend)</td></tr>
+        <tr><td>5</td><td>Origin</td><td>i &gt; e &gt; ?</td><td>—</td></tr>
+        <tr><td>6</td><td>MED</td><td>Lowest</td><td>Inbound (hint to neighbor)</td></tr>
+        <tr><td>7</td><td>BGP route type</td><td>eBGP over iBGP</td><td>—</td></tr>
+        <tr><td>8</td><td>IGP metric to next-hop</td><td>Lowest</td><td>—</td></tr>
+        <tr><td>9</td><td>Router ID</td><td>Lowest</td><td>—</td></tr>
+        <tr><td>10</td><td>Peer IP address</td><td>Lowest</td><td>Final tiebreaker</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Troubleshooting — session not coming up</h3>
+      <table class="cheat">
+        <tr><th>Symptom</th><th>Likely cause</th><th>Command to check</th></tr>
+        <tr><td>Stuck in <span class="tag red">Active</span></td><td>Peer IP unreachable</td><td><code>ping [peer-ip]</code></td></tr>
+        <tr><td>Stuck in <span class="tag red">Active</span></td><td>TCP 179 blocked by ACL/firewall</td><td><code>telnet [peer-ip] 179</code></td></tr>
+        <tr><td>Stuck in <span class="tag red">Active</span></td><td>Wrong remote-as or neighbor IP</td><td><code>show ip bgp neighbors</code></td></tr>
+        <tr><td>Stuck in <span class="tag red">Active</span></td><td>Source IP mismatch (loopback peering)</td><td>Check <code>update-source</code> config</td></tr>
+        <tr><td>Stuck in <span class="tag red">Active</span></td><td>eBGP peer not directly connected</td><td>Add <code>ebgp-multihop</code></td></tr>
+        <tr><td>Stuck in <span class="tag blue">OpenSent</span></td><td>Auth mismatch or OPEN param mismatch</td><td>Check MD5 password, ASN, hold-time</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Troubleshooting — route missing</h3>
+      <table class="cheat">
+        <tr><th>Symptom</th><th>Likely cause</th><th>Command to check</th></tr>
+        <tr><td>Not in BGP table at all</td><td>network stmt mask mismatch</td><td><code>show ip bgp</code>, <code>show ip route</code></td></tr>
+        <tr><td>In BGP table, not in routing table</td><td>Next-hop unreachable</td><td><code>show ip bgp [prefix]</code> — check Next Hop reachability</td></tr>
+        <tr><td>In BGP table, not best (<code>*</code> not <code>*&gt;</code>)</td><td>Another path wins best-path</td><td><code>show ip bgp [prefix]</code> — compare attributes</td></tr>
+        <tr><td>Route disappears intermittently</td><td>Route dampening active</td><td><code>show ip bgp dampened-paths</code></td></tr>
+        <tr><td>iBGP route not installed</td><td>next-hop-self not configured</td><td>Check eBGP router for <code>next-hop-self</code></td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Key commands</h3>
+      <table class="cheat">
+        <tr><th>Command</th><th>What it shows</th></tr>
+        <tr><td><code>show ip bgp summary</code></td><td>All peers: state, uptime, AS, prefixes received. Stuck peers show FSM state instead of uptime.</td></tr>
+        <tr><td><code>show ip bgp neighbors [ip]</code></td><td>Detailed peer info: state, timers, message counts, capabilities, hold-time negotiated.</td></tr>
+        <tr><td><code>show ip bgp</code></td><td>Full BGP table: status codes (* valid, &gt; best), next-hop, attributes.</td></tr>
+        <tr><td><code>show ip bgp [prefix]</code></td><td>All paths for a specific prefix with full attribute detail — use for best-path debugging.</td></tr>
+        <tr><td><code>show ip route bgp</code></td><td>Only BGP routes installed in the routing table.</td></tr>
+        <tr><td><code>show ip bgp dampened-paths</code></td><td>Routes currently suppressed by dampening.</td></tr>
+        <tr><td><code>clear ip bgp * soft</code></td><td>Soft reset: re-advertise/re-process routes without tearing down TCP session.</td></tr>
+        <tr><td><code>clear ip bgp *</code></td><td>Hard reset: tears down all BGP sessions. Avoid in production.</td></tr>
+        <tr><td><code>debug ip bgp [ip] events</code></td><td>Real-time FSM transitions for a specific peer.</td></tr>
+      </table>
+    </div>
+
+    <div class="notes-section">
+      <h3>Abbreviations</h3>
+      <table class="cheat">
+        <tr><th>Abbreviation</th><th>Full form</th><th>Brief meaning</th></tr>
+        <tr><td>BGP</td><td>Border Gateway Protocol</td><td>The routing protocol of the internet; connects autonomous systems</td></tr>
+        <tr><td>EGP</td><td>Exterior Gateway Protocol</td><td>Protocol class for routing between ASes (BGP is the only active EGP)</td></tr>
+        <tr><td>IGP</td><td>Interior Gateway Protocol</td><td>Protocol for routing within an AS (OSPF, EIGRP, IS-IS)</td></tr>
+        <tr><td>AS</td><td>Autonomous System</td><td>Collection of IP prefixes under a single administrative policy</td></tr>
+        <tr><td>ASN</td><td>Autonomous System Number</td><td>Unique identifier for an AS; used in AS-Path</td></tr>
+        <tr><td>eBGP</td><td>External BGP</td><td>BGP session between routers in different ASes</td></tr>
+        <tr><td>iBGP</td><td>Internal BGP</td><td>BGP session between routers in the same AS</td></tr>
+        <tr><td>RIB</td><td>Routing Information Base</td><td>BGP's internal table of all received routes (before best-path selection)</td></tr>
+        <tr><td>NLRI</td><td>Network Layer Reachability Information</td><td>The prefix(es) carried in a BGP UPDATE message</td></tr>
+        <tr><td>FSM</td><td>Finite State Machine</td><td>The state machine BGP uses to track session establishment</td></tr>
+        <tr><td>MED</td><td>Multi-Exit Discriminator</td><td>Optional attribute hinting to an external AS which entry point to prefer</td></tr>
+        <tr><td>RR</td><td>Route Reflector</td><td>iBGP router that re-advertises routes to clients, replacing full mesh</td></tr>
+        <tr><td>AD</td><td>Administrative Distance</td><td>Trustworthiness of a route source; lower = more trusted</td></tr>
+        <tr><td>TTL</td><td>Time to Live</td><td>IP field; eBGP defaults to 1 (direct only); iBGP uses 255</td></tr>
+        <tr><td>TCP</td><td>Transmission Control Protocol</td><td>Transport BGP runs over; provides reliable ordered delivery</td></tr>
+        <tr><td>MD5</td><td>Message Digest 5</td><td>Hash algorithm used for BGP neighbor authentication</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ALL = [
+  // ── BASICS ───────────────────────────────────────────────────────────────────
+  {cat:"Basics", q:"What is BGP?", a:"<strong>Border Gateway Protocol</strong> — the Exterior Gateway Protocol (EGP) of the internet. It is a <strong>path-vector</strong> protocol that routes between Autonomous Systems (ASes), running over <strong>TCP port 179</strong>."},
+  {cat:"Basics", q:"Why is BGP called a path-vector protocol?", a:"Each route advertisement carries the full <strong>AS-Path</strong> — the ordered list of every AS the route traversed. This enables loop detection (discard if own ASN is in the path) and policy-based routing decisions."},
+  {cat:"Basics", q:"Why does BGP use TCP port 179 instead of its own transport?", a:"TCP provides <strong>reliable, ordered delivery</strong>. BGP doesn't need to implement its own retransmission or sequencing — TCP handles it. The session is long-lived; all BGP needs is to send/receive UPDATE messages reliably over the established TCP connection."},
+  {cat:"Basics", q:"What is an Autonomous System (AS) and what are the ASN ranges?", a:"An AS is a collection of IP prefixes under a single administrative policy.<ul><li>Public ASNs: <strong>1 – 64511</strong></li><li>Private ASNs: <strong>64512 – 65535</strong></li><li>4-byte ASNs: 1 – 4,294,967,295; private: 4200000000 – 4294967294</li></ul>"},
+  {cat:"Basics", q:"What are the key differences between iBGP and eBGP?", a:"<table><tr><th></th><th>eBGP</th><th>iBGP</th></tr><tr><td>ASes</td><td>Different</td><td>Same</td></tr><tr><td>AD</td><td>20</td><td>200</td></tr><tr><td>TTL default</td><td>1 (direct)</td><td>255</td></tr><tr><td>Next-hop</td><td>Changed to self</td><td>Unchanged</td></tr><tr><td>AS-Path</td><td>Prepends local ASN</td><td>No change</td></tr><tr><td>Topology</td><td>No full-mesh needed</td><td>Full mesh required</td></tr></table>"},
+  {cat:"Basics", q:"When should you use BGP instead of an IGP?", a:"Use BGP when:<ul><li>You have <strong>multiple ISP connections</strong> (multihoming)</li><li>You need to control <strong>inbound or outbound traffic paths</strong> between ASes</li><li>You are peering with an external AS</li></ul>IGP (OSPF, EIGRP) is for routing <em>within</em> your own AS."},
+  {cat:"Basics", q:"What is the BGP administrative distance for eBGP vs iBGP?", a:"<ul><li><strong>eBGP: 20</strong></li><li><strong>iBGP: 200</strong></li><li>Locally originated BGP routes: 200</li></ul>Lower AD = more trusted. An OSPF route (AD=110) beats an iBGP route (AD=200) to the same prefix."},
+  {cat:"Basics", q:"What is BGP synchronization and why is it disabled by default?", a:"Synchronization rule: don't advertise a route to eBGP peers until all routers in the transit AS know it via IGP — prevents <strong>blackholes</strong> when non-BGP routers exist. Disabled by default since IOS 12.2(8)T because modern networks either run iBGP on <em>all</em> routers or use MPLS to forward traffic."},
+
+  // ── NEIGHBORS ────────────────────────────────────────────────────────────────
+  {cat:"Neighbors", q:"What must be configured/matched for a BGP session to form?", a:"<ul><li>Correct <strong>neighbor IP</strong> and <strong>remote-as</strong> on both sides</li><li>TCP port 179 must not be blocked</li><li>Source IP must be reachable (correct <code>update-source</code> if using loopback)</li><li><strong>MD5 password must match</strong> if configured</li></ul>Hold-time and keepalive don't need to match — the <em>smaller</em> hold-time is used."},
+  {cat:"Neighbors", q:"What is update-source and when do you need it?", a:"By default, BGP uses the <strong>outgoing interface IP</strong> as the source. <code>neighbor X.X.X.X update-source loopback0</code> forces BGP to use the loopback. Required when iBGP peers reference each other's loopback IPs — loopbacks are more stable than physical interface IPs."},
+  {cat:"Neighbors", q:"What is ebgp-multihop and when is it required?", a:"eBGP defaults to TTL=1, meaning peers must be <strong>directly connected</strong>. If eBGP peers aren't directly adjacent (e.g. loopback-to-loopback, or path through intermediate hops), <code>neighbor X.X.X.X ebgp-multihop [hops]</code> is required to increase the TTL."},
+  {cat:"Neighbors", q:"What are the default BGP keepalive and hold-time values?", a:"<ul><li><strong>Keepalive: 60 seconds</strong></li><li><strong>Hold-time: 180 seconds</strong> (= 3× keepalive)</li></ul>If no KEEPALIVE is received within hold-time, the session is torn down."},
+  {cat:"Neighbors", q:"What happens if two BGP peers are configured with different hold-times?", a:"During OPEN negotiation, the <strong>smaller hold-time</strong> wins and both peers use that value. So if one peer configures 90 and the other 180, both use 90 seconds."},
+  {cat:"Neighbors", q:"What is BGP neighbor authentication and how is it configured?", a:"BGP supports <strong>MD5 authentication</strong> on the TCP session. Both peers must have the same password: <code>neighbor X.X.X.X password [key]</code>. If passwords don't match, the TCP session fails and the peer stays in Active."},
+
+  // ── FSM STATES ───────────────────────────────────────────────────────────────
+  {cat:"FSM States", q:"List all BGP FSM states in order.", a:"<strong>Idle → Connect → Active → OpenSent → OpenConfirm → Established</strong>"},
+  {cat:"FSM States", q:"What happens in the Idle state?", a:"BGP is not attempting a connection. Causes: administratively shut down, or a previous connection failed and BGP is waiting for the <strong>ConnectRetry timer</strong> to expire before trying again."},
+  {cat:"FSM States", q:"What happens in the Connect state?", a:"BGP initiated a TCP connection and is <strong>waiting for the 3-way handshake to complete</strong>. If TCP succeeds → moves to OpenSent. If TCP fails → moves to Active and starts retrying."},
+  {cat:"FSM States", q:"What does it mean when a BGP session is stuck in Active?", a:"TCP is <strong>failing to connect</strong>. BGP is actively retrying. Common causes:<ul><li>Peer IP unreachable (routing problem)</li><li>TCP port 179 blocked by ACL or firewall</li><li>Wrong neighbor IP or remote-as</li><li>Source IP mismatch (missing <code>update-source</code>)</li><li>Missing <code>ebgp-multihop</code> for non-direct peer</li></ul>"},
+  {cat:"FSM States", q:"What happens in OpenSent and OpenConfirm?", a:"<strong>OpenSent:</strong> TCP is up, local OPEN message sent, waiting for peer's OPEN.<br><strong>OpenConfirm:</strong> Peer's OPEN received and validated, waiting for KEEPALIVE to complete session setup. If parameters don't match (ASN, hold-time, auth) → NOTIFICATION is sent and session drops."},
+  {cat:"FSM States", q:"What does the Established state mean?", a:"The BGP session is <strong>fully up</strong>. Routers exchange UPDATEs and send KEEPALIVEs. This is the normal operating state — you should see this in <code>show ip bgp summary</code>."},
+  {cat:"FSM States", q:"Why would a BGP session drop from Established back to Idle?", a:"<ul><li><strong>Hold-time expired</strong> — no KEEPALIVE received in time</li><li><strong>NOTIFICATION received</strong> — peer detected an error</li><li><strong>TCP session reset</strong> — interface down, next-hop unreachable</li><li>Admin <code>clear ip bgp</code> command</li></ul>"},
+
+  // ── MESSAGES ─────────────────────────────────────────────────────────────────
+  {cat:"Messages", q:"What are the four BGP message types?", a:"<strong>OPEN · KEEPALIVE · UPDATE · NOTIFICATION</strong>"},
+  {cat:"Messages", q:"What does an OPEN message contain?", a:"<ul><li>BGP version (always 4)</li><li>Sender's <strong>ASN</strong></li><li>Proposed <strong>hold-time</strong></li><li><strong>BGP Identifier</strong> (router ID — highest IP or configured)</li><li>Optional parameters (capabilities: 4-byte ASN, multi-protocol, route refresh)</li></ul>"},
+  {cat:"Messages", q:"What does an UPDATE message contain?", a:"<ul><li><strong>Withdrawn routes</strong> — prefixes being removed</li><li><strong>Path attributes</strong> — AS-Path, Next-Hop, Local Pref, MED, etc.</li><li><strong>NLRI</strong> (Network Layer Reachability Information) — prefixes being advertised</li></ul>Multiple prefixes sharing the same attributes can be packed in one UPDATE."},
+  {cat:"Messages", q:"What does a NOTIFICATION message signal?", a:"An <strong>error condition</strong>. Contains error code, subcode, and optional data. Sent when: bad OPEN parameters, hold-time expired, FSM error, or policy violation. <strong>Immediately followed by TCP session teardown.</strong>"},
+  {cat:"Messages", q:"What does KEEPALIVE do and how often is it sent?", a:"Confirms the session is still alive. Sent every <strong>60 seconds</strong> (default). Also serves as the acknowledgment of an OPEN message. If no KEEPALIVE within hold-time (180 sec), the session tears down."},
+
+  // ── ROUTE ORIGINATION ────────────────────────────────────────────────────────
+  {cat:"Route Origination", q:"What are the three ways to originate a prefix into BGP?", a:"<ol><li><strong>network statement</strong> — manually specify a prefix</li><li><strong>aggregate-address</strong> — summarize multiple prefixes</li><li><strong>redistribute</strong> — import routes from another protocol</li></ol>"},
+  {cat:"Route Origination", q:"How does the network command work in BGP, and what trips people up?", a:"The prefix and mask must <strong>exactly match</strong> an entry in the routing table. If the route disappears from the routing table, the BGP advertisement is withdrawn. Common mistake: specifying a classful mask when a more specific prefix exists, or vice versa."},
+  {cat:"Route Origination", q:"What does aggregate-address do, and what is summary-only?", a:"<code>aggregate-address [network] [mask]</code> summarizes multiple more-specific routes.<ul><li><strong>Without summary-only</strong>: both the summary and the specific routes are advertised</li><li><strong>With summary-only</strong>: only the summary is advertised; specifics are suppressed</li><li><strong>as-set</strong>: preserves the AS-Path of all summarized routes</li></ul>"},
+  {cat:"Route Origination", q:"What is the meaning of *> in the BGP routing table?", a:"<ul><li><code>*</code> = <strong>valid</strong> (next-hop reachable, not in a loop)</li><li><code>&gt;</code> = <strong>best</strong> (selected for installation into routing table)</li><li><code>*&gt;</code> = <strong>valid AND best</strong> — this route is installed in the routing table</li></ul>A route with only <code>*</code> is valid but not best — it stays in BGP RIB only."},
+  {cat:"Route Origination", q:"Why would a route be in the BGP table but not installed in the routing table?", a:"<ul><li><strong>Next-hop unreachable</strong> — most common; iBGP routes keep the original external next-hop</li><li>Route is not the <strong>best path</strong> (another path won the decision)</li><li><strong>Synchronization</strong> enabled and IGP doesn't carry the route</li><li>Route <strong>dampened</strong> (penalty exceeds suppress limit)</li></ul>"},
+
+  // ── ATTRIBUTES ───────────────────────────────────────────────────────────────
+  {cat:"Attributes", q:"What are the four BGP attribute categories?", a:"<ol><li><strong>Well-known mandatory</strong> — must be in every UPDATE, must be recognized (AS-Path, Next-Hop, Origin)</li><li><strong>Well-known discretionary</strong> — recognized but optional (Local Preference, Atomic Aggregate)</li><li><strong>Optional transitive</strong> — passed to peers even if not understood (Community, Aggregator)</li><li><strong>Optional non-transitive</strong> — not passed if not understood (MED, Originator-ID)</li></ol>"},
+  {cat:"Attributes", q:"What is the AS-Path attribute and how is it used?", a:"A list of <strong>ASNs the route traversed</strong>. Used for:<ul><li><strong>Loop prevention</strong> — discard if own ASN is in the path</li><li><strong>Best-path</strong> — shorter AS-Path is preferred</li><li><strong>Inbound engineering</strong> — <em>prepending</em> your ASN artificially lengthens the path to make a route less preferred</li></ul>eBGP prepends the local ASN on each advertisement to an external peer."},
+  {cat:"Attributes", q:"What is the Next-Hop attribute and what is the Next-Hop reachability requirement?", a:"Next-Hop is the IP address to use to reach the advertised prefix.<ul><li><strong>eBGP</strong>: next-hop is set to the advertising router's interface IP</li><li><strong>iBGP</strong>: next-hop is <em>not changed</em> — it stays as the external peer's IP</li></ul>If iBGP peers can't reach that external next-hop → route is not installed. Fix: <code>next-hop-self</code> on the eBGP router."},
+  {cat:"Attributes", q:"What is Local Preference — scope, default, and which direction is preferred?", a:"<ul><li><strong>Scope:</strong> iBGP (AS-wide) — passed between all iBGP peers; never sent to eBGP</li><li><strong>Default:</strong> 100</li><li><strong>Higher is preferred</strong></li><li><strong>Controls outbound traffic</strong> — which exit point this AS uses</li></ul>Set higher on the preferred exit router to steer outbound traffic through it."},
+  {cat:"Attributes", q:"What is Weight — scope, default, and which direction is preferred?", a:"<ul><li><strong>Cisco proprietary</strong> — never advertised to any peer</li><li><strong>Scope:</strong> local router only</li><li><strong>Default:</strong> 32768 for locally originated; 0 for routes learned from peers</li><li><strong>Higher is preferred</strong></li><li>First step in best-path — wins before any other attribute</li></ul>"},
+  {cat:"Attributes", q:"What is MED — scope, direction, and which value is preferred?", a:"<ul><li><strong>Multi-Exit Discriminator</strong></li><li>Hint to an external AS on <strong>which entry point</strong> to use when multiple links exist</li><li><strong>Lower is preferred</strong></li><li>Scope: passed to a directly connected eBGP peer; NOT forwarded beyond that AS</li><li><strong>Controls inbound traffic</strong> — you set MED outbound to influence how neighbors route to you</li></ul>"},
+  {cat:"Attributes", q:"What is the Origin attribute and what are its values?", a:"Indicates how the prefix entered BGP:<ul><li><code>i</code> (IGP) — via <code>network</code> statement. <strong>Most preferred.</strong></li><li><code>e</code> (EGP) — from the old EGP protocol. Rarely seen today.</li><li><code>?</code> (Incomplete) — via <code>redistribute</code>. <strong>Least preferred.</strong></li></ul>Shown at the end of each line in <code>show ip bgp</code>."},
+  {cat:"Attributes", q:"What is the Community attribute and what are the well-known communities?", a:"A <strong>tag applied to routes</strong> to signal policy decisions. Format: <code>AA:NN</code>.<br>Well-known communities:<ul><li><strong>no-export</strong> — don't advertise to eBGP peers</li><li><strong>no-advertise</strong> — don't advertise to any peer</li><li><strong>internet</strong> — advertise everywhere</li><li><strong>local-as</strong> — don't send outside confederation sub-AS</li></ul><code>send-community</code> must be configured to pass communities to peers."},
+  {cat:"Attributes", q:"What is next-hop-self and why is it needed?", a:"When an eBGP router (A) receives a route with next-hop 203.0.113.1 and reflects it to iBGP peers (B, C), B and C may not have a route to 203.0.113.1 — it's only reachable via A's external interface.<br><br><code>neighbor B next-hop-self</code> on A makes A advertise <strong>itself</strong> as the next-hop to iBGP peers, so they can always reach it via the internal network."},
+  {cat:"Attributes", q:"What is AS-Path prepending and when do you use it?", a:"Artificially <strong>lengthening the AS-Path</strong> by repeating your own ASN: <code>set as-path prepend 65001 65001 65001</code><br><br>Used for <strong>inbound traffic engineering</strong> — makes one path look longer (less preferred) to steer inbound traffic through a different entry point. Applied outbound via a route-map on the less-preferred link."},
+
+  // ── BEST PATH ────────────────────────────────────────────────────────────────
+  {cat:"Best Path", q:"What is the BGP best-path decision order? (memorize all steps)", a:"<ol><li><strong>Weight</strong> — highest (Cisco, local only)</li><li><strong>Local Preference</strong> — highest (iBGP scope)</li><li><strong>Locally originated</strong> — network/aggregate beats learned</li><li><strong>AS-Path</strong> — shortest</li><li><strong>Origin</strong> — i &gt; e &gt; ?</li><li><strong>MED</strong> — lowest</li><li><strong>eBGP over iBGP</strong></li><li><strong>IGP metric</strong> to next-hop — lowest</li><li><strong>Router ID</strong> — lowest</li><li><strong>Peer IP</strong> — lowest (final tiebreaker)</li></ol>"},
+  {cat:"Best Path", q:"Which BGP attributes influence outbound traffic (which exit this AS uses)?", a:"<strong>Weight</strong> (local router) and <strong>Local Preference</strong> (AS-wide). Both are evaluated before AS-Path, so they dominate the selection of which exit point the AS uses for outbound traffic."},
+  {cat:"Best Path", q:"Which BGP attributes influence inbound traffic (how external peers route to this AS)?", a:"<strong>AS-Path prepending</strong> (makes a path look longer) and <strong>MED</strong> (hints which entry point to prefer). These are sent to external peers in outbound UPDATE messages."},
+  {cat:"Best Path", q:"What does 'locally originated' mean in best-path selection?", a:"Step 3 of best-path: a route originating from <em>this router</em> (via <code>network</code> or <code>aggregate-address</code>) beats a route <em>learned from a peer</em>. Routes via redistribution are treated as locally originated but rank below network/aggregate."},
+  {cat:"Best Path", q:"If two paths are still tied after Router ID, what is the final tiebreaker?", a:"<strong>Lowest peer IP address</strong> — the IP address of the BGP neighbor the route was received from. This is purely deterministic and has no operational significance."},
+  {cat:"Best Path", q:"Why might a route be valid (*) but not selected as best?", a:"Another path wins on one or more of the best-path attributes (Weight, Local Pref, AS-Path, etc.). The route remains in the BGP RIB as a valid backup but is not installed in the routing table until the winning path disappears."},
+
+  // ── SCALING ──────────────────────────────────────────────────────────────────
+  {cat:"Scaling", q:"What is the iBGP full-mesh requirement and why does it exist?", a:"iBGP rule: a route learned from an iBGP peer is <strong>never re-advertised to another iBGP peer</strong> (to prevent loops, since iBGP doesn't add its own ASN). This means every iBGP router must peer directly with every other — <strong>n(n−1)/2</strong> sessions. 100 routers = 4950 sessions. Does not scale."},
+  {cat:"Scaling", q:"What is a route reflector and how does it solve the full-mesh requirement?", a:"A <strong>designated iBGP router</strong> (RR server) that breaks the re-advertisement rule — it reflects iBGP routes to its clients. Clients only peer with the RR server, not with each other. Reduces sessions from O(n²) to O(n)."},
+  {cat:"Scaling", q:"What are route-reflector server and client roles?", a:"<strong>Server:</strong> configured with <code>neighbor X.X.X.X route-reflector-client</code> for each client. Reflects routes: client→clients, client→non-clients, non-client→clients.<br><strong>Clients:</strong> no special config; just peer with the server.<br>Multiple RR servers deployed for redundancy; clients can peer with multiple servers."},
+  {cat:"Scaling", q:"What are BGP confederations?", a:"Alternative to full-mesh: split the AS into <strong>sub-ASes</strong>. Routing within a sub-AS uses iBGP; between sub-ASes uses eBGP-like rules (AS-Path updated). External peers see only the <strong>confederation identifier</strong> (the public ASN) — internal sub-AS numbers are stripped. More complex to configure than RRs."},
+  {cat:"Scaling", q:"What are BGP peer-groups?", a:"A named group of neighbors sharing <strong>identical outbound policy</strong>. Config applied once to the group; router computes a single UPDATE for all members. Members must all be iBGP or all eBGP; inbound policies can differ per member. Reduces config and improves CPU efficiency."},
+  {cat:"Scaling", q:"What is maximum-prefix and why use it?", a:"<code>neighbor X.X.X.X maximum-prefix [n]</code> — limits how many prefixes a peer can send. Triggers a warning at threshold %; optionally tears down the session if limit is exceeded. Protects against a misconfigured or malicious peer flooding your routing table."},
+
+  // ── TROUBLESHOOTING ──────────────────────────────────────────────────────────
+  {cat:"Troubleshooting", q:"BGP session not coming up — what is your troubleshooting flow?", a:"<ol><li>Can I reach the peer IP? → <code>ping [peer-ip]</code></li><li>Is TCP 179 open? → <code>telnet [peer-ip] 179</code></li><li>Is neighbor IP and remote-as correct? → <code>show ip bgp neighbors</code></li><li>Is source IP right? → check <code>update-source</code></li><li>Is <code>ebgp-multihop</code> needed (non-direct peer)?</li><li>Is there an ACL blocking port 179?</li><li>Does auth (MD5) match on both ends?</li></ol>"},
+  {cat:"Troubleshooting", q:"Session stuck in Active — what are the likely causes?", a:"<ul><li>Peer IP <strong>unreachable</strong> (no route to neighbor)</li><li>TCP port 179 <strong>blocked</strong> by ACL or firewall</li><li><strong>Wrong neighbor IP</strong> or remote-as configured</li><li><strong>Source IP mismatch</strong> — loopback peering without <code>update-source</code></li><li>eBGP over non-direct path without <code>ebgp-multihop</code></li><li><strong>Auth mismatch</strong> (MD5 password wrong)</li></ul>"},
+  {cat:"Troubleshooting", q:"A route is in the BGP table but missing from the routing table — why?", a:"<ol><li><strong>Next-hop unreachable</strong> — most common; run <code>show ip bgp [prefix]</code> and check next-hop reachability</li><li>Route is <strong>not best</strong> — another path wins; look for <code>*&gt;</code> on a competing entry</li><li><strong>Dampening</strong> active — check <code>show ip bgp dampened-paths</code></li><li><strong>Synchronization</strong> enabled and IGP doesn't carry the route</li></ol>"},
+  {cat:"Troubleshooting", q:"Route received from peer but not selected as best — what do you check?", a:"Run <code>show ip bgp [prefix]</code> and compare competing paths:<ul><li>Which has higher <strong>Weight</strong>?</li><li>Which has higher <strong>Local Preference</strong>?</li><li>Which has shorter <strong>AS-Path</strong>?</li><li>Which has lower <strong>MED</strong>?</li></ul>The <code>&gt;</code> marker shows which path won and why (attributes differ)."},
+  {cat:"Troubleshooting", q:"What do 'show ip bgp summary' and 'show ip bgp neighbors' tell you?", a:"<code>show ip bgp summary</code>: all BGP peers — state/uptime, ASN, prefixes received. Peers not in Established show their <strong>FSM state</strong> instead of uptime — quick health check.<br><br><code>show ip bgp neighbors [ip]</code>: deep dive — negotiated hold-time, message counts, capabilities, last error, open/close reasons."},
+  {cat:"Troubleshooting", q:"What is 'clear ip bgp * soft' and when do you use it vs a hard reset?", a:"<strong>Soft reset</strong>: re-advertises outbound routes or re-processes inbound routes without tearing down the TCP session. Use after changing a route-map, prefix-list, or community policy.<ul><li><code>soft out</code> — re-advertise outbound</li><li><code>soft in</code> — re-process inbound (requires route-refresh capability)</li></ul><strong>Hard reset</strong> (<code>clear ip bgp *</code>): tears down all sessions. Avoid in production — causes route churn."},
+  {cat:"Troubleshooting", q:"What is BGP route dampening and what symptoms does it cause?", a:"Dampening <strong>penalizes flapping routes</strong>. Each flap adds a penalty; when penalty &gt; suppress-limit, the route is suppressed. Penalty decays with a half-life; route is unsuppressed when it drops below reuse-limit.<br><br>Symptom: route repeatedly disappears even though the peer session is <em>Established</em>. Check: <code>show ip bgp dampened-paths</code>."},
+
+  // ── ⭐ INTERVIEW ──────────────────────────────────────────────────────────────
+  {cat:"⭐ Interview", q:"Explain BGP in one sentence as if to a non-network engineer.", a:"BGP is the routing protocol that connects different organizations' networks together and determines how traffic flows across the internet, using <strong>policy-based path selection</strong> rather than just shortest distance."},
+  {cat:"⭐ Interview", q:"Give the complete operational difference between eBGP and iBGP.", a:"<strong>eBGP</strong> (between different ASes): AD=20, TTL=1 (peers must be directly connected by default), prepends local ASN to AS-Path, sets next-hop to self, routes immediately redistributed.<br><br><strong>iBGP</strong> (within same AS): AD=200, TTL=255, does NOT modify AS-Path or next-hop, requires <strong>full mesh or route reflectors</strong> (iBGP routes are never re-advertised to another iBGP peer)."},
+  {cat:"⭐ Interview", q:"Walk me through why a BGP session would be stuck in Active.", a:"Active = TCP is failing. My flow: (1) Can I ping the peer? If not — routing problem. (2) Is port 179 open? Test with <code>telnet [ip] 179</code>. (3) Check neighbor config — is remote-as correct, is the IP right? (4) Is <code>update-source</code> set for loopback peering? (5) Is <code>ebgp-multihop</code> needed for non-direct eBGP? (6) Check ACLs. (7) MD5 auth mismatch?"},
+  {cat:"⭐ Interview", q:"A route is advertised by a peer but you don't see it in your routing table. How do you debug?", a:"<ol><li><code>show ip bgp [prefix]</code> — is it in the BGP table at all?</li><li>If not in BGP: is the <code>network</code> statement mask matching exactly? Is the prefix in the routing table?</li><li>If in BGP but not installed: is it <code>*&gt;</code> (best)? If not, another path is winning — compare attributes.</li><li>Check next-hop reachability — iBGP routes often fail here → fix with <code>next-hop-self</code>.</li><li>Check <code>show ip bgp dampened-paths</code> — is it suppressed?</li></ol>"},
+  {cat:"⭐ Interview", q:"What is next-hop-self and give a real scenario where it's needed.", a:"Classic scenario: Router A has an eBGP session to an ISP (next-hop 203.0.113.1). A reflects that route via iBGP to internal routers B and C. B and C have no route to 203.0.113.1 — it only exists on A's external interface.<br><br>Without <code>next-hop-self</code>: B and C see the route in BGP but can't install it (next-hop unreachable). With <code>neighbor B next-hop-self</code> on A: A advertises itself as the next-hop; B and C can always reach A via the internal network."},
+  {cat:"⭐ Interview", q:"What is the difference between Local Preference and MED?", a:"<strong>Local Preference</strong>: iBGP-scoped (entire AS). Higher = preferred. Controls which <em>exit point</em> your AS uses for <strong>outbound traffic</strong>. Set it higher on the preferred exit router.<br><br><strong>MED</strong>: hint sent to a directly connected external AS. Lower = preferred. Controls which <em>entry point</em> external peers use for <strong>inbound traffic</strong> to your AS.<br><br>Think: Local Pref = your outbound preference. MED = your hint to others about how to reach you."},
+  {cat:"⭐ Interview", q:"Why are route reflectors used in large iBGP networks?", a:"Full iBGP mesh requires <strong>n(n−1)/2</strong> sessions — 100 routers = 4950 sessions. Unmanageable at scale. Route reflectors break this: clients only peer with the RR server, which reflects routes between them. Reduces sessions to roughly O(n). You deploy multiple RR servers for redundancy. No config changes needed on clients — only the server needs <code>route-reflector-client</code> statements."},
+  {cat:"⭐ Interview", q:"How would you automate BGP neighbor state checking in Python?", a:"<ol><li>Use <strong>subprocess</strong> (or Netmiko/Paramiko for real devices) to run <code>show ip bgp summary</code> via SSH on each router</li><li>Parse output with <strong>regex</strong> or split on whitespace — look for peer lines where the state column isn't a number (uptime) — non-Established peers show their FSM state</li><li>Build a <code>dict</code> of <code>{router: [{peer_ip, state}]}</code></li><li>Use <strong>concurrent.futures.ThreadPoolExecutor</strong> to check multiple routers in parallel</li><li>Log failures with the <strong>logging</strong> module; return a summary report of any down/stuck sessions</li></ol>"},
+];
+
+let cards = [...ALL];
+let current = 0;
+let activeCat = "All";
+let filtered = [...ALL];
+
+const cats = ["All", ...new Set(ALL.map(c => c.cat))];
+const LS_KEY = 'fc_bgp';
+
+function isInterview(cat){ return cat === '⭐ Interview'; }
+
+function buildSidebarCats(){
+  const wrap = document.getElementById('sidebar-cats');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  cats.forEach(c => {
+    const b = document.createElement('button');
+    const isActive = c === activeCat;
+    b.className = (isActive ? 'active' : '') + (isInterview(c) ? ' interview' : '');
+    b.textContent = c + (c !== 'All' ? ' (' + ALL.filter(x => x.cat === c).length + ')' : '');
+    b.onclick = () => { setCat(c); toggleSidebar(); };
+    wrap.appendChild(b);
+  });
+}
+
+function toggleSidebar(){
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  document.body.style.overflow = isOpen ? '' : 'hidden';
+}
+
+function goToCard(){
+  const input = document.getElementById('jump-input');
+  const n = parseInt(input.value, 10);
+  if(isNaN(n)) return;
+  const target = Math.max(0, Math.min(filtered.length - 1, n - 1));
+  document.getElementById('card').classList.remove('flipped');
+  current = target;
+  render();
+  saveState();
+  input.value = '';
+}
+
+function saveState(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify({cat: activeCat, idx: current})); }catch(e){}
+}
+
+function restoreState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const {cat, idx} = JSON.parse(raw);
+    if(cat && cats.includes(cat)){ activeCat = cat; filtered = cat === 'All' ? [...ALL] : ALL.filter(x => x.cat === cat); }
+    if(typeof idx === 'number' && idx >= 0 && idx < filtered.length) current = idx;
+  }catch(e){}
+}
+
+function renderCats() {
+  const el = document.getElementById('cats');
+  el.innerHTML = cats.map(c =>
+    `<button class="cat-btn${c===activeCat?' active':''}${isInterview(c)?' interview':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c}</button>`
+  ).join('');
+  buildSidebarCats();
+}
+
+function setCat(c) {
+  activeCat = c;
+  filtered = c === "All" ? [...ALL] : ALL.filter(x => x.cat === c);
+  current = 0;
+  document.getElementById('card').classList.remove('flipped');
+  renderCats();
+  render();
+  saveState();
+}
+
+function shuffle() {
+  filtered = filtered.sort(() => Math.random() - 0.5);
+  current = 0;
+  document.getElementById('card').classList.remove('flipped');
+  render();
+}
+
+function flipCard() {
+  document.getElementById('card').classList.toggle('flipped');
+}
+
+function nav(dir) {
+  document.getElementById('card').classList.remove('flipped');
+  setTimeout(() => {
+    current = Math.max(0, Math.min(filtered.length - 1, current + dir));
+    render();
+    saveState();
+  }, 50);
+}
+
+function render() {
+  const c = filtered[current];
+  const iv = isInterview(c.cat);
+  document.getElementById('card-q').textContent = c.q;
+  document.getElementById('card-a').innerHTML = c.a;
+  const b1 = document.getElementById('cat-badge');
+  const b2 = document.getElementById('cat-badge2');
+  b1.textContent = c.cat;
+  b2.textContent = c.cat;
+  b1.className = 'card-cat-badge' + (iv ? ' interview' : '');
+  b2.className = 'card-cat-badge' + (iv ? ' interview' : '');
+  document.getElementById('counter').textContent = `${current + 1} / ${filtered.length}`;
+  document.getElementById('prog').style.width = ((current + 1) / filtered.length * 100) + '%';
+  document.getElementById('prev-btn').disabled = current === 0;
+  document.getElementById('next-btn').disabled = current === filtered.length - 1;
+}
+
+function setMode(m) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().startsWith(m)));
+  document.getElementById('flash-mode').style.display = m === 'flash' ? 'block' : 'none';
+  const notesEl = document.getElementById('notes-mode');
+  notesEl.style.display = m === 'notes' ? 'block' : 'none';
+  notesEl.classList.toggle('visible', m === 'notes');
+}
+
+renderCats();
+restoreState();
+renderCats();
+render();
+</script>
+</body>
+</html>

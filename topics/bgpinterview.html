@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGP Interview Prep — RFC 4271 Decoded</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2430;
+  --border: #30363d;
+  --border2: #21262d;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #6e7681;
+  --accent: #58a6ff;
+  --accent2: #1f6feb;
+  --green: #3fb950;
+  --green-dim: #1a3a25;
+  --yellow: #d29922;
+  --yellow-dim: #2d2109;
+  --red: #f85149;
+  --red-dim: #3a1a1a;
+  --purple: #bc8cff;
+  --purple-dim: #2a1a40;
+  --orange: #e3b341;
+  --teal: #39d353;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --serif: 'DM Serif Display', serif;
+  --sidebar-w: 260px;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 15px; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  display: flex;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────── */
+#sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  z-index: 100;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.toc-header {
+  padding: 0 18px 14px;
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 10px;
+}
+.toc-header .logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.toc-header h2 {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--text);
+  font-weight: 400;
+}
+.toc-nav a {
+  display: block;
+  padding: 5px 18px;
+  font-size: 12px;
+  color: var(--text2);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all .15s;
+  line-height: 1.4;
+}
+.toc-nav a:hover, .toc-nav a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: rgba(88,166,255,.06);
+}
+.toc-nav .toc-section {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 12px 18px 4px;
+  pointer-events: none;
+}
+
+/* ─── MAIN ─────────────────────────────────────── */
+#main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  max-width: 960px;
+  padding: 48px 48px 120px;
+}
+
+/* ─── HERO ─────────────────────────────────────── */
+.hero {
+  margin-bottom: 56px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+.hero .eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero p {
+  font-size: 16px;
+  color: var(--text2);
+  max-width: 600px;
+  margin-bottom: 24px;
+}
+.hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+.badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+.badge-blue { color: var(--accent); border-color: var(--accent2); background: rgba(88,166,255,.08); }
+.badge-green { color: var(--green); border-color: #1f4a2a; background: var(--green-dim); }
+.badge-yellow { color: var(--yellow); border-color: #4a3509; background: var(--yellow-dim); }
+
+/* ─── SECTIONS ─────────────────────────────────────── */
+.section {
+  margin-bottom: 72px;
+  scroll-margin-top: 24px;
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.section > h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border2);
+}
+h3 {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 28px 0 10px;
+}
+h4 {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  margin: 20px 0 8px;
+}
+p { margin-bottom: 12px; color: var(--text2); }
+strong { color: var(--text); font-weight: 600; }
+code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--accent);
+}
+
+/* ─── CARDS ─────────────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+/* Callout boxes */
+.callout {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 16px 0;
+  border-left: 3px solid;
+}
+.callout-blue { background: rgba(88,166,255,.07); border-color: var(--accent); }
+.callout-green { background: var(--green-dim); border-color: var(--green); }
+.callout-yellow { background: var(--yellow-dim); border-color: var(--yellow); }
+.callout-red { background: var(--red-dim); border-color: var(--red); }
+.callout-purple { background: var(--purple-dim); border-color: var(--purple); }
+.callout-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.callout-blue .callout-title { color: var(--accent); }
+.callout-green .callout-title { color: var(--green); }
+.callout-yellow .callout-title { color: var(--yellow); }
+.callout-red .callout-title { color: var(--red); }
+.callout-purple .callout-title { color: var(--purple); }
+.callout p { margin-bottom: 6px; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ─── TABLES ─────────────────────────────────────── */
+.table-wrap { overflow-x: auto; margin: 16px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border2);
+  color: var(--text2);
+  vertical-align: top;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,.02); }
+td strong { color: var(--text); }
+
+/* ─── COLLAPSIBLE ─────────────────────────────────────── */
+details {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+details[open] { border-color: var(--accent2); }
+summary {
+  padding: 14px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  transition: background .15s;
+}
+summary:hover { background: rgba(255,255,255,.03); }
+summary::before {
+  content: '▶';
+  font-size: 10px;
+  color: var(--accent);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+details[open] summary::before { transform: rotate(90deg); }
+.details-body {
+  padding: 0 18px 18px;
+  border-top: 1px solid var(--border2);
+  padding-top: 16px;
+}
+
+/* ─── DIAGRAMS ─────────────────────────────────────── */
+.diagram-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+.diagram-caption {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 12px;
+}
+
+/* ─── FSM STATES ─────────────────────────────────────── */
+.fsm-states {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.fsm-state {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.fsm-state-name {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.state-idle { border-top: 2px solid var(--text3); }
+.state-connect { border-top: 2px solid var(--yellow); }
+.state-active { border-top: 2px solid var(--orange); }
+.state-opensent { border-top: 2px solid var(--accent); }
+.state-openconfirm { border-top: 2px solid var(--purple); }
+.state-established { border-top: 2px solid var(--green); }
+.state-idle .fsm-state-name { color: var(--text3); }
+.state-connect .fsm-state-name { color: var(--yellow); }
+.state-active .fsm-state-name { color: var(--orange); }
+.state-opensent .fsm-state-name { color: var(--accent); }
+.state-openconfirm .fsm-state-name { color: var(--purple); }
+.state-established .fsm-state-name { color: var(--green); }
+.fsm-state p { font-size: 12px; margin-bottom: 4px; }
+
+/* ─── Q&A BANK ─────────────────────────────────────── */
+.qa-group-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 28px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border2);
+}
+.qa-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.qa-question {
+  padding: 13px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.qa-q-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(88,166,255,.1);
+  border-radius: 4px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.qa-answer { display: none; padding: 0 18px 14px; border-top: 1px solid var(--border2); }
+.qa-answer.open { display: block; }
+.qa-answer .short { color: var(--green); font-weight: 600; margin: 10px 0 6px; font-size: 13px; }
+.qa-answer .expanded { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.qa-answer .mistake {
+  font-size: 12px;
+  color: var(--red);
+  background: var(--red-dim);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 6px;
+}
+.qa-answer .mistake::before { content: '⚠ Common Mistake: '; font-weight: 700; }
+
+/* ─── FLASHCARDS ─────────────────────────────────────── */
+.flashcard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.flashcard {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.flashcard:hover { border-color: var(--accent2); }
+.fc-prompt {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.fc-answer {
+  display: none;
+  font-size: 12px;
+  color: var(--green);
+  background: var(--green-dim);
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 8px;
+}
+.fc-answer.visible { display: block; }
+.fc-tap { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+/* ─── CHEAT SHEET ─────────────────────────────────────── */
+.cheat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+.cheat-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.cheat-box h4 { margin-top: 0; }
+.cheat-box ul { padding-left: 16px; }
+.cheat-box li { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.cheat-box li strong { color: var(--text); }
+@media (max-width: 700px) { .cheat-grid { grid-template-columns: 1fr; } }
+
+/* ─── PATH ATTR ─────────────────────────────────────── */
+.attr-list { margin: 16px 0; }
+.attr-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.attr-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+}
+.attr-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 3px 8px;
+  color: var(--purple);
+}
+.attr-name { font-weight: 600; font-size: 14px; }
+.attr-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+.tag-well { background: rgba(63,185,80,.15); color: var(--green); }
+.tag-known { background: rgba(88,166,255,.15); color: var(--accent); }
+.tag-must { background: rgba(248,81,73,.15); color: var(--red); }
+.attr-body { display: none; padding: 0 18px 16px; border-top: 1px solid var(--border2); }
+.attr-body.open { display: block; }
+.attr-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+.attr-row .label { color: var(--text3); font-family: var(--mono); font-size: 11px; min-width: 100px; margin-top: 2px; }
+.attr-row .val { color: var(--text2); }
+
+/* ─── DECISION FUNNEL ─────────────────────────────────────── */
+.funnel { margin: 20px 0; }
+.funnel-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.funnel-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--accent2);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.funnel-content { flex: 1; }
+.funnel-title { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.funnel-desc { font-size: 12px; color: var(--text2); }
+
+/* ─── CONTROLS ─────────────────────────────────────── */
+.controls {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+}
+.ctrl-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.ctrl-btn:hover { background: var(--accent2); color: var(--text); border-color: var(--accent); }
+
+/* ─── PRINT ─────────────────────────────────────── */
+@media print {
+  #sidebar, .controls { display: none !important; }
+  #main { margin-left: 0 !important; max-width: 100% !important; padding: 20px !important; }
+  details { border: 1px solid #ccc !important; }
+  details[open] { page-break-inside: avoid; }
+  body { background: white !important; color: black !important; }
+  .callout, .card, .cheat-box, .fsm-state { background: #f5f5f5 !important; color: black !important; }
+}
+
+/* ─── MOBILE ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  #sidebar { transform: translateX(-100%); transition: transform .3s; }
+  #sidebar.open { transform: translateX(0); }
+  #main { margin-left: 0; padding: 24px 20px 80px; }
+  .cheat-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── MISC ─────────────────────────────────────── */
+ul, ol { padding-left: 20px; margin-bottom: 12px; }
+li { color: var(--text2); margin-bottom: 4px; font-size: 14px; }
+li strong { color: var(--text); }
+hr { border: none; border-top: 1px solid var(--border2); margin: 24px 0; }
+.mono { font-family: var(--mono); font-size: 12px; }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.text-yellow { color: var(--yellow); }
+.text-accent { color: var(--accent); }
+.text-purple { color: var(--purple); }
+.inline-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+.self-test-q { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="toc-header">
+    <div class="logo">RFC 4271</div>
+    <h2>BGP Interview Prep</h2>
+  </div>
+  <div class="toc-nav">
+    <span class="toc-section">Start Here</span>
+    <a href="#s1">1. BGP Summary</a>
+    <a href="#s2">2. Big Picture</a>
+    <a href="#s3">3. Core Mental Model</a>
+    <span class="toc-section">Protocol</span>
+    <a href="#s4">4. Session Lifecycle (FSM)</a>
+    <a href="#s5">5. Route Lifecycle</a>
+    <a href="#s6">6. The 3 RIBs</a>
+    <a href="#s7">7. Message Types</a>
+    <a href="#s8">8. Path Attributes</a>
+    <a href="#s9">9. Best Path Selection</a>
+    <span class="toc-section">Comparisons</span>
+    <a href="#s10">10. IBGP vs EBGP</a>
+    <a href="#s11">11. BGP vs OSPF/RIP</a>
+    <a href="#s12">12. Troubleshooting</a>
+    <span class="toc-section">Interview Practice</span>
+    <a href="#s13">13. Q&A Bank</a>
+    <a href="#s14">14. Verbal Practice</a>
+    <a href="#s15">15. Common Confusions</a>
+    <a href="#s16">16. Cheat Sheet</a>
+    <a href="#s17">17. Flashcards</a>
+    <a href="#s18">18. Self-Test</a>
+    <span class="toc-section">Final Tips</span>
+    <a href="#howto">How to Use in 30 min</a>
+    <a href="#top5">Top 5 to Remember</a>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─────────────────────────────────────── -->
+<main id="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Border Gateway Protocol · RFC 4271</div>
+  <h1>BGP Interview Prep<br><em>Decoded for Engineers</em></h1>
+  <p>Everything you need to speak confidently about BGP in systems interviews, networking rounds, and technical oral exams. RFC structure discarded. Interview pressure accounted for.</p>
+  <div class="hero-badges">
+    <span class="badge badge-blue">18 Sections</span>
+    <span class="badge badge-green">20+ Q&amp;A</span>
+    <span class="badge badge-yellow">30-min review</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 1 — BGP INTERVIEW SUMMARY
+════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="section-label">Section 01</div>
+  <h2>BGP Interview Summary</h2>
+
+  <div class="callout callout-blue">
+    <div class="callout-title">💬 30-Second Explanation</div>
+    <p>BGP is the routing protocol that connects the internet's autonomous systems — the independent networks run by ISPs, companies, and universities. Unlike interior routing protocols that optimize for speed, BGP is built around <strong>policy</strong>: who can send traffic where, and through which path, based on business relationships.</p>
+  </div>
+
+  <h3>The 2-Minute Version</h3>
+  <div class="card">
+    <p>The internet is made of thousands of <strong>Autonomous Systems (ASes)</strong> — each one is a network under a single administrative control (like Google, Comcast, or your university). These ASes need a way to tell each other what IP addresses they can reach. That's BGP's job.</p>
+    <p>BGP speakers establish <strong>TCP sessions</strong> on port 179 and exchange route information. When a BGP router learns a route, it stores it, applies policy filters, runs a best-path decision algorithm, and then advertises it onward to neighbors.</p>
+    <p>The key insight: BGP doesn't find the fastest path — it finds the <strong>policy-preferred path</strong>. Operators configure which routes to prefer, which to reject, and which to advertise. This is what makes BGP the right tool for inter-domain routing where business, legal, and peering agreements matter.</p>
+  </div>
+
+  <h3>The Strong Interview Answer</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>What Problem BGP Solves</h4>
+      <p>Interior routing protocols (OSPF, IS-IS) assume a single administrative domain. The internet is many separate domains that don't trust each other. BGP provides a way for these domains to exchange reachability information while each maintaining full control over their routing policy.</p>
+    </div>
+    <div class="card">
+      <h4>Why Policy Matters</h4>
+      <p>An ISP may not want to route traffic through a competitor's network. A company may refuse to carry transit traffic for others. BGP expresses these constraints via <strong>path attributes</strong> and filtering. You can prefer certain paths, deprioritize others, or block them entirely.</p>
+    </div>
+    <div class="card">
+      <h4>Why BGP Differs from OSPF/RIP</h4>
+      <p>OSPF uses link-state flooding to build a full topology map and picks lowest cost. RIP counts hops. BGP carries the entire AS path and picks routes based on configurable policy rules — not just a metric. BGP also scales to the entire internet; OSPF would collapse under that load.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <div class="callout-title">📌 If Asked "What is BGP?" — Say This</div>
+    <p><strong>"BGP is the inter-domain routing protocol of the internet. It runs over TCP between routers in different Autonomous Systems, exchanges IP reachability information using path attributes, and selects routes based on operator-configured policy rather than a simple metric. It's path-vector, not link-state or distance-vector — it carries the full AS path with each route, which enables loop detection and policy-based selection."</strong></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 2 — BIG PICTURE
+════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="section-label">Section 02</div>
+  <h2>The Big Picture</h2>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 860 420" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="11">
+      <!-- TCP Session -->
+      <rect x="10" y="20" width="160" height="60" rx="8" fill="#1c2430" stroke="#30363d" stroke-width="1.5"/>
+      <text x="90" y="44" text-anchor="middle" fill="#8b949e" font-size="10">Router A (AS 100)</text>
+      <text x="90" y="62" text-anchor="middle" fill="#58a6ff" font-weight="600">ESTABLISHES TCP</text>
+      <text x="90" y="76" text-anchor="middle" fill="#8b949e" font-size="9">port 179</text>
+
+      <!-- OPEN/KEEPALIVE flow -->
+      <line x1="170" y1="50" x2="260" y2="50" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="215" y="42" text-anchor="middle" fill="#58a6ff" font-size="9">OPEN</text>
+      <line x1="260" y1="60" x2="170" y2="60" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <text x="215" y="75" text-anchor="middle" fill="#58a6ff" font-size="9">KEEPALIVE</text>
+
+      <!-- Router B -->
+      <rect x="260" y="20" width="160" height="60" rx="8" fill="#1c2430" stroke="#30363d" stroke-width="1.5"/>
+      <text x="340" y="44" text-anchor="middle" fill="#8b949e" font-size="10">Router B (AS 200)</text>
+      <text x="340" y="62" text-anchor="middle" fill="#3fb950" font-weight="600">ESTABLISHED</text>
+
+      <!-- UPDATE arrow -->
+      <line x1="420" y1="50" x2="490" y2="50" stroke="#d29922" stroke-width="2"/>
+      <polygon points="490,44 502,50 490,56" fill="#d29922"/>
+      <text x="456" y="40" text-anchor="middle" fill="#d29922" font-size="9">UPDATE</text>
+      <text x="456" y="72" text-anchor="middle" fill="#8b949e" font-size="9">(routes + attrs)</text>
+
+      <!-- Adj-RIB-In -->
+      <rect x="502" y="25" width="120" height="50" rx="6" fill="#2d2109" stroke="#d29922" stroke-width="1.5"/>
+      <text x="562" y="46" text-anchor="middle" fill="#d29922" font-weight="600">Adj-RIB-In</text>
+      <text x="562" y="62" text-anchor="middle" fill="#8b949e" font-size="9">raw received routes</text>
+
+      <!-- Policy filter -->
+      <line x1="562" y1="75" x2="562" y2="115" stroke="#6e7681" stroke-width="1.5"/>
+      <polygon points="556,115 562,127 568,115" fill="#6e7681"/>
+      <rect x="502" y="127" width="120" height="40" rx="6" fill="#1c2430" stroke="#6e7681" stroke-width="1.5"/>
+      <text x="562" y="145" text-anchor="middle" fill="#8b949e" font-weight="600">Import Policy</text>
+      <text x="562" y="159" text-anchor="middle" fill="#8b949e" font-size="9">filter / modify</text>
+
+      <!-- Best path -->
+      <line x1="562" y1="167" x2="562" y2="207" stroke="#6e7681" stroke-width="1.5"/>
+      <polygon points="556,207 562,219 568,207" fill="#6e7681"/>
+      <rect x="502" y="219" width="120" height="40" rx="6" fill="#161b22" stroke="#bc8cff" stroke-width="1.5"/>
+      <text x="562" y="237" text-anchor="middle" fill="#bc8cff" font-weight="600">Best-Path</text>
+      <text x="562" y="253" text-anchor="middle" fill="#8b949e" font-size="9">Decision Process</text>
+
+      <!-- Loc-RIB -->
+      <line x1="562" y1="259" x2="562" y2="299" stroke="#6e7681" stroke-width="1.5"/>
+      <polygon points="556,299 562,311 568,299" fill="#6e7681"/>
+      <rect x="502" y="311" width="120" height="40" rx="6" fill="#1a3a25" stroke="#3fb950" stroke-width="1.5"/>
+      <text x="562" y="329" text-anchor="middle" fill="#3fb950" font-weight="600">Loc-RIB</text>
+      <text x="562" y="345" text-anchor="middle" fill="#8b949e" font-size="9">local best routes</text>
+
+      <!-- Adj-RIB-Out -->
+      <line x1="622" y1="331" x2="690" y2="331" stroke="#6e7681" stroke-width="1.5"/>
+      <polygon points="690,325 702,331 690,337" fill="#6e7681"/>
+      <rect x="702" y="310" width="120" height="50" rx="6" fill="#2a1a40" stroke="#bc8cff" stroke-width="1.5"/>
+      <text x="762" y="332" text-anchor="middle" fill="#bc8cff" font-weight="600">Adj-RIB-Out</text>
+      <text x="762" y="348" text-anchor="middle" fill="#8b949e" font-size="9">per-peer outbound</text>
+
+      <!-- Export policy & advertise -->
+      <line x1="762" y1="360" x2="762" y2="395" stroke="#6e7681" stroke-width="1.5"/>
+      <text x="762" y="410" text-anchor="middle" fill="#8b949e" font-size="9">Export Policy → Advertise</text>
+
+      <!-- Routing table arrow -->
+      <line x1="502" y1="331" x2="430" y2="331" stroke="#6e7681" stroke-width="1.5" stroke-dasharray="3,3"/>
+      <text x="416" y="320" text-anchor="middle" fill="#6e7681" font-size="9">→ FIB/</text>
+      <text x="416" y="333" text-anchor="middle" fill="#6e7681" font-size="9">Kernel</text>
+
+      <!-- Legend -->
+      <rect x="10" y="350" width="200" height="60" rx="6" fill="#161b22" stroke="#30363d"/>
+      <text x="20" y="368" fill="#6e7681" font-size="9">LEGEND</text>
+      <rect x="20" y="375" width="10" height="2" fill="#58a6ff"/>
+      <text x="36" y="379" fill="#8b949e" font-size="9">TCP / session messages</text>
+      <rect x="20" y="389" width="10" height="2" fill="#d29922"/>
+      <text x="36" y="393" fill="#8b949e" font-size="9">Route advertisement</text>
+      <rect x="20" y="402" width="10" height="2" fill="#6e7681" stroke-dasharray="2,2"/>
+      <text x="36" y="406" fill="#8b949e" font-size="9">Internal processing</text>
+    </svg>
+    <div class="diagram-caption">BGP End-to-End Route Flow — from TCP session to route advertisement</div>
+  </div>
+
+  <div class="callout callout-yellow">
+    <div class="callout-title">🎤 Narrate This Diagram in an Interview</div>
+    <p><em>"Two BGP routers first establish a TCP connection on port 179. They exchange OPEN messages to agree on parameters, then confirm with KEEPALIVE. Once established, routers send UPDATE messages containing routes with path attributes. Received routes land in the Adj-RIB-In. Import policy filters them. The best-path algorithm runs on the survivors. Winners go into the Loc-RIB — the local best routes — and also get installed into the forwarding table. Then export policy runs, routes are placed in the Adj-RIB-Out, and UPDATE messages are sent to downstream peers."</em></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 3 — CORE MENTAL MODEL
+════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="section-label">Section 03</div>
+  <h2>Core Mental Model</h2>
+  <p>Three big ideas underlie everything in BGP. If you understand these, you can reason through any interview question.</p>
+
+  <details open>
+    <summary>Big Idea #1 — BGP is a Path Vector Protocol</summary>
+    <div class="details-body">
+      <p><strong>Plain English:</strong> Every route advertisement carries the full sequence of AS numbers it has traversed. When you learn a route, you know exactly which ASes it passed through — not just the destination.</p>
+      <p><strong>Why interviewers care:</strong> This is how BGP avoids routing loops without requiring full topology knowledge. If you see your own AS number in the AS_PATH of an incoming UPDATE, you drop it — it's a loop.</p>
+      <div class="callout callout-red">
+        <div class="callout-title">❌ Wrong Answer</div>
+        <p>"BGP uses hop count like RIP to avoid loops."</p>
+      </div>
+      <div class="callout callout-green">
+        <div class="callout-title">✅ Correct Version</div>
+        <p>"BGP uses the AS_PATH attribute — a list of every AS the route has crossed. If a router sees its own AS in the path, it discards the route. No loop, no topology map needed."</p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Big Idea #2 — BGP is About Policy, Not Shortest Path</summary>
+    <div class="details-body">
+      <p><strong>Plain English:</strong> BGP doesn't pick the fastest route or the fewest hops. It picks the route that matches operator-defined rules — which AS relationships to prefer, which transit to avoid, what traffic to accept.</p>
+      <p><strong>Why interviewers care:</strong> This distinguishes BGP from every IGP. The internet's routing is driven by peering agreements and business relationships, not link costs.</p>
+      <div class="callout callout-red">
+        <div class="callout-title">❌ Wrong Answer</div>
+        <p>"BGP picks the shortest AS path."</p>
+      </div>
+      <div class="callout callout-green">
+        <div class="callout-title">✅ Correct Version</div>
+        <p>"AS_PATH length is just one step in the decision process, and it's not even the first one. LOCAL_PREF and degree of preference come first. An operator can easily prefer a longer path through a trusted peer over a shorter one through an untrusted transit."</p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Big Idea #3 — BGP Separates Four Distinct Phases</summary>
+    <div class="details-body">
+      <div class="card-grid">
+        <div class="card">
+          <h4>Session Establishment</h4>
+          <p>TCP connection, OPEN/KEEPALIVE exchange, FSM progression to Established. No routes exchanged yet.</p>
+        </div>
+        <div class="card">
+          <h4>Route Learning</h4>
+          <p>UPDATEs received, routes stored in Adj-RIB-In. Raw, unfiltered.</p>
+        </div>
+        <div class="card">
+          <h4>Route Selection</h4>
+          <p>Policy applied, best-path algorithm runs, winner stored in Loc-RIB and FIB.</p>
+        </div>
+        <div class="card">
+          <h4>Route Advertisement</h4>
+          <p>Export policy applied, routes placed in Adj-RIB-Out, UPDATEs sent to peers.</p>
+        </div>
+      </div>
+      <div class="callout callout-red">
+        <div class="callout-title">❌ Wrong Answer</div>
+        <p>"BGP just floods route updates to all neighbors."</p>
+      </div>
+      <div class="callout callout-green">
+        <div class="callout-title">✅ Correct Version</div>
+        <p>"BGP has a clear pipeline: sessions first, then routes are received, filtered by import policy, best-path selected, and finally advertised outward after export policy. Each phase is independent and configurable."</p>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 4 — SESSION LIFECYCLE (FSM)
+════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="section-label">Section 04</div>
+  <h2>Session Lifecycle — FSM</h2>
+  <p>BGP uses a six-state Finite State Machine. Knowing this helps you troubleshoot and answer "why isn't this session coming up?"</p>
+
+  <!-- FSM diagram -->
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono" font-size="11">
+      <!-- States -->
+      <rect x="10" y="30" width="90" height="40" rx="6" fill="#161b22" stroke="#6e7681" stroke-width="1.5"/>
+      <text x="55" y="55" text-anchor="middle" fill="#6e7681" font-weight="600">IDLE</text>
+
+      <line x1="100" y1="50" x2="125" y2="50" stroke="#6e7681" stroke-width="1.5"/>
+      <polygon points="125,44 137,50 125,56" fill="#6e7681"/>
+
+      <rect x="137" y="30" width="90" height="40" rx="6" fill="#2d2109" stroke="#d29922" stroke-width="1.5"/>
+      <text x="182" y="55" text-anchor="middle" fill="#d29922" font-weight="600">CONNECT</text>
+
+      <line x1="227" y1="50" x2="252" y2="50" stroke="#d29922" stroke-width="1.5"/>
+      <polygon points="252,44 264,50 252,56" fill="#d29922"/>
+      <!-- fail loop back -->
+      <path d="M182,30 Q182,10 182,10 Q290,10 272,10 Q272,30 272,30" stroke="#6e7681" stroke-width="1" fill="none" stroke-dasharray="3,2"/>
+
+      <rect x="264" y="30" width="90" height="40" rx="6" fill="#2a1800" stroke="#e3b341" stroke-width="1.5"/>
+      <text x="309" y="55" text-anchor="middle" fill="#e3b341" font-weight="600">ACTIVE</text>
+
+      <line x1="354" y1="50" x2="379" y2="50" stroke="#e3b341" stroke-width="1.5"/>
+      <polygon points="379,44 391,50 379,56" fill="#e3b341"/>
+
+      <rect x="391" y="30" width="90" height="40" rx="6" fill="#0d1a2d" stroke="#58a6ff" stroke-width="1.5"/>
+      <text x="436" y="48" text-anchor="middle" fill="#58a6ff" font-weight="600">OPEN</text>
+      <text x="436" y="62" text-anchor="middle" fill="#58a6ff" font-weight="600">SENT</text>
+
+      <line x1="481" y1="50" x2="506" y2="50" stroke="#58a6ff" stroke-width="1.5"/>
+      <polygon points="506,44 518,50 506,56" fill="#58a6ff"/>
+
+      <rect x="518" y="30" width="100" height="40" rx="6" fill="#1e1030" stroke="#bc8cff" stroke-width="1.5"/>
+      <text x="568" y="48" text-anchor="middle" fill="#bc8cff" font-weight="600">OPEN</text>
+      <text x="568" y="62" text-anchor="middle" fill="#bc8cff" font-weight="600">CONFIRM</text>
+
+      <line x1="618" y1="50" x2="643" y2="50" stroke="#bc8cff" stroke-width="1.5"/>
+      <polygon points="643,44 655,50 643,56" fill="#bc8cff"/>
+
+      <rect x="655" y="25" width="100" height="50" rx="6" fill="#1a3a25" stroke="#3fb950" stroke-width="2"/>
+      <text x="705" y="55" text-anchor="middle" fill="#3fb950" font-weight="700">ESTABLISHED</text>
+    </svg>
+    <div class="diagram-caption">BGP FSM — Idle → Connect → Active → OpenSent → OpenConfirm → Established</div>
+  </div>
+
+  <div class="fsm-states">
+    <div class="fsm-state state-idle">
+      <div class="fsm-state-name">IDLE</div>
+      <p><strong>What:</strong> Initial state. BGP is waiting for a start event.</p>
+      <p><strong>Advances when:</strong> Admin enables BGP or a "start" event fires.</p>
+      <p><strong>Watch out:</strong> Persistent Idle = admin shutdown, or repeated TCP failures triggering backoff.</p>
+    </div>
+    <div class="fsm-state state-connect">
+      <div class="fsm-state-name">CONNECT</div>
+      <p><strong>What:</strong> BGP is actively attempting a TCP connection to the peer.</p>
+      <p><strong>Advances when:</strong> TCP connection succeeds → OpenSent.</p>
+      <p><strong>Watch out:</strong> TCP fails → moves to Active. Check ACLs, routing to peer IP.</p>
+    </div>
+    <div class="fsm-state state-active">
+      <div class="fsm-state-name">ACTIVE</div>
+      <p><strong>What:</strong> TCP failed; BGP is retrying connections.</p>
+      <p><strong>Advances when:</strong> A TCP connection succeeds.</p>
+      <p><strong>Watch out:</strong> Stuck in Active = TCP unreachable. Wrong peer IP, firewall, no route.</p>
+    </div>
+    <div class="fsm-state state-opensent">
+      <div class="fsm-state-name">OPEN SENT</div>
+      <p><strong>What:</strong> TCP up, OPEN message sent, waiting for peer's OPEN.</p>
+      <p><strong>Advances when:</strong> Peer's OPEN received and accepted.</p>
+      <p><strong>Watch out:</strong> OPEN rejected = mismatch in AS number, hold time, BGP version, or router ID.</p>
+    </div>
+    <div class="fsm-state state-openconfirm">
+      <div class="fsm-state-name">OPEN CONFIRM</div>
+      <p><strong>What:</strong> Both OPENs exchanged. Waiting for KEEPALIVE to confirm.</p>
+      <p><strong>Advances when:</strong> KEEPALIVE received from peer.</p>
+      <p><strong>Watch out:</strong> Hold timer mismatch can stall here. Check timers on both sides.</p>
+    </div>
+    <div class="fsm-state state-established">
+      <div class="fsm-state-name">ESTABLISHED</div>
+      <p><strong>What:</strong> Full session up. UPDATEs, KEEPALIVEs, NOTIFICATIONs flow normally.</p>
+      <p><strong>Watch out:</strong> Drops to Idle on NOTIFICATION or hold timer expiry. Look for policy rejections or flapping.</p>
+    </div>
+  </div>
+
+  <h3>Troubleshooting Mini-Table</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Stuck in State</th><th>Think About</th><th>What to Check</th></tr></thead>
+      <tbody>
+        <tr><td><strong class="text-yellow">IDLE</strong></td><td>Backoff timer, admin down</td><td>Is BGP enabled? Is the neighbor configured correctly?</td></tr>
+        <tr><td><strong class="text-yellow">CONNECT</strong></td><td>TCP unreachable</td><td>Can you ping/traceroute the peer IP? ACL blocking port 179?</td></tr>
+        <tr><td><strong class="text-orange">ACTIVE</strong></td><td>Repeated TCP failure</td><td>Wrong source IP? Firewall? Misconfigured neighbor address?</td></tr>
+        <tr><td><strong class="text-accent">OPEN SENT</strong></td><td>OPEN parameter mismatch</td><td>AS number, BGP version, hold timer, router-id clash?</td></tr>
+        <tr><td><strong class="text-purple">OPEN CONFIRM</strong></td><td>KEEPALIVE not arriving</td><td>Hold timer too short? Packet loss? Timer mismatch?</td></tr>
+        <tr><td><strong class="text-green">ESTABLISHED</strong> then drops</td><td>Hold timer expiry, NOTIFICATION</td><td>Keepalives being sent? Policy error? Route limit exceeded?</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 5 — ROUTE LIFECYCLE
+════════════════════════════════════════════════════ -->
+<div class="section" id="s5">
+  <div class="section-label">Section 05</div>
+  <h2>Route Lifecycle</h2>
+
+  <div class="funnel">
+    <div class="funnel-step">
+      <div class="funnel-num">1</div>
+      <div class="funnel-content">
+        <div class="funnel-title">UPDATE Received</div>
+        <div class="funnel-desc">Peer sends an UPDATE with NLRI (prefixes) and path attributes (AS_PATH, NEXT_HOP, LOCAL_PREF, etc.)</div>
+      </div>
+    </div>
+    <div class="funnel-step">
+      <div class="funnel-num">2</div>
+      <div class="funnel-content">
+        <div class="funnel-title">Adj-RIB-In</div>
+        <div class="funnel-desc">Route is stored as-received. Unfiltered. One per peer-prefix pair.</div>
+      </div>
+    </div>
+    <div class="funnel-step">
+      <div class="funnel-num">3</div>
+      <div class="funnel-content">
+        <div class="funnel-title">Import Policy Applied</div>
+        <div class="funnel-desc">Route maps, filters, community matching, attribute modification. Routes may be accepted, rejected, or modified here.</div>
+      </div>
+    </div>
+    <div class="funnel-step">
+      <div class="funnel-num">4</div>
+      <div class="funnel-content">
+        <div class="funnel-title">Best-Path Decision Process</div>
+        <div class="funnel-desc">Among all surviving routes for a given prefix, BGP runs its decision algorithm to select one winner.</div>
+      </div>
+    </div>
+    <div class="funnel-step">
+      <div class="funnel-num">5</div>
+      <div class="funnel-content">
+        <div class="funnel-title">Loc-RIB Updated</div>
+        <div class="funnel-desc">The winner is stored in the Loc-RIB and installed in the forwarding table (FIB/kernel routing table).</div>
+      </div>
+    </div>
+    <div class="funnel-step">
+      <div class="funnel-num">6</div>
+      <div class="funnel-content">
+        <div class="funnel-title">Export Policy Applied</div>
+        <div class="funnel-desc">Before advertising to each peer, export filters run. Attributes may be changed (e.g., strip LOCAL_PREF for EBGP).</div>
+      </div>
+    </div>
+    <div class="funnel-step">
+      <div class="funnel-num">7</div>
+      <div class="funnel-content">
+        <div class="funnel-title">Adj-RIB-Out & Advertise</div>
+        <div class="funnel-desc">Route is placed in per-peer Adj-RIB-Out, and an UPDATE is sent to the peer.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Special Route Events</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>Route Withdrawal</h4>
+      <p>A peer sends an UPDATE with a <strong>Withdrawn Routes</strong> field containing the prefix. The route is removed from Adj-RIB-In, the decision process reruns, and if the best path changes, peers are notified.</p>
+    </div>
+    <div class="card">
+      <h4>Route Rejected</h4>
+      <p>Import policy drops the route, or loop detection fires (own AS in AS_PATH), or NEXT_HOP is unreachable. Route never enters best-path competition.</p>
+    </div>
+    <div class="card">
+      <h4>Route Replaced</h4>
+      <p>A new UPDATE arrives with better attributes. Best-path reruns. New winner goes to Loc-RIB, old route withdrawn from Adj-RIB-Out, new route advertised.</p>
+    </div>
+    <div class="card">
+      <h4>Re-advertisement Trigger</h4>
+      <p>Best path changes, export policy changes, or a ROUTE-REFRESH is requested. BGP is <em>incremental</em> — only changes trigger UPDATEs, not full table dumps.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <div class="callout-title">⏱ 60-Second Route Processing Explanation</div>
+    <p><em>"A BGP UPDATE arrives carrying prefixes and attributes. The router stores it in Adj-RIB-In. Import policy runs — it can filter or modify the route. All surviving routes for a prefix compete in the best-path decision process, which checks LOCAL_PREF, AS_PATH length, NEXT_HOP reachability, and more. The winner is installed in the Loc-RIB and the forwarding table. Then export policy runs per-peer, and the route is advertised outward via Adj-RIB-Out. If the route is later withdrawn, the process reverses: route is removed, best-path reruns, and peers are notified of the change."</em></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 6 — THE 3 RIBs
+════════════════════════════════════════════════════ -->
+<div class="section" id="s6">
+  <div class="section-label">Section 06</div>
+  <h2>The 3 RIBs That Interviewers Love</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>RIB</th><th>What it stores</th><th>Scope</th><th>Analogy</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong class="text-yellow">Adj-RIB-In</strong></td>
+          <td>Routes received from a specific peer, before any policy</td>
+          <td>Per-peer, all received routes</td>
+          <td>Your raw inbox — every email, unread and unfiltered</td>
+        </tr>
+        <tr>
+          <td><strong class="text-green">Loc-RIB</strong></td>
+          <td>Best selected route per prefix, after policy and decision process</td>
+          <td>Local, one winner per prefix</td>
+          <td>Your pinned/starred messages — the ones you actually act on</td>
+        </tr>
+        <tr>
+          <td><strong class="text-purple">Adj-RIB-Out</strong></td>
+          <td>Routes to be advertised to a specific peer, after export policy</td>
+          <td>Per-peer, outbound only</td>
+          <td>Your drafts folder — customized per recipient before sending</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Flow diagram -->
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 700 80" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono" font-size="11">
+      <rect x="10" y="20" width="130" height="40" rx="6" fill="#2d2109" stroke="#d29922" stroke-width="1.5"/>
+      <text x="75" y="36" text-anchor="middle" fill="#d29922" font-weight="600">Adj-RIB-In</text>
+      <text x="75" y="52" text-anchor="middle" fill="#8b949e" font-size="9">(per peer, raw)</text>
+
+      <line x1="140" y1="40" x2="175" y2="40" stroke="#6e7681" stroke-width="1.5"/>
+      <text x="157" y="32" text-anchor="middle" fill="#6e7681" font-size="9">import</text>
+      <text x="157" y="52" text-anchor="middle" fill="#6e7681" font-size="9">policy</text>
+      <polygon points="175,34 187,40 175,46" fill="#6e7681"/>
+
+      <rect x="187" y="20" width="130" height="40" rx="6" fill="#161b22" stroke="#bc8cff" stroke-width="1.5"/>
+      <text x="252" y="36" text-anchor="middle" fill="#bc8cff" font-weight="600">Decision</text>
+      <text x="252" y="52" text-anchor="middle" fill="#bc8cff" font-size="9">Process</text>
+
+      <line x1="317" y1="40" x2="352" y2="40" stroke="#6e7681" stroke-width="1.5"/>
+      <polygon points="352,34 364,40 352,46" fill="#6e7681"/>
+
+      <rect x="364" y="20" width="130" height="40" rx="6" fill="#1a3a25" stroke="#3fb950" stroke-width="1.5"/>
+      <text x="429" y="36" text-anchor="middle" fill="#3fb950" font-weight="600">Loc-RIB</text>
+      <text x="429" y="52" text-anchor="middle" fill="#8b949e" font-size="9">(best per prefix)</text>
+
+      <line x1="494" y1="40" x2="529" y2="40" stroke="#6e7681" stroke-width="1.5"/>
+      <text x="512" y="32" text-anchor="middle" fill="#6e7681" font-size="9">export</text>
+      <text x="512" y="52" text-anchor="middle" fill="#6e7681" font-size="9">policy</text>
+      <polygon points="529,34 541,40 529,46" fill="#6e7681"/>
+
+      <rect x="541" y="20" width="140" height="40" rx="6" fill="#2a1a40" stroke="#bc8cff" stroke-width="1.5"/>
+      <text x="611" y="36" text-anchor="middle" fill="#bc8cff" font-weight="600">Adj-RIB-Out</text>
+      <text x="611" y="52" text-anchor="middle" fill="#8b949e" font-size="9">(per peer, outbound)</text>
+    </svg>
+  </div>
+
+  <h3>RIB vs Routing Table vs Forwarding Table</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>What It Is</th><th>Managed By</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BGP Loc-RIB</strong></td><td>BGP's best routes, BGP-domain</td><td>BGP process</td></tr>
+        <tr><td><strong>IP Routing Table (RIB)</strong></td><td>Best routes from all sources (BGP, OSPF, static)</td><td>RIB manager / kernel</td></tr>
+        <tr><td><strong>FIB / Forwarding Table</strong></td><td>What actually drives packet forwarding (hardware)</td><td>Data plane / ASIC</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-red">
+    <div class="callout-title">⚠ Common Confusion</div>
+    <p><strong>"Route is in BGP but not forwarding correctly"</strong> → Check: Is the Loc-RIB route getting installed in the kernel routing table? Is the NEXT_HOP resolvable? Is an IGP route needed to reach the NEXT_HOP? These are distinct layers.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 7 — BGP MESSAGE TYPES
+════════════════════════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="section-label">Section 07</div>
+  <h2>BGP Message Types</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Message</th><th>Purpose</th><th>When Used</th><th>Key Fields</th><th>Memorable Takeaway</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong class="text-accent">OPEN</strong></td>
+          <td>Session establishment handshake</td>
+          <td>Immediately after TCP connects</td>
+          <td>BGP version, AS number, Hold Time, BGP Identifier (router-id), optional capabilities</td>
+          <td>The handshake — agree on who we are and how long we wait</td>
+        </tr>
+        <tr>
+          <td><strong class="text-yellow">UPDATE</strong></td>
+          <td>Advertise or withdraw routes</td>
+          <td>During Established state, whenever routes change</td>
+          <td>Withdrawn Routes, Path Attributes, NLRI</td>
+          <td>The payload — this is where routing information lives</td>
+        </tr>
+        <tr>
+          <td><strong class="text-green">KEEPALIVE</strong></td>
+          <td>Keep session alive, confirm OPEN</td>
+          <td>Every (Hold Time / 3) seconds; also confirms OPEN</td>
+          <td>None — 19-byte header only</td>
+          <td>The heartbeat — silence means the session died</td>
+        </tr>
+        <tr>
+          <td><strong class="text-red">NOTIFICATION</strong></td>
+          <td>Report error and terminate session</td>
+          <td>Whenever a fatal error is detected</td>
+          <td>Error Code, Error Subcode, Data</td>
+          <td>The breakup message — session ends immediately after this</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Deep Dive: UPDATE Message</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>Withdrawn Routes</h4>
+      <p>List of prefixes (NLRI) that are no longer reachable via this peer. The receiver removes these from Adj-RIB-In and reruns best-path if needed.</p>
+    </div>
+    <div class="card">
+      <h4>Path Attributes</h4>
+      <p>The policy knobs: AS_PATH, NEXT_HOP, LOCAL_PREF, MED, ORIGIN, COMMUNITY, etc. Apply to all NLRI in this message.</p>
+    </div>
+    <div class="card">
+      <h4>NLRI</h4>
+      <p>Network Layer Reachability Information — the actual IP prefixes being advertised (e.g., 192.0.2.0/24). These are the "routes" in the routing sense.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <div class="callout-title">📌 If Asked "What Does UPDATE Carry?" — Say This</div>
+    <p><strong>"An UPDATE message has three parts: the Withdrawn Routes field (prefixes being removed), the Path Attributes field (AS_PATH, NEXT_HOP, LOCAL_PREF, etc.), and the NLRI field (the new prefixes being advertised). One UPDATE can only carry one set of path attributes, so prefixes with different attributes need separate messages."</strong></p>
+  </div>
+
+  <h3>NOTIFICATION Error Codes (Common Ones)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Error Code</th><th>Meaning</th><th>Interview Relevance</th></tr></thead>
+      <tbody>
+        <tr><td>1 — Message Header Error</td><td>Malformed BGP header</td><td>Packet corruption or version mismatch</td></tr>
+        <tr><td>2 — OPEN Message Error</td><td>Bad OPEN parameters</td><td>AS mismatch, unsupported capability, bad router-id</td></tr>
+        <tr><td>3 — UPDATE Message Error</td><td>Malformed UPDATE</td><td>Invalid attribute, malformed NLRI</td></tr>
+        <tr><td>4 — Hold Timer Expired</td><td>No KEEPALIVE received in time</td><td>Session timeout — check keepalive configs</td></tr>
+        <tr><td>6 — Cease</td><td>Admin shutdown or other graceful termination</td><td>Planned teardown, max-prefix limit hit</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 8 — PATH ATTRIBUTES
+════════════════════════════════════════════════════ -->
+<div class="section" id="s8">
+  <div class="section-label">Section 08</div>
+  <h2>Path Attributes That Matter Most</h2>
+
+  <div class="attr-list">
+    <!-- AS_PATH -->
+    <div class="attr-item">
+      <div class="attr-header" onclick="toggleAttr(this)">
+        <span class="attr-code">AS_PATH</span>
+        <span class="attr-name">AS Path</span>
+        <span class="attr-tag tag-must">MUST KNOW</span>
+      </div>
+      <div class="attr-body">
+        <div class="attr-row"><span class="label">PLAIN ENGLISH</span><span class="val">Ordered list of AS numbers the route has crossed. Prepended by each AS as the route travels outbound.</span></div>
+        <div class="attr-row"><span class="label">PREFERENCE</span><span class="val">Shorter AS_PATH is preferred (fewer hops = simpler path). But this is not the first decision criterion.</span></div>
+        <div class="attr-row"><span class="label">SCOPE</span><span class="val">Both IBGP and EBGP, but only EBGP adds its own AS on transit.</span></div>
+        <div class="attr-row"><span class="label">LOOP DETECT</span><span class="val">If your own AS is in the received AS_PATH, discard the route — it looped back.</span></div>
+        <div class="attr-row"><span class="label">INTERVIEW TIP</span><span class="val">AS_PATH manipulation (prepending) is a common traffic engineering tool — you make a path look longer to discourage selection.</span></div>
+      </div>
+    </div>
+
+    <!-- NEXT_HOP -->
+    <div class="attr-item">
+      <div class="attr-header" onclick="toggleAttr(this)">
+        <span class="attr-code">NEXT_HOP</span>
+        <span class="attr-name">Next Hop</span>
+        <span class="attr-tag tag-must">MUST KNOW</span>
+      </div>
+      <div class="attr-body">
+        <div class="attr-row"><span class="label">PLAIN ENGLISH</span><span class="val">The IP address of the next router to send packets toward this prefix. Must be reachable for the route to be usable.</span></div>
+        <div class="attr-row"><span class="label">EBGP RULE</span><span class="val">EBGP sets NEXT_HOP to its own IP. The peer can reach that IP directly (they're neighbors).</span></div>
+        <div class="attr-row"><span class="label">IBGP RULE</span><span class="val">IBGP does NOT change NEXT_HOP by default — the original EBGP NEXT_HOP is preserved. All IBGP routers must have a route to that IP via an IGP ("NEXT_HOP self" is the fix).</span></div>
+        <div class="attr-row"><span class="label">INTERVIEW TIP</span><span class="val">"Why isn't this route in the forwarding table?" → Check if NEXT_HOP is resolvable. This is a classic trap.</span></div>
+      </div>
+    </div>
+
+    <!-- LOCAL_PREF -->
+    <div class="attr-item">
+      <div class="attr-header" onclick="toggleAttr(this)">
+        <span class="attr-code">LOCAL_PREF</span>
+        <span class="attr-name">Local Preference</span>
+        <span class="attr-tag tag-must">MUST KNOW</span>
+      </div>
+      <div class="attr-body">
+        <div class="attr-row"><span class="label">PLAIN ENGLISH</span><span class="val">Used within an AS to indicate the preferred exit point for outbound traffic. Higher = preferred.</span></div>
+        <div class="attr-row"><span class="label">PREFERENCE</span><span class="val">HIGHER LOCAL_PREF wins. Default is 100.</span></div>
+        <div class="attr-row"><span class="label">SCOPE</span><span class="val">IBGP only — shared among all routers in the AS. Stripped before sending to EBGP peers.</span></div>
+        <div class="attr-row"><span class="label">VS MED</span><span class="val">LOCAL_PREF controls OUTBOUND traffic (which exit path this AS uses). MED influences INBOUND traffic (which entry point a neighbor uses to reach you).</span></div>
+        <div class="attr-row"><span class="label">INTERVIEW TIP</span><span class="val">"Set LOCAL_PREF 200 on routes from your preferred upstream; set 100 on backup upstream. All routers in your AS will prefer the primary exit."</span></div>
+      </div>
+    </div>
+
+    <!-- MED -->
+    <div class="attr-item">
+      <div class="attr-header" onclick="toggleAttr(this)">
+        <span class="attr-code">MED</span>
+        <span class="attr-name">Multi-Exit Discriminator</span>
+        <span class="attr-tag tag-must">MUST KNOW</span>
+      </div>
+      <div class="attr-body">
+        <div class="attr-row"><span class="label">PLAIN ENGLISH</span><span class="val">A hint to a neighboring AS about which entry point is preferred when multiple connections exist between the same two ASes.</span></div>
+        <div class="attr-row"><span class="label">PREFERENCE</span><span class="val">LOWER MED is preferred. Default is 0.</span></div>
+        <div class="attr-row"><span class="label">SCOPE</span><span class="val">Crosses AS boundaries (sent to EBGP peer) but only affects that one neighbor. Not propagated further by default.</span></div>
+        <div class="attr-row"><span class="label">VS LOCAL_PREF</span><span class="val">MED = influence inbound. LOCAL_PREF = influence outbound. Very commonly confused.</span></div>
+        <div class="attr-row"><span class="label">INTERVIEW TIP</span><span class="val">MED is advisory — the receiving AS can ignore it. Only compared among routes from the same neighboring AS by default.</span></div>
+      </div>
+    </div>
+
+    <!-- ORIGIN -->
+    <div class="attr-item">
+      <div class="attr-header" onclick="toggleAttr(this)">
+        <span class="attr-code">ORIGIN</span>
+        <span class="attr-name">Origin</span>
+        <span class="attr-tag tag-known">KNOW WELL</span>
+      </div>
+      <div class="attr-body">
+        <div class="attr-row"><span class="label">VALUES</span><span class="val">IGP (i) = route from interior protocol. EGP (e) = route from EGP (legacy). INCOMPLETE (?) = redistributed from elsewhere.</span></div>
+        <div class="attr-row"><span class="label">PREFERENCE</span><span class="val">IGP > EGP > INCOMPLETE</span></div>
+        <div class="attr-row"><span class="label">INTERVIEW TIP</span><span class="val">Origin matters in best-path tiebreaking but rarely drives real-world decisions. Know the order, don't over-weight it.</span></div>
+      </div>
+    </div>
+
+    <!-- ATOMIC_AGGREGATE / AGGREGATOR -->
+    <div class="attr-item">
+      <div class="attr-header" onclick="toggleAttr(this)">
+        <span class="attr-code">ATOMIC_AGGREGATE / AGGREGATOR</span>
+        <span class="attr-name">Route Aggregation Attributes</span>
+        <span class="attr-tag tag-known">KNOW WELL</span>
+      </div>
+      <div class="attr-body">
+        <div class="attr-row"><span class="label">ATOMIC_AGGREGATE</span><span class="val">Tells downstream peers that this route was aggregated and some path information may be lost.</span></div>
+        <div class="attr-row"><span class="label">AGGREGATOR</span><span class="val">Identifies which router and AS performed the aggregation.</span></div>
+        <div class="attr-row"><span class="label">INTERVIEW TIP</span><span class="val">Aggregation reduces table size (e.g., 192.168.0.0/24 + 192.168.1.0/24 → 192.168.0.0/23). ATOMIC_AGGREGATE is the warning label that specifics were lost.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-purple">
+    <div class="callout-title">⭐ The 4 Attributes You Absolutely Must Know</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+      <div><strong class="text-yellow">AS_PATH</strong> — Loop prevention + policy (shorter preferred)</div>
+      <div><strong class="text-accent">NEXT_HOP</strong> — Must be reachable; IBGP doesn't change it</div>
+      <div><strong class="text-green">LOCAL_PREF</strong> — Outbound preference within AS (higher wins)</div>
+      <div><strong class="text-red">MED</strong> — Inbound hint to neighbor (lower wins, advisory)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 9 — BEST PATH SELECTION
+════════════════════════════════════════════════════ -->
+<div class="section" id="s9">
+  <div class="section-label">Section 09</div>
+  <h2>Best Path Selection — Interview Version</h2>
+  <p>BGP runs this algorithm when multiple routes exist for the same prefix. It eliminates candidates step by step until one winner remains.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Step</th><th>What It Checks</th><th>Why It Exists</th><th>Prefers</th></tr></thead>
+      <tbody>
+        <tr><td><strong class="text-accent">1</strong></td><td>Weight (Cisco-specific)</td><td>Local weight assigned by router</td><td>Per-router preference override</td><td>Higher</td></tr>
+        <tr><td><strong class="text-accent">2</strong></td><td>LOCAL_PREF</td><td>LOCAL_PREF attribute value</td><td>AS-wide outbound preference</td><td>Higher</td></tr>
+        <tr><td><strong class="text-accent">3</strong></td><td>Locally originated?</td><td>Was this route originated by this router?</td><td>Local routes preferred over learned</td><td>Local</td></tr>
+        <tr><td><strong class="text-accent">4</strong></td><td>AS_PATH length</td><td>Number of ASes in path</td><td>Fewer hops = simpler path</td><td>Shorter</td></tr>
+        <tr><td><strong class="text-accent">5</strong></td><td>ORIGIN</td><td>IGP vs EGP vs Incomplete</td><td>Trust source quality</td><td>IGP > EGP > ?</td></tr>
+        <tr><td><strong class="text-accent">6</strong></td><td>MED</td><td>Multi-Exit Discriminator</td><td>Neighbor entry-point hint</td><td>Lower</td></tr>
+        <tr><td><strong class="text-accent">7</strong></td><td>EBGP > IBGP</td><td>External vs internal peer</td><td>Prefer external routes (closer exit)</td><td>EBGP</td></tr>
+        <tr><td><strong class="text-accent">8</strong></td><td>Interior cost to NEXT_HOP</td><td>IGP metric to reach NEXT_HOP</td><td>Pick nearest exit point</td><td>Lower</td></tr>
+        <tr><td><strong class="text-accent">9</strong></td><td>Oldest EBGP route</td><td>Route age (stability)</td><td>Prefer stable routes</td><td>Oldest</td></tr>
+        <tr><td><strong class="text-accent">10</strong></td><td>BGP Router ID</td><td>Router-ID of advertising peer</td><td>Deterministic tiebreak</td><td>Lowest</td></tr>
+        <tr><td><strong class="text-accent">11</strong></td><td>Peer IP address</td><td>IP of advertising neighbor</td><td>Final tiebreak</td><td>Lowest</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-blue">
+    <div class="callout-title">🎤 "How Does BGP Choose the Best Path?"</div>
+    <p><em>"BGP runs a sequential elimination process. First it checks LOCAL_PREF — the highest wins, representing AS-wide outbound preference. Then AS_PATH length — shorter is preferred. Then ORIGIN code, then MED, then EBGP over IBGP, then IGP cost to NEXT_HOP. Remaining tiebreakers are router-ID and peer address. Policy (LOCAL_PREF) comes before metric (AS_PATH length) — that's the key insight."</em></p>
+  </div>
+
+  <div class="callout callout-yellow">
+    <div class="callout-title">🎤 "Why Doesn't BGP Use Shortest Hop Count?"</div>
+    <p><em>"BGP is inter-domain — it connects autonomous systems under different administrative control. An AS hop is not a uniform unit; one AS could be a small company, another could be a massive Tier-1 ISP. More importantly, the internet is governed by policy: peering agreements, transit costs, and legal constraints. A company may refuse to transit traffic for competitors regardless of hop count. BGP expresses this through configurable policy attributes, not a simple metric."</em></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 10 — IBGP vs EBGP
+════════════════════════════════════════════════════ -->
+<div class="section" id="s10">
+  <div class="section-label">Section 10</div>
+  <h2>IBGP vs EBGP</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dimension</th><th>EBGP</th><th>IBGP</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Peer relationship</strong></td><td>Different Autonomous Systems</td><td>Same Autonomous System</td></tr>
+        <tr><td><strong>Typical use</strong></td><td>Internet peering at borders</td><td>Distribute routes inside the AS</td></tr>
+        <tr><td><strong>AS_PATH</strong></td><td>Own AS prepended on outbound</td><td>AS_PATH not modified — no AS added</td></tr>
+        <tr><td><strong>LOCAL_PREF</strong></td><td>Stripped when sending to EBGP peer</td><td>Propagated to all IBGP peers in AS</td></tr>
+        <tr><td><strong>NEXT_HOP</strong></td><td>Set to sender's IP on outbound</td><td>NEXT_HOP not changed by default — original preserved</td></tr>
+        <tr><td><strong>Route advertisement</strong></td><td>Full table exchange (with policy)</td><td>Does NOT re-advertise IBGP routes to other IBGP peers (split horizon) — requires full mesh or route reflectors</td></tr>
+        <tr><td><strong>TTL</strong></td><td>1 by default (directly connected)</td><td>255 (can be many hops away)</td></tr>
+        <tr><td><strong>Session typical path</strong></td><td>Directly connected link</td><td>Loopback-to-loopback (IGP must carry the route)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mini network diagram -->
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono" font-size="11">
+      <!-- AS 100 box -->
+      <rect x="10" y="10" width="300" height="200" rx="10" fill="none" stroke="#1f6feb" stroke-width="2" stroke-dasharray="6,3"/>
+      <text x="160" y="30" text-anchor="middle" fill="#58a6ff" font-size="12" font-weight="700">AS 100</text>
+
+      <!-- R1 -->
+      <rect x="30" y="60" width="80" height="40" rx="6" fill="#1c2430" stroke="#58a6ff" stroke-width="1.5"/>
+      <text x="70" y="85" text-anchor="middle" fill="#58a6ff" font-weight="600">R1</text>
+
+      <!-- R2 -->
+      <rect x="160" y="60" width="80" height="40" rx="6" fill="#1c2430" stroke="#58a6ff" stroke-width="1.5"/>
+      <text x="200" y="85" text-anchor="middle" fill="#58a6ff" font-weight="600">R2</text>
+
+      <!-- R3 (border) -->
+      <rect x="100" y="140" width="90" height="40" rx="6" fill="#1a3a25" stroke="#3fb950" stroke-width="2"/>
+      <text x="145" y="158" text-anchor="middle" fill="#3fb950" font-weight="600">R3</text>
+      <text x="145" y="173" text-anchor="middle" fill="#6e7681" font-size="9">border router</text>
+
+      <!-- IBGP lines -->
+      <line x1="110" y1="80" x2="160" y2="80" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="135" y="73" text-anchor="middle" fill="#58a6ff" font-size="9">IBGP</text>
+
+      <line x1="70" y1="100" x2="145" y2="140" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <line x1="200" y1="100" x2="145" y2="140" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="88" y="128" fill="#58a6ff" font-size="9">IBGP</text>
+      <text x="182" y="128" fill="#58a6ff" font-size="9">IBGP</text>
+
+      <!-- AS 200 box -->
+      <rect x="380" y="10" width="300" height="200" rx="10" fill="none" stroke="#d29922" stroke-width="2" stroke-dasharray="6,3"/>
+      <text x="530" y="30" text-anchor="middle" fill="#d29922" font-size="12" font-weight="700">AS 200</text>
+
+      <!-- R4 (border) -->
+      <rect x="390" y="80" width="90" height="40" rx="6" fill="#2d2109" stroke="#d29922" stroke-width="2"/>
+      <text x="435" y="98" text-anchor="middle" fill="#d29922" font-weight="600">R4</text>
+      <text x="435" y="113" text-anchor="middle" fill="#6e7681" font-size="9">border router</text>
+
+      <!-- R5 -->
+      <rect x="530" y="80" width="80" height="40" rx="6" fill="#1c2430" stroke="#d29922" stroke-width="1.5"/>
+      <text x="570" y="100" text-anchor="middle" fill="#d29922" font-weight="600">R5</text>
+
+      <!-- IBGP in AS200 -->
+      <line x1="480" y1="100" x2="530" y2="100" stroke="#d29922" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="505" y="92" text-anchor="middle" fill="#d29922" font-size="9">IBGP</text>
+
+      <!-- EBGP line between R3 and R4 -->
+      <line x1="190" y1="160" x2="390" y2="100" stroke="#3fb950" stroke-width="2.5"/>
+      <text x="290" y="130" text-anchor="middle" fill="#3fb950" font-weight="700" font-size="12">EBGP</text>
+      <text x="290" y="148" text-anchor="middle" fill="#6e7681" font-size="9">AS boundary</text>
+    </svg>
+    <div class="diagram-caption">R1, R2, R3 in AS 100 use IBGP. R3–R4 is an EBGP session across AS boundary. R4, R5 use IBGP within AS 200.</div>
+  </div>
+
+  <div class="callout callout-blue">
+    <div class="callout-title">⏱ Explain IBGP vs EBGP in 45 Seconds</div>
+    <p><em>"EBGP is BGP between different autonomous systems — it's what connects your network to your ISP. EBGP adds your AS to the AS_PATH, sets NEXT_HOP to itself, and typically runs directly between neighbors. IBGP is BGP within a single AS — it distributes routes internally. IBGP doesn't add to AS_PATH and doesn't change NEXT_HOP by default. The critical gotcha: IBGP routes won't be re-advertised to other IBGP peers without route reflectors or a full mesh, because that would create loops."</em></p>
+  </div>
+
+  <div class="callout callout-red">
+    <div class="callout-title">⚠ Common Traps</div>
+    <ul>
+      <li><strong>NEXT_HOP not reachable:</strong> IBGP preserves the original NEXT_HOP. If that IP isn't in the IGP, routes won't be usable. Fix: "next-hop self".</li>
+      <li><strong>IBGP full mesh:</strong> In IBGP, routes from one IBGP peer can't be re-advertised to another IBGP peer. You need either a full mesh, route reflectors, or confederations.</li>
+      <li><strong>TTL assumption:</strong> EBGP defaults to TTL=1, so peers must be directly connected (or use EBGP multihop).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 11 — BGP vs OSPF / RIP
+════════════════════════════════════════════════════ -->
+<div class="section" id="s11">
+  <div class="section-label">Section 11</div>
+  <h2>BGP vs OSPF / RIP / Distance Vector</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dimension</th><th>BGP</th><th>OSPF</th><th>RIP</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Type</strong></td><td>Path Vector</td><td>Link State</td><td>Distance Vector</td></tr>
+        <tr><td><strong>Scope</strong></td><td>Inter-domain (between ASes)</td><td>Intra-domain (within AS)</td><td>Intra-domain (within AS)</td></tr>
+        <tr><td><strong>Metric</strong></td><td>Policy attributes (not a simple metric)</td><td>Cost (bandwidth-based)</td><td>Hop count (max 15)</td></tr>
+        <tr><td><strong>Loop avoidance</strong></td><td>AS_PATH inspection</td><td>Full topology map (SPF)</td><td>Split horizon, poisoned reverse</td></tr>
+        <tr><td><strong>Convergence</strong></td><td>Slow (by design — stability over speed)</td><td>Fast (Dijkstra on full topology)</td><td>Slow (counting to infinity)</td></tr>
+        <tr><td><strong>Scale</strong></td><td>Global internet (800K+ routes)</td><td>Hundreds to thousands of routers</td><td>Small networks only</td></tr>
+        <tr><td><strong>Transport</strong></td><td>TCP (reliable, ordered)</td><td>IP (own protocol, 89)</td><td>UDP port 520</td></tr>
+        <tr><td><strong>Policy support</strong></td><td>Rich — route maps, communities, attributes</td><td>Limited — route filtering only</td><td>Minimal</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-green">
+    <div class="callout-title">📌 "Why Is BGP Path Vector, Not Plain Distance Vector?"</div>
+    <p><em>"In distance vector, each router only knows the distance to a destination and the next hop — not the full path. BGP carries the entire AS sequence for each route. This is path vector. The difference matters: with the full path, BGP can detect loops (own AS in path), apply policy per-path, and avoid the counting-to-infinity problem that plagues distance vector protocols. You can also do traffic engineering based on which ASes a path traverses."</em></p>
+  </div>
+
+  <h3>Why BGP Runs Over TCP</h3>
+  <div class="card">
+    <p>BGP sessions carry a lot of state. Routes must be delivered <strong>reliably and in order</strong> — a lost UPDATE or out-of-order message would corrupt the routing table. TCP provides this for free. OSPF and RIP handle their own reliability at the protocol level, which is simpler for small, fast intra-domain networks but wouldn't scale to BGP's needs.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 12 — TROUBLESHOOTING
+════════════════════════════════════════════════════ -->
+<div class="section" id="s12">
+  <div class="section-label">Section 12</div>
+  <h2>Troubleshooting and Failure Scenarios</h2>
+
+  <details>
+    <summary>Session Never Reaches Established</summary>
+    <div class="details-body">
+      <p><strong>Symptom:</strong> BGP stays in IDLE, CONNECT, or ACTIVE indefinitely.</p>
+      <p><strong>Likely Causes:</strong> TCP unreachable (routing, firewall, ACL), wrong peer IP/AS configured, port 179 blocked.</p>
+      <p><strong>Strong Answer:</strong> <em>"First I'd check if TCP can reach the peer — can the router ping the BGP peer IP? Is port 179 open? Then I'd verify the neighbor configuration on both sides: AS numbers, peer addresses. If stuck in ACTIVE, it's almost always a TCP-layer problem."</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Session Established but KEEPALIVEs Stop / Hold Timer Expires</summary>
+    <div class="details-body">
+      <p><strong>Symptom:</strong> BGP session drops repeatedly with NOTIFICATION error code 4 (Hold Timer Expired).</p>
+      <p><strong>Likely Causes:</strong> CPU overload, link congestion losing keepalive packets, timer misconfiguration.</p>
+      <p><strong>Strong Answer:</strong> <em>"Hold timer expiry means KEEPALIVEs weren't received within the negotiated hold time (default 90s, keepalive every 30s). I'd check CPU load on both peers, look for packet loss on the link, and verify timer configurations match. Temporary fixes include increasing the hold time, but the real fix is the underlying issue."</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>OPEN Rejected (NOTIFICATION Sent)</summary>
+    <div class="details-body">
+      <p><strong>Symptom:</strong> Session gets to OpenSent or OpenConfirm then immediately drops with error code 2.</p>
+      <p><strong>Likely Causes:</strong> AS number mismatch, router-ID conflict, unsupported capability, hold time incompatibility.</p>
+      <p><strong>Strong Answer:</strong> <em>"Error code 2 is OPEN Message Error. The most common causes are wrong AS number configured on either end, or a duplicate router-ID in the same AS. Check the NOTIFICATION subcode — it tells you exactly what field was rejected."</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Invalid or Unreachable NEXT_HOP</summary>
+    <div class="details-body">
+      <p><strong>Symptom:</strong> Routes appear in Adj-RIB-In but not in Loc-RIB or routing table.</p>
+      <p><strong>Likely Causes:</strong> For IBGP: NEXT_HOP is the original EBGP next-hop, not reachable via IGP. For EBGP: rare, but possible if next-hop isn't directly reachable.</p>
+      <p><strong>Strong Answer:</strong> <em>"In IBGP, the NEXT_HOP isn't changed by default — it stays as the EBGP speaker's address. If that IP isn't in the IGP routing table, the route is invalid and won't be installed. The fix is 'next-hop self' on the border router, or ensuring the IGP carries the EBGP next-hop address."</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Route Rejected Due to AS Loop</summary>
+    <div class="details-body">
+      <p><strong>Symptom:</strong> UPDATE received but route not installed. No error, just silently dropped.</p>
+      <p><strong>Likely Causes:</strong> Router's own AS appears in the received AS_PATH.</p>
+      <p><strong>Strong Answer:</strong> <em>"BGP loop detection: if the AS_PATH contains my own AS number, I discard the route — it's already visited my AS and looped back. This is why AS_PATH is so important. You'd see the route in the UPDATE but it won't enter Adj-RIB-In as a valid route."</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Unexpected Best Path Selected</summary>
+    <div class="details-body">
+      <p><strong>Symptom:</strong> A "worse" route (longer AS_PATH, higher MED) is selected over expected one.</p>
+      <p><strong>Likely Causes:</strong> LOCAL_PREF differs between routes; step higher in decision algorithm is driving selection.</p>
+      <p><strong>Strong Answer:</strong> <em>"Trace the decision algorithm step by step. LOCAL_PREF beats AS_PATH length. Check if the 'unexpected' route has a higher LOCAL_PREF set by an import policy. The decision is sequential — a route winning at step 2 (LOCAL_PREF) doesn't care about step 4 (AS_PATH length)."</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Route Not Advertised to Peer</summary>
+    <div class="details-body">
+      <p><strong>Symptom:</strong> Route is in Loc-RIB but peer doesn't receive it.</p>
+      <p><strong>Likely Causes:</strong> Export policy filtering, IBGP split-horizon (not re-advertising IBGP learned routes to other IBGP peers), route not being the best path.</p>
+      <p><strong>Strong Answer:</strong> <em>"Check the Adj-RIB-Out for that peer — is the route there? If not, export policy is filtering it. If it's IBGP, remember you can't re-advertise IBGP routes to IBGP peers without route reflectors. Also verify the route is actually the best path — only best paths get advertised."</em></p>
+    </div>
+  </details>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 13 — Q&A BANK
+════════════════════════════════════════════════════ -->
+<div class="section" id="s13">
+  <div class="section-label">Section 13</div>
+  <h2>Common Interview Questions</h2>
+  <p>Click any question to expand the answer. Every answer includes a strong version and a mistake to avoid.</p>
+
+  <div class="qa-group-title">Basic Understanding</div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q1</span>What is BGP?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Inter-domain path-vector routing protocol of the internet, policy-driven.</div>
+      <div class="expanded">BGP (Border Gateway Protocol) is the protocol that connects autonomous systems — independently operated networks — across the internet. It runs over TCP, exchanges route reachability using path attributes, and selects routes based on configurable policy, not a simple metric. It's classified as path-vector because each route carries the full sequence of AS numbers it has crossed.</div>
+      <div class="mistake">Saying "BGP finds the shortest path" — it finds the policy-preferred path. Shortest path is just one optional tiebreaker.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q2</span>Why does BGP run over TCP?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: BGP needs reliable, ordered delivery of route updates. TCP provides this.</div>
+      <div class="expanded">BGP carries routing state that must be consistent between peers. A lost UPDATE message or out-of-order delivery would corrupt the RIB. Rather than implementing its own reliability, BGP delegates this to TCP. The long-lived TCP session also enables incremental updates — BGP only sends changes, not full table dumps, every time.</div>
+      <div class="mistake">Confusing "runs over TCP" with "requires direct connection" — IBGP peers are often many hops apart and reachable via IGP.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q3</span>What is a path vector protocol?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Like distance vector, but carries the full path (list of ASes) instead of just distance.</div>
+      <div class="expanded">Path vector is a routing paradigm where each route advertisement carries the full sequence of ASes the route has traversed — not just the destination and a metric. This enables loop detection (drop if own AS is in path), policy decisions per-path (avoid specific ASes), and avoids the counting-to-infinity problem of pure distance vector. BGP uses AS_PATH as its path vector.</div>
+      <div class="mistake">Saying path vector is just "distance vector with extra info" — the structural difference (full path vs just metric) changes loop detection and policy capabilities fundamentally.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q4</span>Why is BGP called policy-based routing?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Because route selection is driven by configurable operator policy, not a fixed metric.</div>
+      <div class="expanded">BGP's best-path algorithm is controlled by attributes like LOCAL_PREF, MED, and community values that operators set deliberately based on business relationships. An AS may prefer a longer AS_PATH through a trusted partner over a shorter path through a competitor. This policy control is the whole point — BGP enables each AS to independently decide how to route traffic based on peering agreements, transit costs, and reliability preferences.</div>
+      <div class="mistake">Thinking policy only applies to filtering — policy also controls attribute modification, preference weighting, and what gets advertised to whom.</div>
+    </div>
+  </div>
+
+  <div class="qa-group-title">Protocol Internals</div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q5</span>What are Adj-RIB-In, Loc-RIB, and Adj-RIB-Out?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Three routing databases — incoming routes, local best routes, and outgoing routes.</div>
+      <div class="expanded">Adj-RIB-In stores routes received from a peer before policy — the raw input. After import policy and best-path selection, winners go into Loc-RIB (the local best route per prefix, also installed in the FIB). Before advertising to a peer, export policy runs and the result is placed in Adj-RIB-Out — one per peer. Think inbox → filtered decisions → customized outbox.</div>
+      <div class="mistake">Confusing Loc-RIB with the OS routing table — Loc-RIB is BGP-internal. Routes are then installed into the kernel/OS routing table, which also contains OSPF, static, and direct routes.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q6</span>What does a BGP UPDATE message contain?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Three parts — withdrawn routes, path attributes, and NLRI (new prefixes).</div>
+      <div class="expanded">An UPDATE can carry: (1) Withdrawn Routes — prefixes to be removed from the RIB, (2) Path Attributes — AS_PATH, NEXT_HOP, LOCAL_PREF, MED, ORIGIN, etc., and (3) NLRI — the Network Layer Reachability Information, the list of IP prefixes being advertised with those attributes. One UPDATE carries one set of path attributes. Prefixes with different attributes require separate UPDATEs.</div>
+      <div class="mistake">Forgetting that an UPDATE can withdraw routes even without advertising new ones — a withdrawal-only UPDATE has no NLRI section.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q7</span>What happens when a route is withdrawn?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Prefix removed from Adj-RIB-In, best-path reruns, FIB updated, peer notified.</div>
+      <div class="expanded">When a WITHDRAW is received for a prefix: (1) the route is deleted from Adj-RIB-In for that peer, (2) the best-path decision process runs again for that prefix among remaining routes, (3) if the best path changes, the Loc-RIB is updated, the FIB is updated, and downstream peers receive a new UPDATE — either withdrawing the route or advertising a new best path.</div>
+      <div class="mistake">Assuming withdrawal always means the route disappears — if another peer advertised the same prefix, that route may become the new best and be kept in service.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q8</span>What does a NOTIFICATION message mean?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: A fatal error occurred. Session terminates immediately after sending NOTIFICATION.</div>
+      <div class="expanded">NOTIFICATION is BGP's error message. It carries an error code (e.g., Hold Timer Expired, OPEN Message Error, UPDATE Message Error, Cease) and optionally a subcode and data field for diagnosis. After sending a NOTIFICATION, the sender closes the TCP connection — the session goes to IDLE. It's the last message a peer ever sends before disconnecting. Common causes: hold timer expiry, malformed messages, config errors, admin shutdown.</div>
+      <div class="mistake">Thinking NOTIFICATION is just a warning — it always terminates the session. No recovery path; the peers must restart the FSM.</div>
+    </div>
+  </div>
+
+  <div class="qa-group-title">Route Selection</div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q9</span>How does BGP select the best path?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Sequential elimination: LOCAL_PREF → AS_PATH length → ORIGIN → MED → EBGP>IBGP → IGP cost → tiebreakers.</div>
+      <div class="expanded">BGP runs a decision algorithm across all valid routes to the same prefix. It eliminates candidates step by step. First, highest LOCAL_PREF wins. Then shortest AS_PATH. Then ORIGIN (IGP > EGP > incomplete). Then lowest MED (among same-neighbor routes). Then EBGP preferred over IBGP. Then lowest IGP cost to NEXT_HOP. Finally, router-ID and peer address as tiebreakers. Policy enters at the top (LOCAL_PREF) — that's the key insight.</div>
+      <div class="mistake">Starting with AS_PATH length — LOCAL_PREF comes first. An operator can always prefer a longer path by setting higher LOCAL_PREF on it.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q10</span>What is LOCAL_PREF vs MED?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: LOCAL_PREF = outbound (higher wins, IBGP-only). MED = inbound hint (lower wins, crosses to neighbor).</div>
+      <div class="expanded">LOCAL_PREF is shared within an AS via IBGP and controls which exit the AS uses for outbound traffic. Higher value = preferred. It's stripped before sending to EBGP peers. MED is sent to a neighboring AS to influence which entry point they use for traffic coming into your AS. Lower value = preferred. MED is advisory — the receiving AS can ignore it. They control opposite traffic directions.</div>
+      <div class="mistake">Confusing direction: LOCAL_PREF = outbound from your AS. MED = inbound to your AS (hint to your neighbor).</div>
+    </div>
+  </div>
+
+  <div class="qa-group-title">IBGP vs EBGP</div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q11</span>Difference between IBGP and EBGP?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: EBGP = between ASes. IBGP = within one AS. Key differences: AS_PATH, NEXT_HOP, and advertisement rules.</div>
+      <div class="expanded">EBGP is BGP between different autonomous systems — the internet's inter-domain glue. IBGP is BGP within a single AS, used to distribute externally learned routes internally. EBGP prepends its AS to AS_PATH and sets NEXT_HOP to itself. IBGP doesn't modify AS_PATH or NEXT_HOP by default. IBGP also has the critical rule: routes learned from one IBGP peer cannot be re-advertised to another IBGP peer (requires full mesh or route reflectors).</div>
+      <div class="mistake">Thinking IBGP and EBGP are entirely separate protocols — they're the same protocol, just with different behaviors depending on whether the session is intra-AS or inter-AS.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q12</span>Why does IBGP need a full mesh or route reflectors?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: IBGP split-horizon prevents re-advertising between IBGP peers — all peers need direct sessions to receive all routes.</div>
+      <div class="expanded">BGP's loop prevention rule for IBGP: a route learned from an IBGP peer will not be re-advertised to another IBGP peer. This prevents routing loops within the AS, but means every IBGP router needs a direct session to every other IBGP router to receive all routes — O(n²) sessions. Route Reflectors break this by allowing designated routers to re-advertise IBGP routes to other IBGP peers, reducing session count.</div>
+      <div class="mistake">Confusing IBGP split horizon with the RIP split horizon concept — they're both called split horizon but protect against different things in different protocols.</div>
+    </div>
+  </div>
+
+  <div class="qa-group-title">Troubleshooting</div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q13</span>Why is BGP slower to converge than IGPs?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Deliberate — BGP prioritizes stability and policy correctness over speed.</div>
+      <div class="expanded">BGP uses timers designed for stability: MRAI (Minimum Route Advertisement Interval, ~30s EBGP / 5s IBGP) rate-limits how fast route changes propagate. Hold timers are typically 90s. These slow convergence but prevent route flaps from destabilizing the global routing table. The internet's stability depends on BGP not overreacting to transient failures. BGPsec and modern operational practices (BFD, reduced timers) can speed it up when needed.</div>
+      <div class="mistake">Calling BGP's slowness a flaw — it's intentional. Rapid convergence at internet scale would create cascade instability.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q14</span>Why must NEXT_HOP be resolvable?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: BGP can't forward packets without knowing how to reach the NEXT_HOP — an unresolvable NEXT_HOP means the route is unusable.</div>
+      <div class="expanded">A BGP route says "to reach prefix X, send packets to NEXT_HOP Y." If the router has no route to reach Y (no IGP entry, no direct connection), it can't actually forward the packet. BGP checks NEXT_HOP reachability before installing a route in the FIB. For IBGP, this is a common issue — the NEXT_HOP is an external IP that all internal routers must reach via an IGP, or by using "next-hop self."</div>
+      <div class="mistake">Thinking a route in Adj-RIB-In is automatically usable — it needs NEXT_HOP resolvability and best-path selection to reach the FIB.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q15</span>How does BGP avoid routing loops?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: AS_PATH inspection — if your AS is already in the path, discard the route.</div>
+      <div class="expanded">BGP's primary loop prevention mechanism is AS_PATH checking: when a router receives an UPDATE, it checks if its own AS number appears in the AS_PATH. If it does, the route is discarded — it has already transited this AS and looped back. For IBGP, the split-horizon rule prevents intra-AS loops. No topology map needed — path vector carries its own loop-detection data.</div>
+      <div class="mistake">Claiming BGP uses TTL for loop prevention — TTL limits hop count but isn't the BGP-level mechanism. AS_PATH is.</div>
+    </div>
+  </div>
+
+  <div class="qa-group-title">Design / Architecture</div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q16</span>What is an Autonomous System?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: A network under single administrative control, identified by an ASN, that participates in BGP.</div>
+      <div class="expanded">An Autonomous System (AS) is a collection of IP prefixes and routers under a single administrative authority that presents a unified routing policy to the internet. Each AS has a globally unique AS Number (ASN) — 16-bit (1–65535) or 32-bit (1–4294967295). BGP is the protocol ASes use to exchange reachability with each other. Examples: Google (AS15169), Comcast (AS7922), your university might have one too.</div>
+      <div class="mistake">Thinking "autonomous" means isolated — ASes connect to many other ASes. Autonomous means independently administered, not disconnected.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q17</span>What is AS_PATH used for beyond loop detection?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Traffic engineering via prepending, policy decisions (avoid certain ASes), route length-based preference.</div>
+      <div class="expanded">AS_PATH is used for: (1) Loop detection — drop if own AS appears. (2) Best-path preference — shorter AS_PATH preferred in step 4. (3) Traffic engineering — AS_PATH prepending artificially lengthens the path to make it less preferred by neighbors, effectively steering inbound traffic. (4) Policy — operators can filter routes that traverse specific ASes (e.g., "don't use competitor's network").</div>
+      <div class="mistake">Thinking AS_PATH is only for loop prevention — it's a rich traffic engineering and policy tool in practice.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q18</span>What is NLRI?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Network Layer Reachability Information — the IP prefixes being advertised in an UPDATE.</div>
+      <div class="expanded">NLRI is the field in a BGP UPDATE that contains the actual IP prefixes (e.g., 10.0.0.0/8, 192.168.1.0/24) that are being announced as reachable via the attributes in that UPDATE. It's the "what" of the announcement, while the path attributes are the "how." NLRI can also appear in the Withdrawn Routes field to remove prefixes.</div>
+      <div class="mistake">Confusing NLRI with path attributes — NLRI is the destination prefixes. Attributes describe the path properties. They're separate fields in the UPDATE.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q19</span>What is the BGP Router ID?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: A 32-bit identifier, typically the highest loopback IP, used to uniquely identify a BGP speaker and as a tiebreaker.</div>
+      <div class="expanded">The BGP Router ID is a 32-bit value (formatted like an IP address) that uniquely identifies a BGP speaker. It's sent in the OPEN message and used in best-path tiebreaking (step 10 — lowest router-ID wins among otherwise equal routes). Typically it's the router's loopback IP. If two IBGP routers have the same router-ID, one will reject the other's OPEN message.</div>
+      <div class="mistake">Assuming router-ID must be a routable IP — it's just a unique 32-bit identifier. It happens to look like an IP but doesn't need to be reachable.</div>
+    </div>
+  </div>
+
+  <div class="qa-item">
+    <div class="qa-question" onclick="toggleQA(this)">
+      <span class="qa-q-num">Q20</span>What is route reflection and why is it needed?
+    </div>
+    <div class="qa-answer">
+      <div class="short">SHORT: Route Reflectors allow IBGP routes to be re-advertised within an AS, avoiding the O(n²) full mesh requirement.</div>
+      <div class="expanded">In IBGP, routes learned from one IBGP peer cannot be re-advertised to another IBGP peer (split horizon). Without Route Reflectors, every IBGP router needs a direct session to every other — n*(n-1)/2 sessions for n routers. Route Reflectors (RRs) are designated IBGP peers that can reflect (re-advertise) routes from IBGP clients to other clients and non-clients. This reduces session count dramatically and is how large ISPs scale their IBGP topology.</div>
+      <div class="mistake">Thinking RRs run on special hardware — any BGP router can be a route reflector with the right configuration. It's a logical role, not a hardware requirement.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 14 — VERBAL PRACTICE
+════════════════════════════════════════════════════ -->
+<div class="section" id="s14">
+  <div class="section-label">Section 14</div>
+  <h2>Whiteboard / Verbal Explanation Practice</h2>
+
+  <details>
+    <summary>📢 Explain BGP in 1 Minute</summary>
+    <div class="details-body">
+      <div class="callout callout-blue">
+        <p><em>"BGP is the Border Gateway Protocol — the routing protocol that connects the internet's autonomous systems. An AS is a network under one administrative control, like an ISP or a university. BGP runs over TCP and lets ASes exchange IP reachability information. What makes BGP unique is that it's policy-driven: instead of picking the fastest path, it picks the policy-preferred path based on attributes like LOCAL_PREF and AS_PATH. It's path-vector, so each route carries the sequence of ASes it crossed — this enables loop detection and policy-per-path decisions."</em></p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>📢 Explain BGP in 3 Minutes</summary>
+    <div class="details-body">
+      <div class="callout callout-blue">
+        <p><em>"The internet is made of thousands of autonomous systems — independently operated networks identified by AS numbers. BGP is how these ASes talk to each other about which IP prefixes they can reach.<br><br>BGP peers establish a TCP session on port 179. They exchange OPEN messages to agree on parameters, then KEEPALIVE to confirm. Once the session is Established, they send UPDATE messages containing prefixes and path attributes like AS_PATH, NEXT_HOP, LOCAL_PREF, and MED.<br><br>When a router receives an UPDATE, it stores the route in its Adj-RIB-In. Import policy then filters and modifies it. The best-path decision process runs — checking LOCAL_PREF first, then AS_PATH length, ORIGIN, MED, and so on. The winner goes into the Loc-RIB and the forwarding table. Export policy runs before advertising the route outward to other peers.<br><br>The key insight is that BGP is policy-driven, not metric-driven. An operator can prefer a longer path through a trusted partner over a shorter one through a competitor, simply by setting LOCAL_PREF higher. BGP also prevents loops by checking AS_PATH — if your own AS is in the path, you drop the route."</em></p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>📢 Explain Best Path Selection on a Whiteboard</summary>
+    <div class="details-body">
+      <p>Draw a vertical funnel. Label each level:</p>
+      <ol>
+        <li><strong>Step 1: LOCAL_PREF</strong> — "Who configured the highest preference?" (Higher wins)</li>
+        <li><strong>Step 2: Locally originated?</strong> — "Did we originate this route? That wins."</li>
+        <li><strong>Step 3: AS_PATH length</strong> — "Which path crossed fewer ASes?" (Shorter wins)</li>
+        <li><strong>Step 4: ORIGIN</strong> — IGP &gt; EGP &gt; Incomplete</li>
+        <li><strong>Step 5: MED</strong> — "Which neighbor told us to use this entry?" (Lower wins)</li>
+        <li><strong>Step 6: EBGP &gt; IBGP</strong> — "External peer wins over internal peer."</li>
+        <li><strong>Step 7: IGP cost to NEXT_HOP</strong> — "Which exit is topologically closer?" (Lower wins)</li>
+        <li><strong>Tiebreakers:</strong> Router-ID, peer address (lowest)</li>
+      </ol>
+      <p><em>"Each step eliminates candidates. You only move to the next step when there's still a tie. Policy (LOCAL_PREF) comes before metrics — that's BGP's core design philosophy."</em></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>📢 Explain IBGP vs EBGP to a Junior Engineer</summary>
+    <div class="details-body">
+      <div class="callout callout-blue">
+        <p><em>"Think of BGP as having two modes. EBGP is when you're talking to a router in a completely different company's network — across an AS boundary. That's the internet-facing mode. EBGP marks the route with your AS number and sets the NEXT_HOP to itself, so the neighbor knows exactly where to send traffic.<br><br>IBGP is when you're talking to another router inside your own company's network. You're sharing routes internally. IBGP doesn't add your AS to the path — that would make it look like the route crossed an AS boundary it didn't. And IBGP doesn't change NEXT_HOP — it preserves the original value so the forwarding decision matches reality.<br><br>The tricky part: IBGP routers won't re-advertise routes to each other by default. So if you have 10 routers, they all need to talk to each other directly, or you need Route Reflectors to act as a hub."</em></p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>📢 Explain How a Route Travels Through BGP</summary>
+    <div class="details-body">
+      <div class="callout callout-blue">
+        <p><em>"Let's trace a route from origin to your router. An AS originates a prefix — say 1.2.3.0/24. It advertises it to its EBGP peers in an UPDATE message with AS_PATH = [originating AS], NEXT_HOP = border router IP, ORIGIN = IGP. Each peer receives this, stores it in their Adj-RIB-In, applies import policy, and if it passes, runs best-path. The winner goes into their Loc-RIB and FIB. Then they set NEXT_HOP to themselves, prepend their AS to AS_PATH, apply export policy, and send it to their EBGP peers. This repeats across the internet until the route reaches you — each hop adding one AS to the AS_PATH. When you eventually receive it, the AS_PATH tells you every AS the route crossed."</em></p>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 15 — COMMON CONFUSIONS
+════════════════════════════════════════════════════ -->
+<div class="section" id="s15">
+  <div class="section-label">Section 15</div>
+  <h2>Things People Mix Up in BGP Interviews</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Confusion</th><th>What People Think</th><th>What's Actually True</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>RIB vs Routing Table</strong></td>
+          <td>Loc-RIB = the routing table</td>
+          <td>Loc-RIB is BGP's internal best routes. The OS routing table (RIB) holds routes from all sources. FIB is what drives actual forwarding.</td>
+        </tr>
+        <tr>
+          <td><strong>Route Selection vs Advertisement</strong></td>
+          <td>Best path = what gets advertised</td>
+          <td>Export policy can still filter or modify what gets advertised from the Loc-RIB. These are separate steps.</td>
+        </tr>
+        <tr>
+          <td><strong>NLRI vs Path Attributes</strong></td>
+          <td>NLRI includes the attributes</td>
+          <td>NLRI is only the IP prefixes. Path attributes are a separate field. All NLRI in one UPDATE share the same attributes.</td>
+        </tr>
+        <tr>
+          <td><strong>LOCAL_PREF vs MED</strong></td>
+          <td>Both control the same thing</td>
+          <td>LOCAL_PREF controls outbound traffic (which exit your AS uses). MED influences inbound traffic (which entry a neighbor uses to reach you).</td>
+        </tr>
+        <tr>
+          <td><strong>NEXT_HOP vs forwarding next hop</strong></td>
+          <td>BGP NEXT_HOP = the router you forward to</td>
+          <td>BGP NEXT_HOP might not be directly reachable. The IGP finds a route to the NEXT_HOP. The actual forwarding next hop is whatever the IGP says to use to get there.</td>
+        </tr>
+        <tr>
+          <td><strong>IBGP vs EBGP</strong></td>
+          <td>IBGP is a different protocol</td>
+          <td>Same protocol, different mode. The distinction is whether the session crosses an AS boundary.</td>
+        </tr>
+        <tr>
+          <td><strong>Loop prevention vs tiebreaking</strong></td>
+          <td>AS_PATH length preference = loop detection</td>
+          <td>AS_PATH loop detection = discard if own AS present. AS_PATH length preference = shorter preferred in best-path step 4. Separate mechanisms.</td>
+        </tr>
+        <tr>
+          <td><strong>Session state vs route state</strong></td>
+          <td>Session Established = routes are working</td>
+          <td>Established means sessions are up. Routes may still be filtered by policy, have unresolvable NEXT_HOP, or fail best-path. Session state ≠ route state.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 16 — CHEAT SHEET
+════════════════════════════════════════════════════ -->
+<div class="section" id="s16">
+  <div class="section-label">Section 16</div>
+  <h2>Interview Cheat Sheet</h2>
+
+  <div class="cheat-grid">
+    <div class="cheat-box">
+      <h4>⚡ Must-Know Facts</h4>
+      <ul>
+        <li>BGP runs over <strong>TCP port 179</strong></li>
+        <li>Path vector — carries full <strong>AS_PATH</strong></li>
+        <li>6 FSM states: Idle→Connect→Active→OpenSent→OpenConfirm→Established</li>
+        <li>4 message types: OPEN, UPDATE, KEEPALIVE, NOTIFICATION</li>
+        <li>3 RIBs: Adj-RIB-In, Loc-RIB, Adj-RIB-Out</li>
+        <li><strong>LOCAL_PREF</strong>: higher wins, outbound, IBGP-only</li>
+        <li><strong>MED</strong>: lower wins, inbound hint, crosses to neighbor</li>
+        <li>EBGP: prepends AS, sets NEXT_HOP. IBGP: neither.</li>
+        <li>IBGP needs full mesh or route reflectors</li>
+        <li>Best path: LOCAL_PREF first, AS_PATH second</li>
+      </ul>
+    </div>
+    <div class="cheat-box">
+      <h4>🎯 Top 10 Concepts</h4>
+      <ul>
+        <li>Path vector = full AS list per route</li>
+        <li>Policy over metric</li>
+        <li>Session lifecycle (FSM)</li>
+        <li>Route lifecycle (RIBs)</li>
+        <li>UPDATE structure (withdrawn, attrs, NLRI)</li>
+        <li>AS_PATH for loop detection + TE</li>
+        <li>NEXT_HOP reachability requirement</li>
+        <li>LOCAL_PREF vs MED distinction</li>
+        <li>IBGP split horizon + route reflectors</li>
+        <li>Best-path decision order</li>
+      </ul>
+    </div>
+    <div class="cheat-box">
+      <h4>🚫 Top 10 Mistakes</h4>
+      <ul>
+        <li>Saying BGP picks shortest path</li>
+        <li>Starting best-path at AS_PATH (not LOCAL_PREF)</li>
+        <li>Confusing LOCAL_PREF (outbound) and MED (inbound)</li>
+        <li>Forgetting IBGP doesn't change NEXT_HOP</li>
+        <li>Calling Loc-RIB the "routing table"</li>
+        <li>Thinking NOTIFICATION is a warning (it terminates)</li>
+        <li>Forgetting IBGP split horizon</li>
+        <li>Assuming route selection = route advertisement</li>
+        <li>Saying route exists because session is Established</li>
+        <li>Claiming BGP uses hop count for loop detection</li>
+      </ul>
+    </div>
+    <div class="cheat-box">
+      <h4>📋 Last-Minute Review</h4>
+      <ul>
+        <li>OPEN carries: version, ASN, hold time, router-ID</li>
+        <li>Hold timer default: <strong>90s</strong>, keepalive: <strong>30s</strong></li>
+        <li>EBGP default TTL: 1 (direct neighbor)</li>
+        <li>IBGP: loopback-to-loopback, IGP carries the path</li>
+        <li>Best path steps: <strong>LP → loc-orig → AS_PATH → ORIGIN → MED → EBGP/IBGP → IGP cost → router-ID → IP</strong></li>
+        <li>ATOMIC_AGGREGATE = aggregation happened, path info lost</li>
+        <li>Route reflectors solve IBGP O(n²) problem</li>
+        <li>BGP = incremental updates (not full dumps)</li>
+        <li>MED only compared among routes from same neighbor (default)</li>
+        <li>NEXT_HOP must resolve via IGP for IBGP routes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 17 — FLASHCARDS
+════════════════════════════════════════════════════ -->
+<div class="section" id="s17">
+  <div class="section-label">Section 17</div>
+  <h2>Flashcards / Rapid Recall</h2>
+  <p>Click any card to reveal the answer.</p>
+
+  <div class="flashcard-grid">
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What port does BGP use?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">TCP port 179</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What is the default BGP hold time?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">90 seconds. KEEPALIVE sent every 30s (hold time / 3).</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">Name the 4 BGP message types</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">OPEN, UPDATE, KEEPALIVE, NOTIFICATION</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">Name the 6 BGP FSM states in order</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">Idle → Connect → Active → OpenSent → OpenConfirm → Established</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">Which attribute prefers higher values?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">LOCAL_PREF (and Weight on Cisco). All others prefer lower.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What is the first step in best-path selection?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">LOCAL_PREF — highest value wins (or Weight on Cisco implementations)</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What does Adj-RIB-In contain?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">Routes received from a peer, before any policy is applied. Per-peer, unfiltered.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What does Loc-RIB contain?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">The local best route per prefix after policy and best-path selection. Also installed in FIB.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">Why doesn't IBGP modify NEXT_HOP?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">To preserve the original EBGP next-hop so internal routers know the true exit point. The IGP must carry the route to that NEXT_HOP.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">How does BGP detect routing loops?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">AS_PATH inspection — if the router's own AS number appears in the received AS_PATH, discard the route.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What is the IBGP split-horizon rule?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">Routes learned from an IBGP peer cannot be re-advertised to other IBGP peers. Requires full mesh or route reflectors.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">LOCAL_PREF vs MED — which controls outbound traffic?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">LOCAL_PREF controls outbound (which exit your AS uses). MED influences inbound (hint to neighbor about entry point).</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What happens after a NOTIFICATION is sent?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">The TCP connection is closed immediately. The BGP session drops to Idle. It's always a session-terminating event.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What does ATOMIC_AGGREGATE signal?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">Route aggregation occurred and specific path info may be missing. AGGREGATOR identifies who aggregated it.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">EBGP default TTL?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">1 — EBGP peers must be directly connected by default. Use EBGP multihop to connect across multiple hops.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What does ORIGIN=IGP, EGP, Incomplete mean?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">IGP (i) = from interior protocol. EGP (e) = from EGP (legacy). Incomplete (?) = redistributed. IGP preferred.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">What is AS_PATH prepending used for?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">Traffic engineering — artificially lengthen the AS_PATH to make a route less preferred, steering inbound traffic to alternate links.</div>
+    </div>
+    <div class="flashcard" onclick="flipCard(this)">
+      <div class="fc-prompt">Why run IBGP via loopback addresses?</div>
+      <div class="fc-tap">tap to reveal</div>
+      <div class="fc-answer">Loopbacks are stable (don't go down if a single link fails). The IGP carries multiple paths to the loopback, giving session resilience.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SECTION 18 — SELF TEST
+════════════════════════════════════════════════════ -->
+<div class="section" id="s18">
+  <div class="section-label">Section 18</div>
+  <h2>Self-Test</h2>
+  <p>Try answering each question before expanding the answer. Be honest with yourself.</p>
+
+  <details>
+    <summary>ST1 — Your BGP session is stuck in ACTIVE for 5 minutes. What's your first diagnostic step and why?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> ACTIVE means TCP is failing. First step: verify TCP-layer connectivity — can the router reach the peer IP? Try a ping or traceroute to the configured neighbor address. Check: (1) is the peer IP correct? (2) is there a route to it? (3) is port 179 blocked by an ACL or firewall? (4) is the source IP for the TCP session what the peer expects (multi-interface routers may choose the wrong source)? ACTIVE is almost always a TCP/IP problem, not a BGP configuration problem.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST2 — A route is in your Adj-RIB-In but not in your Loc-RIB. Name 3 possible reasons.</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> (1) <strong>Import policy rejected it</strong> — a route map or filter dropped the route before it could compete. (2) <strong>NEXT_HOP not resolvable</strong> — if the router can't reach the NEXT_HOP IP, the route is invalid and excluded from best-path. (3) <strong>AS_PATH loop detected</strong> — the router's own AS appears in the AS_PATH, so it discards the route. Bonus: (4) Another route to the same prefix won best-path — the route is valid but wasn't selected.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST3 — You have two paths to 8.8.0.0/16. Path A: LOCAL_PREF=200, AS_PATH=[65001,65002]. Path B: LOCAL_PREF=100, AS_PATH=[65003]. Which wins and why?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> <strong>Path A wins.</strong> LOCAL_PREF is the second (or first, after Weight) step in best-path selection, and Path A has higher LOCAL_PREF (200 > 100). AS_PATH length (step 4) is only checked when LOCAL_PREF ties. Since LOCAL_PREF differs, we never even look at AS_PATH. This illustrates the core BGP insight: policy (LOCAL_PREF) overrides metric (AS_PATH length).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST4 — You configure a route in IBGP. Peer A learns it. Will Peer B, also connected via IBGP, learn it from Peer A automatically?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> <strong>No.</strong> IBGP split horizon prevents Peer A from re-advertising a route learned from another IBGP peer to Peer B. Peer B must either: (1) have a direct IBGP session to the route's originator (full mesh), or (2) be served by a Route Reflector that can forward IBGP routes to clients. This is one of the most important IBGP gotchas and is why real networks use Route Reflectors or BGP confederations.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST5 — What does NEXT_HOP self do and when would you use it?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> "next-hop self" is an IBGP configuration that makes the local router set the BGP NEXT_HOP to its own IP when advertising routes to IBGP peers, overriding the default behavior of preserving the original EBGP next-hop. You use it when IBGP peers don't have an IGP route to the original NEXT_HOP — typically on border routers that learn routes via EBGP and need to distribute them internally. Instead of requiring all internal routers to know the external EBGP IP, they just send traffic to the border router.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST6 — What is the difference between route selection and route advertisement in BGP?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> Route selection is the best-path decision process that picks one winner per prefix from all received routes — this updates the Loc-RIB. Route advertisement is the outbound process: export policy runs, and UPDATE messages are sent to peers. They're independent: a route can be selected as best but blocked by export policy from being advertised. A route can also be advertised (to some peers) but not to others, depending on per-peer export policy. "Best path selected" does not guarantee "advertised to all peers."</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST7 — How does BGP scale to the global internet but OSPF doesn't?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> OSPF requires every router to have a complete map of the topology (full link-state database) and run Dijkstra's algorithm. This scales to thousands of routers, not hundreds of thousands. BGP operates at a higher abstraction: ASes, not individual routers. BGP hides internal topology entirely — you only see the AS path, not the internal structure of each AS. This allows 80,000+ ASes to participate with ~900K routes without any router needing to know the internal topology of other ASes. Policy also allows ASes to aggregate routes (fewer, larger prefixes), further reducing table size.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST8 — A peer keeps sending NOTIFICATION error code 4. What does this mean and how do you fix it?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> Error code 4 is Hold Timer Expired — your peer stopped receiving KEEPALIVEs within the hold time and terminated the session. Possible causes: (1) high CPU on either router preventing keepalive processing, (2) link congestion or packet loss dropping keepalive packets, (3) timer misconfiguration (one side negotiated lower hold time). Diagnosis: check CPU on both sides, look for packet loss on the BGP path, verify timer configuration. Short-term fix: increase hold timer. Long-term fix: address the underlying cause (CPU, link quality).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST9 — Explain why BGP is classified as path-vector, not distance-vector, in one clear paragraph.</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> In distance-vector protocols like RIP, a router only knows the distance (metric) to a destination and the next-hop direction — it doesn't know the actual path. BGP carries the complete sequence of AS numbers the route has traversed (AS_PATH) with each advertisement. This transforms the protocol from "I'm this far away" to "here's every AS the route crossed to get here." This distinction enables BGP to detect loops (own AS in path = discard), make policy decisions per-path (avoid specific ASes, prefer certain transit providers), and avoid counting-to-infinity problems. The full path is the key structural difference that earns BGP the "path-vector" classification.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>ST10 — Router X receives a route for 10.0.0.0/8 from both an EBGP peer and an IBGP peer, all else equal. Which wins?</summary>
+    <div class="details-body">
+      <p><strong>Answer:</strong> The <strong>EBGP route wins.</strong> Step 7 in BGP's best-path decision prefers EBGP routes over IBGP routes, all else being equal. This reflects the design philosophy that external routes (closer to the traffic's destination, already having traversed an AS boundary) are preferred over internal redistributions of that same external information. This step is evaluated after LOCAL_PREF, local origination, AS_PATH length, ORIGIN, and MED are all tied.</p>
+    </div>
+  </details>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     HOW TO USE
+════════════════════════════════════════════════════ -->
+<div class="section" id="howto">
+  <div class="section-label">Interview Prep Guide</div>
+  <h2>How to Use This Page in 30 Minutes</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Minutes</th><th>What to Do</th><th>Sections</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0–5</strong></td><td>Read the summary and 2-minute explanation. Memorize the "say this" box.</td><td>§1</td></tr>
+        <tr><td><strong>5–10</strong></td><td>Study the big picture diagram. Practice narrating it aloud once.</td><td>§2, §3</td></tr>
+        <tr><td><strong>10–15</strong></td><td>Read FSM states + troubleshooting table. Read RIBs + confusion note.</td><td>§4, §6</td></tr>
+        <tr><td><strong>15–20</strong></td><td>Review the 4 must-know attributes and best-path table.</td><td>§8, §9</td></tr>
+        <tr><td><strong>20–25</strong></td><td>Read IBGP vs EBGP comparison + 45-sec script. Skim confusions table.</td><td>§10, §15</td></tr>
+        <tr><td><strong>25–30</strong></td><td>Run through flashcards. Attempt 3–5 self-test questions cold.</td><td>§17, §18</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Most Likely First Questions</h3>
+  <div class="callout callout-yellow">
+    <div class="callout-title">🎯 Expect These First</div>
+    <ul>
+      <li>"What is BGP and what problem does it solve?"</li>
+      <li>"How is BGP different from OSPF?"</li>
+      <li>"How does BGP select the best path?"</li>
+      <li>"What is IBGP vs EBGP?"</li>
+      <li>"What is AS_PATH used for?"</li>
+      <li>"Walk me through what happens when a BGP peer comes up."</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     TOP 5
+════════════════════════════════════════════════════ -->
+<div class="section" id="top5">
+  <div class="section-label">The Absolute Essentials</div>
+  <h2>If You Remember Only 5 Things</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>1. BGP is Policy, Not Shortest Path</h4>
+      <p>Policy attributes (LOCAL_PREF especially) come before metrics (AS_PATH length) in every decision. The internet runs on business agreements, not hop counts.</p>
+    </div>
+    <div class="card">
+      <h4>2. AS_PATH = Loop Detection + Policy</h4>
+      <p>If your AS is in the received AS_PATH, drop it (loop). Shorter AS_PATH preferred in step 4. Operators manipulate it via prepending for traffic engineering.</p>
+    </div>
+    <div class="card">
+      <h4>3. LOCAL_PREF (outbound) vs MED (inbound)</h4>
+      <p>LOCAL_PREF: IBGP-only, higher wins, controls which exit your AS uses. MED: crosses to neighbor, lower wins, hints which entry point to use. These are opposite directions.</p>
+    </div>
+    <div class="card">
+      <h4>4. IBGP Doesn't Change NEXT_HOP</h4>
+      <p>IBGP preserves the original EBGP NEXT_HOP. All internal routers must resolve it via IGP, or use "next-hop self" on the border router. This is the #1 IBGP gotcha.</p>
+    </div>
+    <div class="card">
+      <h4>5. Three RIBs, Three Phases</h4>
+      <p>Adj-RIB-In (received raw) → Loc-RIB (local best, in FIB) → Adj-RIB-Out (per-peer outbound). Import policy between 1→2, export policy between 2→3. Selection ≠ advertisement.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-green" style="margin-top:32px;">
+    <div class="callout-title">✅ You're Ready When You Can</div>
+    <p>Explain BGP in 1 minute without notes. Draw the RIB flow from memory. Trace the best-path steps from LOCAL_PREF to peer address. Explain why IBGP needs route reflectors. Describe three troubleshooting scenarios and their causes.</p>
+  </div>
+</div>
+
+</main>
+
+<!-- ─── CONTROLS ──────────────────────────────────── -->
+<div class="controls">
+  <button class="ctrl-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Top</button>
+  <button class="ctrl-btn" id="expandBtn" onclick="toggleAll()">Expand All</button>
+  <button class="ctrl-btn" onclick="window.print()">🖨 Print</button>
+</div>
+
+<script>
+// Toggle QA items
+function toggleQA(el) {
+  const answer = el.nextElementSibling;
+  answer.classList.toggle('open');
+}
+
+// Toggle path attribute items
+function toggleAttr(el) {
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// Flip flashcards
+function flipCard(card) {
+  const answer = card.querySelector('.fc-answer');
+  const tap = card.querySelector('.fc-tap');
+  answer.classList.toggle('visible');
+  tap.style.display = answer.classList.contains('visible') ? 'none' : 'block';
+}
+
+// Expand/collapse all details
+let allExpanded = false;
+function toggleAll() {
+  const details = document.querySelectorAll('details');
+  allExpanded = !allExpanded;
+  details.forEach(d => d.open = allExpanded);
+  document.getElementById('expandBtn').textContent = allExpanded ? 'Collapse All' : 'Expand All';
+}
+
+// Sidebar active link highlight on scroll
+const sections = document.querySelectorAll('.section[id], div[id]');
+const tocLinks = document.querySelectorAll('.toc-nav a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.toc-nav a[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
